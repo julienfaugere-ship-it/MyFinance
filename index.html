@@ -9,7 +9,7 @@
 <style>
   :root {
     --bg:#0d0f14; --surface:#161a23; --surface2:#1e2330; --border:#2a3045;
-    --accent:#5b8dee; --accent2:#f97316; --accent3:#22d3a5; --accent4:#a78bfa;
+    --accent:#5b8dee; --accent2:#f97316; --accent3:#22d3a5; --accent4:#a78bfa; --accent5:#fb7185;
     --text:#e8eaf0; --text-muted:#6b7390; --danger:#f43f5e;
     --card-radius:16px; --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif;
   }
@@ -65,7 +65,7 @@
   /* TABS */
   .tabs-container{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;overflow-x:auto;scrollbar-width:none;}
   .tabs-container::-webkit-scrollbar{display:none;}
-  .tab-btn{display:flex;align-items:center;gap:7px;padding:14px 18px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text-muted);font-family:var(--font-body);font-size:.9rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;}
+  .tab-btn{display:flex;align-items:center;gap:7px;padding:14px 16px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text-muted);font-family:var(--font-body);font-size:.88rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;}
   .tab-btn.active{color:var(--text);border-bottom-color:var(--accent);}
   .tab-btn:hover:not(.active){color:var(--text);}
 
@@ -82,12 +82,14 @@
   .summary-card.orange::before{background:var(--accent2);}
   .summary-card.green::before{background:var(--accent3);}
   .summary-card.purple::before{background:var(--accent4);}
+  .summary-card.pink::before{background:var(--accent5);}
   .summary-label{font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
   .summary-amount{font-family:var(--font-head);font-size:2rem;font-weight:800;letter-spacing:-1px;}
   .summary-amount.blue{color:var(--accent);}
   .summary-amount.orange{color:var(--accent2);}
   .summary-amount.green{color:var(--accent3);}
   .summary-amount.purple{color:var(--accent4);}
+  .summary-amount.pink{color:var(--accent5);}
   .summary-sub{font-size:.8rem;color:var(--text-muted);margin-top:4px;}
 
   /* FORM CARD */
@@ -97,10 +99,11 @@
   .form-row.with-month{grid-template-columns:1fr 90px auto auto;}
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
   .form-grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;}
-  input[type="text"],input[type="number"],select{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;width:100%;transition:border-color .2s;}
-  input::placeholder{color:var(--text-muted);}
-  input:focus,select:focus{border-color:var(--accent);}
+  input[type="text"],input[type="number"],select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;width:100%;transition:border-color .2s;}
+  input::placeholder,textarea::placeholder{color:var(--text-muted);}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);}
   select option{background:var(--surface2);}
+  textarea{resize:vertical;min-height:70px;line-height:1.5;}
   .btn{border:none;border-radius:10px;padding:10px 16px;font-family:var(--font-body);font-size:.9rem;font-weight:500;cursor:pointer;transition:transform .1s;white-space:nowrap;}
   .btn:active{transform:scale(.97);}
   .btn-add{background:var(--accent);color:#fff;}
@@ -156,7 +159,7 @@
   .month-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   .year-chip.active{background:var(--accent4);border-color:var(--accent4);}
 
-  /* ── SUIVI DÉPENSES SPÉCIFIQUE ── */
+  /* SUIVI DÉPENSES */
   .depense-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);margin-bottom:16px;overflow:hidden;}
   .depense-group-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .2s;}
   .depense-group-header:hover{background:var(--surface2);}
@@ -170,8 +173,6 @@
   .chevron.open{transform:rotate(180deg);}
   .depense-group-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
   .depense-group-body.open{display:block;}
-
-  /* PROGRESS BAR */
   .progress-section{margin-top:12px;}
   .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-muted);margin-bottom:6px;}
   .progress-bar-wrap{background:var(--surface2);border-radius:20px;height:8px;overflow:hidden;}
@@ -179,17 +180,11 @@
   .progress-bar.ok{background:var(--accent3);}
   .progress-bar.warn{background:var(--accent2);}
   .progress-bar.danger{background:var(--danger);}
-
-  /* STATS ROW */
   .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
   .stat-box{background:var(--surface2);border-radius:12px;padding:10px 12px;text-align:center;}
   .stat-label{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
   .stat-value{font-family:var(--font-head);font-size:.95rem;font-weight:700;}
-  .stat-value.up{color:var(--danger);}
-  .stat-value.down{color:var(--accent3);}
-  .stat-value.neutral{color:var(--accent);}
-
-  /* SUIVI ENTRIES */
+  .stat-value.up{color:var(--danger);} .stat-value.down{color:var(--accent3);} .stat-value.neutral{color:var(--accent);}
   .suivi-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
   .suivi-entry:last-child{border-bottom:none;}
   .suivi-entry-left{display:flex;flex-direction:column;gap:2px;}
@@ -200,16 +195,65 @@
   .badge.up{background:rgba(244,63,94,.12);color:var(--danger);}
   .badge.down{background:rgba(34,211,165,.12);color:var(--accent3);}
   .badge.neu{background:rgba(91,141,238,.12);color:var(--accent);}
-
-  /* YEAR FILTER */
   .year-filter{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
   .year-filter::-webkit-scrollbar{display:none;}
+
+  /* ════ NOTES / PENSE-BÊTE ════ */
+  .notes-toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+  .filter-chip{border:1px solid var(--border);background:var(--surface2);border-radius:20px;padding:5px 14px;font-size:.8rem;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .filter-chip.active{background:var(--accent5);border-color:var(--accent5);color:#fff;}
+
+  .note-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:20px;margin-bottom:20px;}
+  .note-form h3{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .note-form-fields{display:flex;flex-direction:column;gap:8px;}
+  .note-row-top{display:grid;grid-template-columns:1fr auto;gap:8px;}
+  .note-priority-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .prio-btn{border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:6px 14px;font-size:.8rem;cursor:pointer;font-family:var(--font-body);color:var(--text-muted);transition:all .2s;}
+  .prio-btn.selected-haute{background:rgba(244,63,94,.2);border-color:var(--danger);color:var(--danger);}
+  .prio-btn.selected-moyenne{background:rgba(249,115,22,.2);border-color:var(--accent2);color:var(--accent2);}
+  .prio-btn.selected-basse{background:rgba(34,211,165,.2);border-color:var(--accent3);color:var(--accent3);}
+  .cat-sel{flex:1;min-width:120px;}
+  .btn-add-note{background:var(--accent5);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:var(--font-body);font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;white-space:nowrap;}
+  .btn-add-note:hover{opacity:.9;}
+
+  /* NOTE CARD */
+  .notes-list{display:flex;flex-direction:column;gap:10px;}
+  .note-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;animation:fadeUp .25s ease;transition:border-color .2s;}
+  .note-card.done{opacity:.5;}
+  .note-card.prio-haute{border-left:3px solid var(--danger);}
+  .note-card.prio-moyenne{border-left:3px solid var(--accent2);}
+  .note-card.prio-basse{border-left:3px solid var(--accent3);}
+  .note-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .note-header-left{display:flex;align-items:flex-start;gap:10px;flex:1;}
+  .note-checkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;}
+  .note-checkbox.checked{background:var(--accent3);border-color:var(--accent3);}
+  .note-checkbox.checked::after{content:'✓';color:#0d0f14;font-size:.75rem;font-weight:800;}
+  .note-title{font-family:var(--font-head);font-size:.95rem;font-weight:700;line-height:1.3;}
+  .note-card.done .note-title{text-decoration:line-through;color:var(--text-muted);}
+  .note-actions{display:flex;gap:6px;flex-shrink:0;}
+  .btn-note-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:2px 4px;transition:color .2s;}
+  .btn-note-del:hover{color:var(--danger);}
+  .note-body{font-size:.85rem;color:var(--text-muted);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
+  .note-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .note-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .note-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
+  .note-tag.cat{background:rgba(251,113,133,.12);color:var(--accent5);}
+  .note-tag.prio-haute{background:rgba(244,63,94,.12);color:var(--danger);}
+  .note-tag.prio-moyenne{background:rgba(249,115,22,.12);color:var(--accent2);}
+  .note-tag.prio-basse{background:rgba(34,211,165,.12);color:var(--accent3);}
+  .note-date{font-size:.72rem;color:var(--text-muted);}
+
+  /* NOTES STATS */
+  .notes-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .notes-stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+  .notes-stat .ns-val{font-family:var(--font-head);font-size:1.6rem;font-weight:800;margin-bottom:2px;}
+  .notes-stat .ns-lbl{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
 
   /* BOTTOM NAV */
   .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding:6px 0 env(safe-area-inset-bottom);}
   .bottom-nav-inner{display:flex;justify-content:space-around;}
-  .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 8px;color:var(--text-muted);font-family:var(--font-body);font-size:.6rem;transition:color .2s;}
-  .bnav-btn .bnav-icon{font-size:1.3rem;}
+  .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-family:var(--font-body);font-size:.58rem;transition:color .2s;}
+  .bnav-btn .bnav-icon{font-size:1.25rem;}
   .bnav-btn.active{color:var(--accent);}
 
   @media(max-width:600px){
@@ -219,6 +263,8 @@
     .user-email{display:none;}
     .stats-row{grid-template-columns:1fr 1fr;}
     .form-grid-3{grid-template-columns:1fr 1fr;}
+    .notes-stats{grid-template-columns:1fr 1fr;}
+    .note-row-top{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -247,7 +293,6 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <!-- HEADER -->
@@ -262,11 +307,12 @@
 
 <!-- TABS -->
 <nav class="tabs-container" id="appTabs" style="display:none">
-  <button class="tab-btn active" onclick="showTab('dashboard')"    id="tab-dashboard">    <span>🏠</span> Tableau de bord</button>
-  <button class="tab-btn"        onclick="showTab('prelevements')" id="tab-prelevements"> <span>📅</span> Prélèvements</button>
-  <button class="tab-btn"        onclick="showTab('charges')"      id="tab-charges">      <span>⚡</span> Charges</button>
-  <button class="tab-btn"        onclick="showTab('revenus')"      id="tab-revenus">      <span>💶</span> Revenus</button>
-  <button class="tab-btn"        onclick="showTab('suivi')"        id="tab-suivi">        <span>🎯</span> Suivi dépenses</button>
+  <button class="tab-btn active" onclick="showTab('dashboard')"    id="tab-dashboard">    🏠 Bilan</button>
+  <button class="tab-btn"        onclick="showTab('prelevements')" id="tab-prelevements"> 📅 Prélèvements</button>
+  <button class="tab-btn"        onclick="showTab('charges')"      id="tab-charges">      ⚡ Charges</button>
+  <button class="tab-btn"        onclick="showTab('revenus')"      id="tab-revenus">      💶 Revenus</button>
+  <button class="tab-btn"        onclick="showTab('suivi')"        id="tab-suivi">        🎯 Suivi</button>
+  <button class="tab-btn"        onclick="showTab('notes')"        id="tab-notes">        📝 Notes</button>
 </nav>
 
 <main id="appMain" style="display:none">
@@ -293,8 +339,7 @@
       <div class="summary-amount blue" id="total-prel">0,00 €</div>
       <div class="summary-sub" id="count-prel">0 prélèvement(s)</div>
     </div>
-    <div class="form-card">
-      <h3>📅 Ajouter un prélèvement</h3>
+    <div class="form-card"><h3>📅 Ajouter un prélèvement</h3>
       <div class="form-row">
         <input type="text"   id="prel-name"   placeholder="Ex: Netflix, Assurance…">
         <input type="number" id="prel-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
@@ -312,8 +357,7 @@
       <div class="summary-amount orange" id="total-charges">0,00 €</div>
       <div class="summary-sub" id="count-charges">0 charge(s)</div>
     </div>
-    <div class="form-card">
-      <h3>⚡ Ajouter une charge</h3>
+    <div class="form-card"><h3>⚡ Ajouter une charge</h3>
       <div class="form-row with-month">
         <input type="text"   id="charge-name"   placeholder="Ex: EDF, Eau, Gaz…">
         <select id="charge-month">
@@ -339,8 +383,7 @@
       <div class="summary-amount green" id="total-revenus">0,00 €</div>
       <div class="summary-sub" id="count-revenus">0 revenu(s)</div>
     </div>
-    <div class="form-card">
-      <h3>💶 Ajouter un revenu</h3>
+    <div class="form-card"><h3>💶 Ajouter un revenu</h3>
       <div class="form-row">
         <input type="text"   id="rev-name"   placeholder="Ex: Salaire, Prime…">
         <input type="number" id="rev-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
@@ -353,18 +396,14 @@
 
   <!-- ══ SUIVI DÉPENSES ══ -->
   <div class="section" id="section-suivi">
-
     <div class="summary-card purple">
       <div class="summary-label">Total suivi — année en cours</div>
       <div class="summary-amount purple" id="total-suivi">0,00 €</div>
-      <div class="summary-sub" id="count-suivi">0 dépense(s) suivie(s)</div>
+      <div class="summary-sub" id="count-suivi">0 catégorie(s) suivie(s)</div>
     </div>
-
-    <!-- Formulaire ajout entrée -->
-    <div class="form-card">
-      <h3>🎯 Enregistrer une dépense</h3>
+    <div class="form-card"><h3>🎯 Enregistrer une dépense</h3>
       <div class="form-grid">
-        <input type="text" id="suivi-name" placeholder="Nom de la dépense (ex: Carburant)">
+        <input type="text"   id="suivi-name"   placeholder="Nom (ex: Carburant)">
         <input type="number" id="suivi-amount" placeholder="Montant €" step="0.01" min="0">
       </div>
       <div class="form-grid-3">
@@ -378,25 +417,63 @@
       </div>
       <button class="btn-full" onclick="addSuivi()">＋ Ajouter cette dépense</button>
     </div>
-
-    <!-- Filtre année -->
     <div class="year-filter" id="suivi-year-filter"></div>
+    <div id="suivi-groups"><div class="empty"><span class="emoji">🎯</span>Aucune dépense suivie</div></div>
+    <div class="chart-card" id="suivi-chart-card" style="display:none"><h3>📈 Évolution mensuelle</h3><div class="chart-wrap"><canvas id="chartSuivi"></canvas></div></div>
+    <div class="chart-card" id="suivi-annual-card" style="display:none"><h3>📊 Comparatif annuel</h3><div class="chart-wrap"><canvas id="chartSuiviAnnual"></canvas></div></div>
+  </div>
 
-    <!-- Liste groupée par nom de dépense -->
-    <div id="suivi-groups">
-      <div class="empty"><span class="emoji">🎯</span>Aucune dépense suivie pour l'instant</div>
+  <!-- ══ NOTES / PENSE-BÊTE ══ -->
+  <div class="section" id="section-notes">
+
+    <!-- Stats -->
+    <div class="notes-stats" id="notes-stats">
+      <div class="notes-stat"><div class="ns-val" id="ns-total" style="color:var(--accent5)">0</div><div class="ns-lbl">Total notes</div></div>
+      <div class="notes-stat"><div class="ns-val" id="ns-todo"  style="color:var(--accent2)">0</div><div class="ns-lbl">À faire</div></div>
+      <div class="notes-stat"><div class="ns-val" id="ns-done"  style="color:var(--accent3)">0</div><div class="ns-lbl">Faites ✓</div></div>
     </div>
 
-    <!-- Graphique évolution -->
-    <div class="chart-card" id="suivi-chart-card" style="display:none">
-      <h3>📈 Évolution mensuelle</h3>
-      <div class="chart-wrap"><canvas id="chartSuivi"></canvas></div>
+    <!-- Formulaire -->
+    <div class="note-form">
+      <h3>📝 Nouvelle note</h3>
+      <div class="note-form-fields">
+        <div class="note-row-top">
+          <input type="text" id="note-title" placeholder="Ex: Arrêter abonnement Canal+…">
+          <select id="note-cat" class="cat-sel">
+            <option value="Abonnement">📺 Abonnement</option>
+            <option value="Négociation">🤝 Négociation</option>
+            <option value="Économie">💰 Économie</option>
+            <option value="Banque">🏦 Banque</option>
+            <option value="Assurance">🛡️ Assurance</option>
+            <option value="Impôts">📋 Impôts</option>
+            <option value="Travaux">🔧 Travaux</option>
+            <option value="Autre">📌 Autre</option>
+          </select>
+        </div>
+        <textarea id="note-text" placeholder="Détails, numéro à appeler, montant à économiser… (optionnel)"></textarea>
+        <div class="note-priority-row">
+          <span style="font-size:.8rem;color:var(--text-muted)">Priorité :</span>
+          <button class="prio-btn selected-haute" id="prio-haute"   onclick="setPrio('haute')">🔴 Haute</button>
+          <button class="prio-btn"                id="prio-moyenne" onclick="setPrio('moyenne')">🟠 Moyenne</button>
+          <button class="prio-btn"                id="prio-basse"   onclick="setPrio('basse')">🟢 Basse</button>
+          <button class="btn-add-note" onclick="addNote()">＋ Ajouter</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Graphique annuel par catégorie -->
-    <div class="chart-card" id="suivi-annual-card" style="display:none">
-      <h3>📊 Comparatif annuel par dépense</h3>
-      <div class="chart-wrap"><canvas id="chartSuiviAnnual"></canvas></div>
+    <!-- Filtres -->
+    <div class="notes-toolbar" id="notes-toolbar">
+      <span class="filter-chip active" data-filter="all"     onclick="setNoteFilter('all')">Toutes</span>
+      <span class="filter-chip"        data-filter="todo"    onclick="setNoteFilter('todo')">À faire</span>
+      <span class="filter-chip"        data-filter="done"    onclick="setNoteFilter('done')">Faites</span>
+      <span class="filter-chip"        data-filter="haute"   onclick="setNoteFilter('haute')">🔴 Haute</span>
+      <span class="filter-chip"        data-filter="moyenne" onclick="setNoteFilter('moyenne')">🟠 Moyenne</span>
+      <span class="filter-chip"        data-filter="basse"   onclick="setNoteFilter('basse')">🟢 Basse</span>
+    </div>
+
+    <!-- Liste notes -->
+    <div class="notes-list" id="notes-list">
+      <div class="empty"><span class="emoji">📝</span>Aucune note pour l'instant</div>
     </div>
 
   </div>
@@ -411,73 +488,55 @@
     <button class="bnav-btn"        onclick="showTab('charges')"      id="bnav-charges">      <span class="bnav-icon">⚡</span>Charges</button>
     <button class="bnav-btn"        onclick="showTab('revenus')"      id="bnav-revenus">      <span class="bnav-icon">💶</span>Revenus</button>
     <button class="bnav-btn"        onclick="showTab('suivi')"        id="bnav-suivi">        <span class="bnav-icon">🎯</span>Suivi</button>
+    <button class="bnav-btn"        onclick="showTab('notes')"        id="bnav-notes">        <span class="bnav-icon">📝</span>Notes</button>
   </div>
 </nav>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot,query,orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,collection,addDoc,deleteDoc,updateDoc,doc,onSnapshot,query,orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,setPersistence,browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey:"AIzaSyApGZSp0yc12M8zn5eCGmkpbKeDyChLDv4",
-  authDomain:"myfinance-36fe2.firebaseapp.com",
-  projectId:"myfinance-36fe2",
-  storageBucket:"myfinance-36fe2.firebasestorage.app",
-  messagingSenderId:"806675583832",
-  appId:"1:806675583832:web:4792077fb24342f2654b2d"
-};
+const firebaseConfig={apiKey:"AIzaSyApGZSp0yc12M8zn5eCGmkpbKeDyChLDv4",authDomain:"myfinance-36fe2.firebaseapp.com",projectId:"myfinance-36fe2",storageBucket:"myfinance-36fe2.firebasestorage.app",messagingSenderId:"806675583832",appId:"1:806675583832:web:4792077fb24342f2654b2d"};
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const auth=getAuth(app);
 await setPersistence(auth,browserLocalPersistence);
 
-/* ── CONSTANTES ── */
 const MONTHS=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 const ICONS_PREL={netflix:'🎬',spotify:'🎵',amazon:'📦',assurance:'🛡️',mutuelle:'🏥',salle:'💪',téléphone:'📱',internet:'🌐',eau:'💧',électricité:'⚡',edf:'⚡',gaz:'🔥',loyer:'🏠',free:'📡',sfr:'📡',bouygues:'📡',orange:'📡'};
 const ICONS_CHARGE={edf:'⚡',électricité:'⚡',eau:'💧',gaz:'🔥',internet:'🌐',téléphone:'📱',courses:'🛒',chauffage:'🔥'};
 const ICONS_REV={salaire:'💼',prime:'🎯',freelance:'💻',retraite:'🏖️',allocations:'📋',loyer:'🏠',caf:'👶',dividende:'📈'};
 const ICONS_SUIVI={carburant:'⛽',essence:'⛽',voiture:'🚗',courses:'🛒',restaurant:'🍽️',loisirs:'🎮',sport:'💪',santé:'🏥',pharmacie:'💊',vêtements:'👔',voyage:'✈️',hôtel:'🏨',cadeaux:'🎁',abonnement:'📱',électronique:'💻',maison:'🏠',jardin:'🌿',animaux:'🐾',enfants:'👶',école:'📚'};
+const CAT_ICONS={'Abonnement':'📺','Négociation':'🤝','Économie':'💰','Banque':'🏦','Assurance':'🛡️','Impôts':'📋','Travaux':'🔧','Autre':'📌'};
 
 const nowDate=new Date();
 const nowYear=nowDate.getFullYear();
 document.getElementById('charge-month').value=MONTHS[nowDate.getMonth()];
 document.getElementById('suivi-month').value=MONTHS[nowDate.getMonth()];
-
-// Remplir sélecteur année (3 ans en arrière + 2 en avant)
 const selYear=document.getElementById('suivi-year');
-for(let y=nowYear-2;y<=nowYear+1;y++){
-  const o=document.createElement('option');
-  o.value=y; o.textContent=y;
-  if(y===nowYear) o.selected=true;
-  selYear.appendChild(o);
-}
+for(let y=nowYear-2;y<=nowYear+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===nowYear)o.selected=true;selYear.appendChild(o);}
 
 function getIcon(n,m){const l=n.toLowerCase();for(const k in m)if(l.includes(k))return m[k];return '💰';}
 function getSuiviIcon(n){const l=n.toLowerCase();for(const k in ICONS_SUIVI)if(l.includes(k))return ICONS_SUIVI[k];return '🎯';}
 function fmt(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function fmtPct(n){return (n>=0?'+':'')+n.toFixed(1)+'%';}
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function timeAgo(ts){const d=Date.now()-ts;if(d<60000)return 'À l\'instant';if(d<3600000)return Math.floor(d/60000)+'min';if(d<86400000)return Math.floor(d/3600000)+'h';if(d<604800000)return Math.floor(d/86400000)+'j';return new Date(ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
 
 let toastTimer;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2400);}
 function setSync(state){const d=document.getElementById('syncDot'),l=document.getElementById('syncLabel');d.className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');l.textContent=state==='syncing'?'Sync…':state==='error'?'Erreur':'✓ Sync';}
 
-/* ── ÉTAT ── */
-let data={prel:[],charges:[],revenus:[],suivi:[]};
+let data={prel:[],charges:[],revenus:[],suivi:[],notes:[]};
 let activeChargeMonth='Tous';
 let activeSuiviYear=String(nowYear);
+let activeNoteFilter='all';
+let selectedPrio='haute';
 let unsubscribers=[];
 
 /* ── AUTH UI ── */
 let authMode='login';
-window.switchAuthTab=function(mode){
-  authMode=mode;
-  document.getElementById('tabLogin').classList.toggle('active',mode==='login');
-  document.getElementById('tabRegister').classList.toggle('active',mode==='register');
-  document.getElementById('authSubmitBtn').textContent=mode==='login'?'Se connecter':'Créer mon compte';
-  document.getElementById('authError').classList.remove('show');
-};
+window.switchAuthTab=function(mode){authMode=mode;document.getElementById('tabLogin').classList.toggle('active',mode==='login');document.getElementById('tabRegister').classList.toggle('active',mode==='register');document.getElementById('authSubmitBtn').textContent=mode==='login'?'Se connecter':'Créer mon compte';document.getElementById('authError').classList.remove('show');};
 window.handleAuth=async function(){
   const email=document.getElementById('authEmail').value.trim();
   const password=document.getElementById('authPassword').value;
@@ -486,31 +545,21 @@ window.handleAuth=async function(){
   errEl.classList.remove('show');
   if(!email||!password){showAuthError('Remplis l\'email et le mot de passe.');return;}
   if(password.length<6){showAuthError('Le mot de passe doit faire au moins 6 caractères.');return;}
-  btn.textContent='…'; btn.disabled=true;
-  try{
-    if(authMode==='login') await signInWithEmailAndPassword(auth,email,password);
-    else await createUserWithEmailAndPassword(auth,email,password);
-  }catch(e){
-    btn.disabled=false;btn.textContent=authMode==='login'?'Se connecter':'Créer mon compte';
-    const msgs={'auth/user-not-found':'Aucun compte avec cet email.','auth/wrong-password':'Mot de passe incorrect.','auth/invalid-credential':'Email ou mot de passe incorrect.','auth/email-already-in-use':'Cet email est déjà utilisé.','auth/invalid-email':'Email invalide.','auth/too-many-requests':'Trop de tentatives. Réessaie plus tard.'};
-    showAuthError(msgs[e.code]||e.message);
-  }
+  btn.textContent='…';btn.disabled=true;
+  try{if(authMode==='login')await signInWithEmailAndPassword(auth,email,password);else await createUserWithEmailAndPassword(auth,email,password);}
+  catch(e){btn.disabled=false;btn.textContent=authMode==='login'?'Se connecter':'Créer mon compte';const msgs={'auth/user-not-found':'Aucun compte avec cet email.','auth/wrong-password':'Mot de passe incorrect.','auth/invalid-credential':'Email ou mot de passe incorrect.','auth/email-already-in-use':'Cet email est déjà utilisé.','auth/invalid-email':'Email invalide.','auth/too-many-requests':'Trop de tentatives. Réessaie plus tard.'};showAuthError(msgs[e.code]||e.message);}
 };
 function showAuthError(msg){const el=document.getElementById('authError');el.textContent=msg;el.classList.add('show');}
-window.handleLogout=async function(){unsubscribers.forEach(u=>u());unsubscribers=[];data={prel:[],charges:[],revenus:[],suivi:[]};await signOut(auth);};
+window.handleLogout=async function(){unsubscribers.forEach(u=>u());unsubscribers=[];data={prel:[],charges:[],revenus:[],suivi:[],notes:[]};await signOut(auth);};
 document.getElementById('authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')window.handleAuth();});
 document.getElementById('authEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('authPassword').focus();});
 
-/* ── SHOW/HIDE APP ── */
 function showApp(user){
   document.getElementById('authScreen').classList.remove('show');
-  document.getElementById('appHeader').style.display='flex';
-  document.getElementById('appTabs').style.display='flex';
-  document.getElementById('appMain').style.display='block';
-  document.getElementById('appBottomNav').style.display='block';
+  ['appHeader','appTabs'].forEach(id=>document.getElementById(id).style.display='flex');
+  ['appMain','appBottomNav'].forEach(id=>document.getElementById(id).style.display='block');
   document.getElementById('userEmail').textContent=user.email;
-  setSync('ok');
-  startListeners(user.uid);
+  setSync('ok');startListeners(user.uid);
   toast('👋 Bonjour '+user.email.split('@')[0]+' !');
 }
 function showAuthPage(){
@@ -520,7 +569,6 @@ function showAuthPage(){
   document.getElementById('authSubmitBtn').textContent='Se connecter';
 }
 
-/* ── NAV ── */
 window.showTab=function(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn,.bnav-btn').forEach(b=>b.classList.remove('active'));
@@ -529,17 +577,18 @@ window.showTab=function(id){
   if(tb)tb.classList.add('active');if(bb)bb.classList.add('active');
 };
 
-/* ── FIRESTORE ── */
 function col(uid,type){return collection(db,'users',uid,type);}
 async function fsAdd(uid,type,payload){setSync('syncing');try{await addDoc(col(uid,type),{...payload,createdAt:Date.now()});setSync('ok');}catch(e){setSync('error');toast('❌ '+e.message);}}
 async function fsDel(uid,type,docId){setSync('syncing');try{await deleteDoc(doc(db,'users',uid,type,docId));setSync('ok');toast('🗑 Supprimé');}catch(e){setSync('error');toast('❌ '+e.message);}}
+async function fsUpdate(uid,type,docId,payload){setSync('syncing');try{await updateDoc(doc(db,'users',uid,type,docId),payload);setSync('ok');}catch(e){setSync('error');toast('❌ '+e.message);}}
 
 function startListeners(uid){
-  unsubscribers.forEach(u=>u()); unsubscribers=[];
+  unsubscribers.forEach(u=>u());unsubscribers=[];
   unsubscribers.push(onSnapshot(query(col(uid,'prelevements'),orderBy('createdAt')),snap=>{data.prel=snap.docs.map(d=>({id:d.id,...d.data()}));renderPrel();refreshCharts();}));
   unsubscribers.push(onSnapshot(query(col(uid,'charges'),orderBy('createdAt')),snap=>{data.charges=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();}));
   unsubscribers.push(onSnapshot(query(col(uid,'revenus'),orderBy('createdAt')),snap=>{data.revenus=snap.docs.map(d=>({id:d.id,...d.data()}));renderRevenus();refreshCharts();}));
   unsubscribers.push(onSnapshot(query(col(uid,'suivi'),orderBy('createdAt')),snap=>{data.suivi=snap.docs.map(d=>({id:d.id,...d.data()}));renderSuivi();refreshSuiviCharts();}));
+  unsubscribers.push(onSnapshot(query(col(uid,'notes'),orderBy('createdAt','desc')),snap=>{data.notes=snap.docs.map(d=>({id:d.id,...d.data()}));renderNotes();}));
 }
 
 /* ── PRÉLÈVEMENTS ── */
@@ -558,243 +607,149 @@ window.addRevenu=async function(){const user=auth.currentUser;if(!user)return;co
 window.delRevenu=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'revenus',id);};
 function renderRevenus(){const total=data.revenus.reduce((s,x)=>s+x.amount,0);document.getElementById('total-revenus').textContent=fmt(total);document.getElementById('count-revenus').textContent=data.revenus.length+' revenu(s)';const ul=document.getElementById('list-revenus');if(!data.revenus.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun revenu</div></li>';return;}ul.innerHTML=data.revenus.map(x=>`<li class="item-row"><div class="item-left"><div class="item-icon green">${getIcon(x.name,ICONS_REV)}</div><div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">Mensuel</div></div></div><div class="item-right"><div class="item-amount green">${fmt(x.amount)}</div><button class="btn btn-del" onclick="delRevenu('${x.id}')">🗑</button></div></li>`).join('');}
 
-/* ════════════════════════════════════════
-   SUIVI DÉPENSES
-════════════════════════════════════════ */
-window.addSuivi=async function(){
-  const user=auth.currentUser; if(!user)return;
-  const name=document.getElementById('suivi-name').value.trim();
-  const amount=parseFloat(document.getElementById('suivi-amount').value);
-  const month=document.getElementById('suivi-month').value;
-  const year=parseInt(document.getElementById('suivi-year').value);
-  const budget=parseFloat(document.getElementById('suivi-budget').value)||0;
-  if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}
-  document.getElementById('suivi-name').value='';
-  document.getElementById('suivi-amount').value='';
-  document.getElementById('suivi-budget').value='';
-  await fsAdd(user.uid,'suivi',{name,amount,month,year,budget});
-  toast('✅ Dépense enregistrée');
-};
-
+/* ── SUIVI ── */
+window.addSuivi=async function(){const user=auth.currentUser;if(!user)return;const name=document.getElementById('suivi-name').value.trim();const amount=parseFloat(document.getElementById('suivi-amount').value);const month=document.getElementById('suivi-month').value;const year=parseInt(document.getElementById('suivi-year').value);const budget=parseFloat(document.getElementById('suivi-budget').value)||0;if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}document.getElementById('suivi-name').value='';document.getElementById('suivi-amount').value='';document.getElementById('suivi-budget').value='';await fsAdd(user.uid,'suivi',{name,amount,month,year,budget});toast('✅ Dépense enregistrée');};
 window.delSuivi=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'suivi',id);};
-
-window.setSuiviYear=function(y){
-  activeSuiviYear=y;
-  renderSuivi();
-  refreshSuiviCharts();
-};
-
-window.toggleGroup=function(key){
-  const body=document.getElementById('group-body-'+key);
-  const chev=document.getElementById('group-chev-'+key);
-  if(!body)return;
-  const open=body.classList.toggle('open');
-  chev.classList.toggle('open',open);
-};
+window.setSuiviYear=function(y){activeSuiviYear=y;renderSuivi();refreshSuiviCharts();};
+window.toggleGroup=function(key){const body=document.getElementById('group-body-'+key);const chev=document.getElementById('group-chev-'+key);if(!body)return;const open=body.classList.toggle('open');chev.classList.toggle('open',open);};
 
 function renderSuivi(){
-  // Résumé global année en cours
   const thisYear=data.suivi.filter(x=>String(x.year)===String(nowYear));
-  const totalYear=thisYear.reduce((s,x)=>s+x.amount,0);
-  document.getElementById('total-suivi').textContent=fmt(totalYear);
+  document.getElementById('total-suivi').textContent=fmt(thisYear.reduce((s,x)=>s+x.amount,0));
   document.getElementById('count-suivi').textContent=[...new Set(data.suivi.map(x=>x.name))].length+' catégorie(s) suivie(s)';
-
-  // Filtre années disponibles
   const years=[...new Set(data.suivi.map(x=>String(x.year)))].sort();
-  if(!years.includes(String(nowYear))) years.push(String(nowYear));
-  const yf=document.getElementById('suivi-year-filter');
-  yf.innerHTML=years.map(y=>`<span class="month-chip year-chip ${activeSuiviYear===y?'active':''}" onclick="setSuiviYear('${y}')">${y}</span>`).join('');
-
-  // Filtrer par année active
+  if(!years.includes(String(nowYear)))years.push(String(nowYear));
+  document.getElementById('suivi-year-filter').innerHTML=years.map(y=>`<span class="month-chip year-chip ${activeSuiviYear===y?'active':''}" onclick="setSuiviYear('${y}')">${y}</span>`).join('');
   const filtered=data.suivi.filter(x=>String(x.year)===activeSuiviYear);
-
-  // Grouper par nom
-  const groups={};
-  filtered.forEach(x=>{
-    if(!groups[x.name]) groups[x.name]={entries:[],budget:0};
-    groups[x.name].entries.push(x);
-    if(x.budget>groups[x.name].budget) groups[x.name].budget=x.budget;
-  });
-
+  const groups={};filtered.forEach(x=>{if(!groups[x.name])groups[x.name]={entries:[],budget:0};groups[x.name].entries.push(x);if(x.budget>groups[x.name].budget)groups[x.name].budget=x.budget;});
   const container=document.getElementById('suivi-groups');
-  if(!Object.keys(groups).length){
-    container.innerHTML='<div class="empty"><span class="emoji">🎯</span>Aucune dépense pour '+activeSuiviYear+'</div>';
+  if(!Object.keys(groups).length){container.innerHTML='<div class="empty"><span class="emoji">🎯</span>Aucune dépense pour '+activeSuiviYear+'</div>';return;}
+  container.innerHTML=Object.entries(groups).map(([name,g])=>{
+    const entries=g.entries.sort((a,b)=>MONTHS.indexOf(a.month)-MONTHS.indexOf(b.month));
+    const total=entries.reduce((s,x)=>s+x.amount,0);const budget=g.budget;const hasBudget=budget>0;
+    const pct=hasBudget?Math.min((total/budget)*100,100):0;const overBudget=hasBudget&&total>budget;const gain=hasBudget?budget-total:0;
+    const barClass=pct<60?'ok':pct<90?'warn':'danger';
+    const byMonth={};MONTHS.forEach(m=>byMonth[m]=0);entries.forEach(x=>byMonth[x.month]=(byMonth[x.month]||0)+x.amount);
+    const filledMonths=MONTHS.filter(m=>byMonth[m]>0);
+    let variationBadge='';if(filledMonths.length>=2){const last=byMonth[filledMonths[filledMonths.length-1]];const prev=byMonth[filledMonths[filledMonths.length-2]];const pctVar=prev>0?((last-prev)/prev)*100:0;const cls=pctVar>0?'up':pctVar<0?'down':'neu';variationBadge=`<span class="badge ${cls}">${pctVar>0?'▲':'▼'} ${Math.abs(pctVar).toFixed(0)}%</span>`;}
+    const avgMonthly=filledMonths.length>0?(total/filledMonths.length):0;
+    const entriesHtml=entries.map(e=>{const mIdx=MONTHS.indexOf(e.month);const prevM=mIdx>0?MONTHS[mIdx-1]:null;const prevEntry=prevM?entries.find(x=>x.month===prevM):null;let badge='';if(prevEntry){const pv=((e.amount-prevEntry.amount)/prevEntry.amount)*100;const cls=pv>0?'up':pv<0?'down':'neu';badge=`<span class="badge ${cls}">${pv>0?'▲':'▼'} ${Math.abs(pv).toFixed(0)}%</span>`;}return `<div class="suivi-entry"><div class="suivi-entry-left"><div class="item-name">${e.month} ${e.year}</div><div class="suivi-entry-date">${e.budget>0?'Budget : '+fmt(e.budget):''}</div></div><div class="suivi-entry-right">${badge}<div class="suivi-entry-amount">${fmt(e.amount)}</div><button class="btn btn-del" onclick="delSuivi('${e.id}')">🗑</button></div></div>`;}).join('');
+    const safeKey=name.replace(/[^a-zA-Z0-9]/g,'_');
+    return `<div class="depense-group"><div class="depense-group-header" onclick="toggleGroup('${safeKey}')"><div class="depense-group-title"><div class="depense-group-icon">${getSuiviIcon(name)}</div><div><div class="depense-group-name">${escHtml(name)}</div><div class="depense-group-sub">${entries.length} entrée(s) · moy. ${fmt(avgMonthly)}/mois</div></div></div><div class="depense-group-right">${variationBadge}<div class="depense-total">${fmt(total)}</div><div class="chevron" id="group-chev-${safeKey}">▼</div></div></div><div class="depense-group-body" id="group-body-${safeKey}">${hasBudget?`<div class="progress-section"><div class="progress-label"><span>Budget : ${fmt(budget)}</span><span>${overBudget?'⚠️ Dépassé de '+fmt(total-budget):'Reste : '+fmt(gain)} · ${Math.round((total/budget)*100)}%</span></div><div class="progress-bar-wrap"><div class="progress-bar ${barClass}" style="width:${Math.min((total/budget)*100,100)}%"></div></div></div>`:''}<div class="stats-row"><div class="stat-box"><div class="stat-label">Total ${activeSuiviYear}</div><div class="stat-value neutral">${fmt(total)}</div></div><div class="stat-box"><div class="stat-label">Moy. mensuelle</div><div class="stat-value neutral">${fmt(avgMonthly)}</div></div><div class="stat-box"><div class="stat-label">${hasBudget?(overBudget?'Dépassement':'Économie'):'Entrées'}</div><div class="stat-value ${hasBudget?(overBudget?'up':'down'):'neutral'}">${hasBudget?fmt(Math.abs(gain)):entries.length+' mois'}</div></div></div><div style="margin-top:12px">${entriesHtml}</div></div></div>`;
+  }).join('');
+}
+
+let chartSuivi=null,chartSuiviAnnual=null;
+function refreshSuiviCharts(){
+  const filtered=data.suivi.filter(x=>String(x.year)===activeSuiviYear);
+  const names=[...new Set(filtered.map(x=>x.name))];
+  const sc=document.getElementById('suivi-chart-card'),sac=document.getElementById('suivi-annual-card');
+  if(!filtered.length){sc.style.display='none';sac.style.display='none';return;}
+  sc.style.display='block';sac.style.display='block';
+  if(chartSuivi){chartSuivi.destroy();chartSuivi=null;}
+  chartSuivi=new Chart(document.getElementById('chartSuivi'),{type:'line',data:{labels:MONTHS,datasets:names.map((name,i)=>{const color=`hsl(${(260+i*(360/Math.max(names.length,1)))%360},70%,60%)`;return{label:name,data:MONTHS.map(m=>{const e=filtered.find(x=>x.name===name&&x.month===m);return e?e.amount:0;}),borderColor:color,backgroundColor:color.replace('60%)','60%,.12)').replace('hsl','hsla'),tension:.4,fill:false,pointRadius:4,pointBackgroundColor:color};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7390',font:{family:'DM Sans'},boxWidth:12}}},scales:{x:{ticks:{color:'#6b7390'},grid:{color:'#2a3045'}},y:{ticks:{color:'#6b7390',callback:v=>v+' €'},grid:{color:'#2a3045'},beginAtZero:true}}}});
+  if(chartSuiviAnnual){chartSuiviAnnual.destroy();chartSuiviAnnual=null;}
+  chartSuiviAnnual=new Chart(document.getElementById('chartSuiviAnnual'),{type:'bar',data:{labels:names,datasets:[{data:names.map(n=>filtered.filter(x=>x.name===n).reduce((s,x)=>s+x.amount,0)),backgroundColor:names.map((_,i)=>`hsl(${(260+i*(360/Math.max(names.length,1)))%360},70%,55%)`),borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b7390'},grid:{color:'#2a3045'}},y:{ticks:{color:'#6b7390',callback:v=>v+' €'},grid:{color:'#2a3045'},beginAtZero:true}}}});
+}
+
+/* ════════════════════════════════════════
+   📝 NOTES / PENSE-BÊTE
+════════════════════════════════════════ */
+window.setPrio=function(p){
+  selectedPrio=p;
+  ['haute','moyenne','basse'].forEach(x=>{
+    const btn=document.getElementById('prio-'+x);
+    btn.className='prio-btn'+(p===x?' selected-'+x:'');
+  });
+};
+
+window.addNote=async function(){
+  const user=auth.currentUser;if(!user)return;
+  const title=document.getElementById('note-title').value.trim();
+  const text=document.getElementById('note-text').value.trim();
+  const cat=document.getElementById('note-cat').value;
+  if(!title){toast('⚠️ Saisis un titre pour la note');return;}
+  document.getElementById('note-title').value='';
+  document.getElementById('note-text').value='';
+  await fsAdd(user.uid,'notes',{title,text,cat,priorite:selectedPrio,done:false});
+  toast('📝 Note ajoutée !');
+};
+
+window.delNote=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'notes',id);};
+
+window.toggleNote=async function(id,current){
+  const u=auth.currentUser;if(!u)return;
+  await fsUpdate(u.uid,'notes',id,{done:!current});
+  toast(!current?'✅ Note marquée comme faite !':'↩️ Note remise à faire');
+};
+
+window.setNoteFilter=function(f){
+  activeNoteFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(c=>{
+    c.classList.toggle('active',c.dataset.filter===f);
+  });
+  renderNotes();
+};
+
+function renderNotes(){
+  // Stats
+  const total=data.notes.length;
+  const done=data.notes.filter(x=>x.done).length;
+  const todo=total-done;
+  document.getElementById('ns-total').textContent=total;
+  document.getElementById('ns-todo').textContent=todo;
+  document.getElementById('ns-done').textContent=done;
+
+  // Filtre
+  let visible=data.notes;
+  if(activeNoteFilter==='todo')   visible=data.notes.filter(x=>!x.done);
+  else if(activeNoteFilter==='done')    visible=data.notes.filter(x=>x.done);
+  else if(activeNoteFilter==='haute')   visible=data.notes.filter(x=>x.priorite==='haute');
+  else if(activeNoteFilter==='moyenne') visible=data.notes.filter(x=>x.priorite==='moyenne');
+  else if(activeNoteFilter==='basse')   visible=data.notes.filter(x=>x.priorite==='basse');
+
+  const container=document.getElementById('notes-list');
+  if(!visible.length){
+    container.innerHTML='<div class="empty"><span class="emoji">📝</span>Aucune note'+(activeNoteFilter!=='all'?' dans ce filtre':' pour l\'instant')+'</div>';
     return;
   }
 
-  container.innerHTML=Object.entries(groups).map(([name,g])=>{
-    const entries=g.entries.sort((a,b)=>MONTHS.indexOf(a.month)-MONTHS.indexOf(b.month));
-    const total=entries.reduce((s,x)=>s+x.amount,0);
-    const budget=g.budget;
-    const hasBudget=budget>0;
-    const pct=hasBudget?Math.min((total/budget)*100,100):0;
-    const overBudget=hasBudget&&total>budget;
-    const gain=hasBudget?budget-total:0;
-    const barClass=pct<60?'ok':pct<90?'warn':'danger';
+  const PRIO_LABEL={haute:'🔴 Haute',moyenne:'🟠 Moyenne',basse:'🟢 Basse'};
 
-    // Calcul variation mois précédent
-    const mois=MONTHS;
-    const byMonth={};
-    mois.forEach(m=>byMonth[m]=0);
-    entries.forEach(x=>byMonth[x.month]=(byMonth[x.month]||0)+x.amount);
-
-    // Trouver variation entre les 2 derniers mois renseignés
-    const filledMonths=mois.filter(m=>byMonth[m]>0);
-    let variationBadge='';
-    if(filledMonths.length>=2){
-      const last=byMonth[filledMonths[filledMonths.length-1]];
-      const prev=byMonth[filledMonths[filledMonths.length-2]];
-      const pctVar=prev>0?((last-prev)/prev)*100:0;
-      const cls=pctVar>0?'up':pctVar<0?'down':'neu';
-      variationBadge=`<span class="badge ${cls}">${pctVar>0?'▲':'▼'} ${Math.abs(pctVar).toFixed(0)}%</span>`;
-    }
-
-    // Moyenne mensuelle
-    const avgMonthly=filledMonths.length>0?(total/filledMonths.length):0;
-
-    // Entrées détaillées
-    const entriesHtml=entries.map(e=>{
-      const mIdx=MONTHS.indexOf(e.month);
-      const prevM=mIdx>0?MONTHS[mIdx-1]:null;
-      const prevEntry=prevM?entries.find(x=>x.month===prevM):null;
-      let badge='';
-      if(prevEntry){
-        const pv=((e.amount-prevEntry.amount)/prevEntry.amount)*100;
-        const cls=pv>0?'up':pv<0?'down':'neu';
-        badge=`<span class="badge ${cls}">${pv>0?'▲':'▼'} ${Math.abs(pv).toFixed(0)}%</span>`;
-      }
-      return `<div class="suivi-entry">
-        <div class="suivi-entry-left">
-          <div class="item-name">${e.month} ${e.year}</div>
-          <div class="suivi-entry-date">${e.budget>0?'Budget : '+fmt(e.budget):''}</div>
+  container.innerHTML=visible.map(n=>{
+    const catIcon=CAT_ICONS[n.cat]||'📌';
+    return `<div class="note-card ${n.done?'done':''} prio-${n.priorite||'basse'}">
+      <div class="note-header">
+        <div class="note-header-left">
+          <div class="note-checkbox ${n.done?'checked':''}" onclick="toggleNote('${n.id}',${n.done})"></div>
+          <div class="note-title">${escHtml(n.title)}</div>
         </div>
-        <div class="suivi-entry-right">
-          ${badge}
-          <div class="suivi-entry-amount">${fmt(e.amount)}</div>
-          <button class="btn btn-del" onclick="delSuivi('${e.id}')">🗑</button>
-        </div>
-      </div>`;
-    }).join('');
-
-    const safeKey=name.replace(/[^a-zA-Z0-9]/g,'_');
-
-    return `<div class="depense-group">
-      <div class="depense-group-header" onclick="toggleGroup('${safeKey}')">
-        <div class="depense-group-title">
-          <div class="depense-group-icon">${getSuiviIcon(name)}</div>
-          <div>
-            <div class="depense-group-name">${escHtml(name)}</div>
-            <div class="depense-group-sub">${entries.length} entrée(s) · moy. ${fmt(avgMonthly)}/mois</div>
-          </div>
-        </div>
-        <div class="depense-group-right">
-          ${variationBadge}
-          <div class="depense-total">${fmt(total)}</div>
-          <div class="chevron" id="group-chev-${safeKey}">▼</div>
+        <div class="note-actions">
+          <button class="btn-note-del" onclick="delNote('${n.id}')">🗑</button>
         </div>
       </div>
-      <div class="depense-group-body" id="group-body-${safeKey}">
-        ${hasBudget?`
-        <div class="progress-section">
-          <div class="progress-label">
-            <span>Budget annuel : ${fmt(budget)}</span>
-            <span>${overBudget?'⚠️ Dépassé de '+fmt(total-budget):'Reste : '+fmt(gain)} · ${Math.round((total/budget)*100)}%</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar ${barClass}" style="width:${Math.min((total/budget)*100,100)}%"></div></div>
-        </div>`:''}
-        <div class="stats-row">
-          <div class="stat-box"><div class="stat-label">Total ${activeSuiviYear}</div><div class="stat-value neutral">${fmt(total)}</div></div>
-          <div class="stat-box"><div class="stat-label">Moy. mensuelle</div><div class="stat-value neutral">${fmt(avgMonthly)}</div></div>
-          <div class="stat-box"><div class="stat-label">${hasBudget?(overBudget?'Dépassement':'Économie'):'Entrées'}</div><div class="stat-value ${hasBudget?(overBudget?'up':'down'):'neutral'}">${hasBudget?fmt(Math.abs(gain)):entries.length+' mois'}</div></div>
+      ${n.text?`<div class="note-body">${escHtml(n.text)}</div>`:''}
+      <div class="note-footer">
+        <div class="note-tags">
+          <span class="note-tag cat">${catIcon} ${escHtml(n.cat||'Autre')}</span>
+          <span class="note-tag prio-${n.priorite||'basse'}">${PRIO_LABEL[n.priorite||'basse']}</span>
         </div>
-        <div style="margin-top:12px">${entriesHtml}</div>
+        <div class="note-date">${timeAgo(n.createdAt)}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-/* ── CHARTS SUIVI ── */
-let chartSuivi=null, chartSuiviAnnual=null;
-function refreshSuiviCharts(){
-  const filtered=data.suivi.filter(x=>String(x.year)===activeSuiviYear);
-  const names=[...new Set(filtered.map(x=>x.name))];
-
-  // Graphique évolution mensuelle (toutes catégories empilées)
-  const sc=document.getElementById('suivi-chart-card');
-  const sac=document.getElementById('suivi-annual-card');
-  if(!filtered.length){sc.style.display='none';sac.style.display='none';return;}
-  sc.style.display='block'; sac.style.display='block';
-
-  if(chartSuivi){chartSuivi.destroy();chartSuivi=null;}
-  const datasets=names.map((name,i)=>{
-    const color=`hsl(${(260+i*(360/Math.max(names.length,1)))%360},70%,60%)`;
-    return {
-      label:name,
-      data:MONTHS.map(m=>{const e=filtered.find(x=>x.name===name&&x.month===m);return e?e.amount:0;}),
-      borderColor:color,backgroundColor:color.replace('60%)','60%,.15)').replace('hsl','hsla'),
-      tension:.4,fill:false,pointRadius:4,pointBackgroundColor:color
-    };
-  });
-  chartSuivi=new Chart(document.getElementById('chartSuivi'),{
-    type:'line',
-    data:{labels:MONTHS,datasets},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7390',font:{family:'DM Sans'},boxWidth:12}}},scales:{x:{ticks:{color:'#6b7390'},grid:{color:'#2a3045'}},y:{ticks:{color:'#6b7390',callback:v=>v+' €'},grid:{color:'#2a3045'},beginAtZero:true}}}
-  });
-
-  // Graphique annuel (total par catégorie)
-  if(chartSuiviAnnual){chartSuiviAnnual.destroy();chartSuiviAnnual=null;}
-  const totals=names.map(name=>filtered.filter(x=>x.name===name).reduce((s,x)=>s+x.amount,0));
-  const colors=names.map((_,i)=>`hsl(${(260+i*(360/Math.max(names.length,1)))%360},70%,55%)`);
-  chartSuiviAnnual=new Chart(document.getElementById('chartSuiviAnnual'),{
-    type:'bar',
-    data:{labels:names,datasets:[{data:totals,backgroundColor:colors,borderRadius:8,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b7390'},grid:{color:'#2a3045'}},y:{ticks:{color:'#6b7390',callback:v=>v+' €'},grid:{color:'#2a3045'},beginAtZero:true}}}
-  });
-}
-
-/* ── DASHBOARD & CHARTS PRINCIPAUX ── */
-function refreshDashboard(){
-  const tP=data.prel.reduce((s,x)=>s+x.amount,0);
-  const tC=data.charges.reduce((s,x)=>s+x.amount,0);
-  const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
-  const sorties=tP+tC,solde=tR-sorties;
-  const el=document.getElementById('solde-hero');
-  el.textContent=(solde>=0?'+':'−')+fmt(Math.abs(solde));
-  el.className='solde '+(solde>=0?'pos':'neg');
-  document.getElementById('dash-revenus').textContent=fmt(tR);
-  document.getElementById('dash-sorties').textContent=fmt(sorties);
-  document.getElementById('solde-detail').textContent=`${fmt(tR)} revenus  −  ${fmt(tP)} prélèv.  −  ${fmt(tC)} charges`;
-}
-let charts={};
-const TICK='#6b7390',GRID='#2a3045',LEG={labels:{color:'#6b7390',font:{family:'DM Sans'},boxWidth:12}};
+/* ── DASHBOARD & CHARTS ── */
+function refreshDashboard(){const tP=data.prel.reduce((s,x)=>s+x.amount,0),tC=data.charges.reduce((s,x)=>s+x.amount,0),tR=data.revenus.reduce((s,x)=>s+x.amount,0),sorties=tP+tC,solde=tR-sorties;const el=document.getElementById('solde-hero');el.textContent=(solde>=0?'+':'−')+fmt(Math.abs(solde));el.className='solde '+(solde>=0?'pos':'neg');document.getElementById('dash-revenus').textContent=fmt(tR);document.getElementById('dash-sorties').textContent=fmt(sorties);document.getElementById('solde-detail').textContent=`${fmt(tR)} revenus  −  ${fmt(tP)} prélèv.  −  ${fmt(tC)} charges`;}
+let charts={};const TICK='#6b7390',GRID='#2a3045',LEG={labels:{color:'#6b7390',font:{family:'DM Sans'},boxWidth:12}};
 function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function genColors(n,h){return Array.from({length:n},(_,i)=>`hsl(${(h+i*(360/n))%360},70%,55%)`);}
-function refreshCharts(){
-  refreshDashboard();
-  const tP=data.prel.reduce((s,x)=>s+x.amount,0),tC=data.charges.reduce((s,x)=>s+x.amount,0),tR=data.revenus.reduce((s,x)=>s+x.amount,0);
-  dc('doughnut');if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges'],datasets:[{data:[tP,tC],backgroundColor:['#5b8dee','#f97316'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
-  dc('bar');charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(34,211,165,.75)','rgba(91,141,238,.75)','rgba(249,115,22,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID}}}}});
-  dc('prel');if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:genColors(data.prel.length,200),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
-  dc('charges');const cbm={};MONTHS.forEach(m=>cbm[m]=0);data.charges.forEach(x=>{if(cbm[x.month]!==undefined)cbm[x.month]+=x.amount;});charts['charges']=new Chart(document.getElementById('chartCharges'),{type:'line',data:{labels:MONTHS,datasets:[{label:'Charges',data:MONTHS.map(m=>cbm[m]),borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.1)',tension:.4,fill:true,pointBackgroundColor:'#f97316',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID},beginAtZero:true}}}});
-  dc('rev');if(data.revenus.length)charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:genColors(data.revenus.length,150),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
-}
+function refreshCharts(){refreshDashboard();const tP=data.prel.reduce((s,x)=>s+x.amount,0),tC=data.charges.reduce((s,x)=>s+x.amount,0),tR=data.revenus.reduce((s,x)=>s+x.amount,0);dc('doughnut');if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges'],datasets:[{data:[tP,tC],backgroundColor:['#5b8dee','#f97316'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});dc('bar');charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(34,211,165,.75)','rgba(91,141,238,.75)','rgba(249,115,22,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID}}}}});dc('prel');if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:genColors(data.prel.length,200),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});dc('charges');const cbm={};MONTHS.forEach(m=>cbm[m]=0);data.charges.forEach(x=>{if(cbm[x.month]!==undefined)cbm[x.month]+=x.amount;});charts['charges']=new Chart(document.getElementById('chartCharges'),{type:'line',data:{labels:MONTHS,datasets:[{label:'Charges',data:MONTHS.map(m=>cbm[m]),borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.1)',tension:.4,fill:true,pointBackgroundColor:'#f97316',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID},beginAtZero:true}}}});dc('rev');if(data.revenus.length)charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:genColors(data.revenus.length,150),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});}
 
-/* ── AUTH STATE ── */
-onAuthStateChanged(auth,user=>{
-  const loader=document.getElementById('loader');
-  loader.classList.add('hide');
-  setTimeout(()=>loader.style.display='none',400);
-  if(user) showApp(user); else showAuthPage();
-});
+onAuthStateChanged(auth,user=>{const loader=document.getElementById('loader');loader.classList.add('hide');setTimeout(()=>loader.style.display='none',400);if(user)showApp(user);else showAuthPage();});
 
-/* ── ENTER ── */
-document.addEventListener('keydown',e=>{
-  if(e.key!=='Enter')return;
-  const a=document.querySelector('.section.active');if(!a)return;
-  if(a.id==='section-prelevements')window.addPrel();
-  else if(a.id==='section-charges')window.addCharge();
-  else if(a.id==='section-revenus')window.addRevenu();
-});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const a=document.querySelector('.section.active');if(!a)return;if(a.id==='section-prelevements')window.addPrel();else if(a.id==='section-charges')window.addCharge();else if(a.id==='section-revenus')window.addRevenu();else if(a.id==='section-notes')window.addNote();});
 </script>
 </body>
 </html>
