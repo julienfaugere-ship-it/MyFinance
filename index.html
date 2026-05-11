@@ -271,6 +271,40 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 .note-card.done .note-title{text-decoration:line-through;color:var(--text-muted);}
 .btn-ndel{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:2px 4px;border-radius:6px;}
 .btn-ndel:hover{color:var(--danger);}
+
+/* REVENUS HISTORISES */
+.rev-group{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;box-shadow:var(--s1);}
+.rev-hdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:background .2s;min-width:0;}
+.rev-hdr:hover{background:var(--surface2);}
+.rev-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.rev-ico{width:38px;height:38px;border-radius:11px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.rev-name{font-family:var(--fh);font-size:.95rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rev-sub{font-size:.75rem;color:var(--text-muted);margin-top:1px;}
+.rev-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.rev-total{font-family:var(--fh);font-size:1.05rem;font-weight:800;color:#065f46;white-space:nowrap;}
+.rev-body{display:none;border-top:1.5px solid var(--border);}
+.rev-body.open{display:block;}
+.rev-chev{font-size:.8rem;color:var(--text-muted);transition:transform .25s;}
+.rev-chev.open{transform:rotate(180deg);}
+.rev-entry-form{padding:14px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
+.rev-entry-form .fw{display:flex;flex-direction:column;gap:4px;}
+.rev-entry-list{padding:0 16px 12px;}
+.rev-entry-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);min-width:0;}
+.rev-entry-row:last-child{border-bottom:none;}
+.rev-el{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px;}
+.rev-period{font-size:.84rem;font-weight:600;color:var(--text);}
+.rev-eamt{font-family:var(--fh);font-size:1.05rem;font-weight:800;color:#065f46;}
+.rev-enote{font-size:.75rem;color:var(--text-muted);font-style:italic;}
+.rev-er{display:flex;align-items:center;gap:6px;flex-shrink:0;padding-top:2px;}
+/* Mini cards bilan mois */
+.bilan-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.bilan-mini{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;}
+.bilan-mini-lbl{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:500;}
+.bilan-mini-amt{font-family:var(--fh);font-size:1rem;font-weight:800;}
+.bilan-mini-sub{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+/* Modale revenu */
+.modal-rev-ov{display:none;position:fixed;inset:0;background:rgba(15,32,68,.45);backdrop-filter:blur(4px);z-index:800;align-items:center;justify-content:center;padding:16px;}
+.modal-rev-ov.open{display:flex;}
 .note-body{font-size:.85rem;color:var(--text-soft);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
 .dl-banner{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;margin-bottom:10px;font-size:.82rem;font-weight:600;}
 .dl-banner.overdue{background:#fef2f2;color:var(--danger);border:1.5px solid #fecaca;}
@@ -365,13 +399,19 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 <div class="section active" id="section-dashboard">
   <div class="hero">
     <div class="foyer">🏠 Foyer Chaju</div>
-    <div class="lbl">Solde net du mois</div>
+    <div class="lbl">Solde net — <span id="bilan-mois-label">mois en cours</span></div>
     <div class="solde pos" id="solde-hero">0,00 €</div>
     <div class="sub" id="solde-detail">Revenus − Prélèvements − Charges</div>
   </div>
-  <div class="bal-row">
-    <div class="mini-card"><div class="mini-lbl">💶 Revenus</div><div class="mini-amt" style="color:#065f46" id="dash-rev">0,00 €</div></div>
-    <div class="mini-card"><div class="mini-lbl">📤 Sorties</div><div class="mini-amt" style="color:var(--danger)" id="dash-out">0,00 €</div></div>
+  <!-- Détail mois -->
+  <div class="fc" style="margin-bottom:16px;padding:16px 18px;">
+    <div style="font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">📅 Détail du mois</div>
+    <div class="bilan-grid">
+      <div class="bilan-mini"><div class="bilan-mini-lbl">💶 Revenus</div><div class="bilan-mini-amt" style="color:#065f46" id="dash-rev">0,00 €</div><div class="bilan-mini-sub" id="dash-rev-sub"></div></div>
+      <div class="bilan-mini"><div class="bilan-mini-lbl">📅 Prélèvements</div><div class="bilan-mini-amt" style="color:#1d4ed8" id="dash-prel">0,00 €</div><div class="bilan-mini-sub" id="dash-prel-sub"></div></div>
+      <div class="bilan-mini"><div class="bilan-mini-lbl">⚡ Charges</div><div class="bilan-mini-amt" style="color:var(--accent2)" id="dash-charges">0,00 €</div><div class="bilan-mini-sub" id="dash-charges-sub"></div></div>
+      <div class="bilan-mini"><div class="bilan-mini-lbl">📤 Total sorties</div><div class="bilan-mini-amt" style="color:var(--danger)" id="dash-out">0,00 €</div><div class="bilan-mini-sub" id="dash-out-sub"></div></div>
+    </div>
   </div>
   <div class="chart-card"><h3>📊 Répartition des dépenses</h3><div class="chart-wrap"><canvas id="chartDoughnut"></canvas></div></div>
   <div class="chart-card"><h3>📈 Vue d'ensemble</h3><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
@@ -447,16 +487,40 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 
 <!-- REVENUS -->
 <div class="section" id="section-revenus">
-  <div class="sum-card green"><div class="sum-lbl">Total revenus mensuels</div><div class="sum-amt" id="total-rev">0,00 €</div><div class="sum-sub" id="count-rev">0 revenu(s)</div></div>
-  <div class="fc"><h3>💶 Ajouter un revenu</h3>
-    <div class="form-row">
-      <input type="text" id="rev-name" placeholder="Ex: Salaire, Prime…">
-      <input type="number" id="rev-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
-      <button class="btn btn-add green" onclick="addRevenu()">＋</button>
+  <div class="sum-card green"><div class="sum-lbl">Total revenus — mois en cours</div><div class="sum-amt" id="total-rev">0,00 €</div><div class="sum-sub" id="count-rev">0 source(s)</div></div>
+
+  <!-- Ajouter une source de revenu -->
+  <div class="fc">
+    <h3>💶 Nouvelle source de revenu</h3>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="flex:1;min-width:140px;"><label class="fl">Nom</label><input type="text" id="rev-name" placeholder="Ex: Salaire Ju, Salaire Cha…"></div>
+      <div style="width:120px;"><label class="fl">Montant par defaut €</label><input type="number" id="rev-amount" placeholder="0,00" step="0.01" min="0"></div>
+      <button class="btn btn-add green" onclick="addRevenuCat()">+ Creer</button>
     </div>
   </div>
-  <div class="fc" style="padding:16px 20px"><ul class="item-list" id="list-rev"><li><div class="empty"><span class="emoji">⏳</span>Chargement…</div></li></ul></div>
-  <div class="chart-card"><h3>📊 Répartition des revenus</h3><div class="chart-wrap"><canvas id="chartRev"></canvas></div></div>
+
+  <!-- Groupes par source -->
+  <div id="rev-groups"><div class="empty"><span class="emoji">⏳</span>Chargement…</div></div>
+
+  <!-- Modale modifier une entree revenu -->
+  <div class="modal-rev-ov" id="modalRevEntry">
+    <div class="modal-box">
+      <div class="modal-title">✏️ Modifier ce revenu</div>
+      <input type="hidden" id="re-id">
+      <div class="modal-fields">
+        <div><label class="fl">Mois</label><select id="re-month"><option>Jan</option><option>Fev</option><option>Mar</option><option>Avr</option><option>Mai</option><option>Juin</option><option>Juil</option><option>Aou</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select></div>
+        <div><label class="fl">Annee</label><select id="re-year"></select></div>
+        <div><label class="fl">Montant €</label><input type="number" id="re-amount" placeholder="0,00" step="0.01" min="0"></div>
+        <div><label class="fl">Note (optionnel)</label><input type="text" id="re-note" placeholder="Ex: prime incluse…"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-mcancel" onclick="closeMRevEntry()">Annuler</button>
+        <button class="btn-msave" style="background:linear-gradient(135deg,#065f46,#059669)" onclick="saveRevEntry()">💾 Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:16px"><h3>📊 Evolution mensuelle des revenus</h3><div class="chart-wrap"><canvas id="chartRev"></canvas></div></div>
 </div>
 
 <!-- SUIVI -->
@@ -559,6 +623,13 @@ for (let y = nowY-2; y <= nowY+1; y++) {
   o.value = y; o.textContent = y; if (y === nowY) o.selected = true;
   selSY.appendChild(o);
 }
+// Sélecteur année modale revenu
+const selREY = document.getElementById('re-year');
+for (let y = nowY-2; y <= nowY+1; y++) {
+  const o = document.createElement('option');
+  o.value = y; o.textContent = y; if (y === nowY) o.selected = true;
+  selREY.appendChild(o);
+}
 
 function gi(n, m) { const l = n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); for (const k in m) if (l.includes(k)) return m[k]; return '💰'; }
 function fmt(n) { return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
@@ -584,7 +655,7 @@ function setSync(s) {
   l.textContent = s==='syncing'?'Sync…':s==='error'?'Erreur':'OK';
 }
 
-let data = {prel:[],charges:[],chargeEntries:[],revenus:[],suivi:[],notes:[]};
+let data = {prel:[],charges:[],chargeEntries:[],revenus:[],revenuEntries:[],suivi:[],notes:[]};
 let activeSuiviYear = String(nowY);
 let activeNoteFilter = 'all';
 let selectedPrio = 'haute';
@@ -617,7 +688,7 @@ window.handleAuth = async function() {
   }
 };
 function showAErr(m) { const el=document.getElementById('authError'); el.textContent=m; el.classList.add('show'); }
-window.handleLogout = async function() { unsubs.forEach(u=>u()); unsubs=[]; data={prel:[],charges:[],chargeEntries:[],revenus:[],suivi:[],notes:[]}; await signOut(auth); };
+window.handleLogout = async function() { unsubs.forEach(u=>u()); unsubs=[]; data={prel:[],charges:[],chargeEntries:[],revenus:[],revenuEntries:[],suivi:[],notes:[]}; await signOut(auth); };
 document.getElementById('authPassword').addEventListener('keydown', e => { if(e.key==='Enter') window.handleAuth(); });
 document.getElementById('authEmail').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('authPassword').focus(); });
 
@@ -670,6 +741,7 @@ function startListeners(uid) {
   unsubs.push(onSnapshot(query(col(uid,'charges'),orderBy('createdAt')),snap=>{data.charges=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'chargeEntries'),orderBy('createdAt')),snap=>{data.chargeEntries=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'revenus'),orderBy('createdAt')),snap=>{data.revenus=snap.docs.map(d=>({id:d.id,...d.data()}));renderRevenu();refreshCharts();}));
+  unsubs.push(onSnapshot(query(col(uid,'revenuEntries'),orderBy('createdAt')),snap=>{data.revenuEntries=snap.docs.map(d=>({id:d.id,...d.data()}));renderRevenu();refreshCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'suivi'),orderBy('createdAt')),snap=>{data.suivi=snap.docs.map(d=>({id:d.id,...d.data()}));renderSuivi();refreshSuiviCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'notes'),orderBy('createdAt','desc')),snap=>{data.notes=snap.docs.map(d=>({id:d.id,...d.data()}));renderNotes();}));
 }
@@ -857,21 +929,152 @@ function renderCharges() {
 }
 
 /* ── REVENUS ── */
-window.addRevenu = async function() {
+/* ══ REVENUS HISTORISES ══ */
+
+// Ajouter une source (catégorie) de revenu
+window.addRevenuCat = async function() {
   const u=auth.currentUser; if(!u) return;
-  const name=document.getElementById('rev-name').value.trim(), amount=parseFloat(document.getElementById('rev-amount').value);
-  if(!name||isNaN(amount)||amount<=0){toast('Remplis le nom et le montant');return;}
+  const name=document.getElementById('rev-name').value.trim();
+  const amount=parseFloat(document.getElementById('rev-amount').value);
+  if(!name||isNaN(amount)||amount<=0){toast('Remplis le nom et le montant par defaut');return;}
+  if(data.revenus.find(r=>r.name.toLowerCase()===name.toLowerCase())){toast('Cette source existe deja');return;}
   document.getElementById('rev-name').value=''; document.getElementById('rev-amount').value='';
   await fsAdd(u.uid,'revenus',{name,amount});
+  toast('Source creee !');
 };
-window.delRevenu = id => { const u=auth.currentUser; if(u) fsDel(u.uid,'revenus',id); };
+// Pour compat ancienne touche Entrée
+window.addRevenu = window.addRevenuCat;
+
+window.delRevenuCat = async function(catId) {
+  const u=auth.currentUser; if(!u) return;
+  if(!confirm('Supprimer cette source et tout son historique ?')) return;
+  const linked=data.revenuEntries.filter(e=>e.catId===catId);
+  for(const e of linked) await deleteDoc(doc(db,'users',u.uid,'revenuEntries',e.id));
+  await deleteDoc(doc(db,'users',u.uid,'revenus',catId));
+  toast('Source supprimee');
+};
+
+window.toggleRG = function(id) {
+  const b=document.getElementById('rgb-'+id), c=document.getElementById('rgc-'+id);
+  if(!b) return; const open=b.classList.toggle('open'); if(c) c.classList.toggle('open',open);
+};
+
+// Modale modifier/ajouter une entrée de revenu
+window.openMRevEntry = function(catId, entryId) {
+  document.getElementById('re-id').value = entryId || '';
+  document.getElementById('re-id').dataset.catId = catId;
+  // Pré-remplir
+  if (entryId) {
+    const e=data.revenuEntries.find(x=>x.id===entryId);
+    if(e){
+      document.getElementById('re-month').value=e.month||MONTHS[nowD.getMonth()];
+      document.getElementById('re-year').value=e.year||nowY;
+      document.getElementById('re-amount').value=e.amount||'';
+      document.getElementById('re-note').value=e.note||'';
+    }
+  } else {
+    // Nouvelle entrée : mois courant par défaut
+    const cat=data.revenus.find(r=>r.id===catId);
+    document.getElementById('re-month').value=MONTHS[nowD.getMonth()];
+    document.getElementById('re-year').value=nowY;
+    document.getElementById('re-amount').value=cat?cat.amount:'';
+    document.getElementById('re-note').value='';
+  }
+  document.getElementById('modalRevEntry').classList.add('open');
+};
+window.closeMRevEntry = function() { document.getElementById('modalRevEntry').classList.remove('open'); };
+window.saveRevEntry = async function() {
+  const u=auth.currentUser; if(!u) return;
+  const id=document.getElementById('re-id').value;
+  const catId=document.getElementById('re-id').dataset.catId;
+  const month=document.getElementById('re-month').value;
+  const year=parseInt(document.getElementById('re-year').value);
+  const amount=parseFloat(document.getElementById('re-amount').value);
+  const note=document.getElementById('re-note').value.trim();
+  if(!month||isNaN(year)||isNaN(amount)||amount<=0){toast('Remplis le mois, annee et montant');return;}
+  // Vérifier doublon mois/an pour cette catégorie
+  const existing=data.revenuEntries.find(e=>e.catId===catId&&e.month===month&&e.year===year&&e.id!==id);
+  if(existing){toast('Une entree existe deja pour ce mois/annee');return;}
+  if(id) {
+    await fsUpd(u.uid,'revenuEntries',id,{month,year,amount,note});
+    toast('Revenu modifie !');
+  } else {
+    await fsAdd(u.uid,'revenuEntries',{catId,month,year,amount,note});
+    toast('Revenu ajoute !');
+  }
+  window.closeMRevEntry();
+};
+document.getElementById('modalRevEntry').addEventListener('click',function(e){if(e.target===this)window.closeMRevEntry();});
+window.delRevenuEntry = async function(id) {
+  const u=auth.currentUser; if(!u) return;
+  await deleteDoc(doc(db,'users',u.uid,'revenuEntries',id)); toast('Supprime');
+};
+
 function renderRevenu() {
-  const total=data.revenus.reduce((s,x)=>s+x.amount,0);
-  document.getElementById('total-rev').textContent=fmt(total);
-  document.getElementById('count-rev').textContent=data.revenus.length+' revenu(s)';
-  const ul=document.getElementById('list-rev');
-  if(!data.revenus.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun revenu</div></li>';return;}
-  ul.innerHTML=data.revenus.map(x=>`<li class="item-row"><div class="item-left"><div class="item-icon green">${gi(x.name,IC_REV)}</div><div><div class="item-name">${esc(x.name)}</div><div class="item-meta">Mensuel</div></div></div><div class="item-right"><div class="item-amt green">${fmt(x.amount)}</div><button class="btn btn-del" onclick="delRevenu('${x.id}')">🗑</button></div></li>`).join('');
+  const cats=data.revenus;
+  // Total mois courant : pour chaque cat, entrée du mois courant OU montant par défaut
+  const curM=MONTHS[nowD.getMonth()], curY=nowY;
+  const totalMoisCourant=cats.reduce((s,cat)=>{
+    const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===curM&&r.year===curY);
+    return s+(e?e.amount:cat.amount);
+  },0);
+  document.getElementById('total-rev').textContent=fmt(totalMoisCourant);
+  document.getElementById('count-rev').textContent=cats.length+' source(s)';
+
+  const cont=document.getElementById('rev-groups');
+  if(!cats.length){cont.innerHTML='<div class="empty"><span class="emoji">📭</span>Aucune source — cree-en une ci-dessus !</div>';return;}
+
+  cont.innerHTML=cats.map(cat=>{
+    // Entrées triées par date décroissante
+    const allE=data.revenuEntries
+      .filter(e=>e.catId===cat.id)
+      .sort((a,b)=>(a.year!==b.year?b.year-a.year:MONTHS.indexOf(b.month)-MONTHS.indexOf(a.month)));
+    // Montant mois courant
+    const eC=allE.find(e=>e.month===curM&&e.year===curY);
+    const amtMoisC=eC?eC.amount:cat.amount;
+    // Total annuel
+    const totalAnn=allE.filter(e=>e.year===curY).reduce((s,e)=>s+e.amount,0);
+    const cnt=allE.length;
+
+    const eRows=allE.map(e=>`
+      <div class="rev-entry-row">
+        <div class="rev-el">
+          <div class="rev-period">${e.month} ${e.year}</div>
+          <div class="rev-eamt">${fmt(e.amount)}</div>
+          ${e.note?'<div class="rev-enote">💬 '+esc(e.note)+'</div>':''}
+        </div>
+        <div class="rev-er">
+          <button class="btn-edit-e" onclick="openMRevEntry('${cat.id}','${e.id}')" title="Modifier">✏️</button>
+          <button class="btn btn-del" onclick="delRevenuEntry('${e.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+
+    return `<div class="rev-group">
+      <div class="rev-hdr" onclick="toggleRG('${cat.id}')">
+        <div class="rev-left">
+          <div class="rev-ico">${gi(cat.name,IC_REV)}</div>
+          <div>
+            <div class="rev-name">${esc(cat.name)}</div>
+            <div class="rev-sub">${cnt} entree(s) — defaut ${fmt(cat.amount)}/mois</div>
+          </div>
+        </div>
+        <div class="rev-right">
+          <div class="rev-total">${fmt(amtMoisC)}</div>
+          <button class="btn-icon" onclick="event.stopPropagation();delRevenuCat('${cat.id}')">🗑</button>
+          <div class="rev-chev" id="rgc-${cat.id}">▼</div>
+        </div>
+      </div>
+      <div class="rev-body" id="rgb-${cat.id}">
+        <div class="rev-entry-list">
+          <div style="padding:12px 0 6px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.78rem;color:var(--text-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Historique</span>
+            <button class="btn btn-add green" style="padding:6px 14px;font-size:.82rem;" onclick="openMRevEntry('${cat.id}','')">+ Ajouter un mois</button>
+          </div>
+          ${allE.length?eRows:'<div class="empty" style="padding:10px 0 6px"><span class="emoji" style="font-size:1.4rem">📭</span>Aucune entree — montant par defaut utilise</div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ── SUIVI ── */
@@ -990,15 +1193,51 @@ function renderNotes() {
 
 /* ── DASHBOARD & CHARTS ── */
 function refreshDashboard() {
+  const curM=MONTHS[nowD.getMonth()], curY=nowY;
+  const curYM=curY+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  // Label du mois
+  const moisLabel=new Date(curY,nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const lbl=document.getElementById('bilan-mois-label');
+  if(lbl) lbl.textContent=moisLabel;
+
+  // REVENUS du mois courant : entrée saisie OU montant par défaut
+  const tR=data.revenus.reduce((s,cat)=>{
+    const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===curM&&r.year===curY);
+    return s+(e?e.amount:cat.amount);
+  },0);
+
+  // PRÉLÈVEMENTS : tous mensuels, on les compte tous
   const tP=data.prel.reduce((s,x)=>s+x.amount,0);
-  const tC=data.chargeEntries.reduce((s,x)=>s+x.amount,0);
-  const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
+
+  // CHARGES du mois courant uniquement
+  const tC=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM)).reduce((s,e)=>s+e.amount,0);
+
   const sorties=tP+tC, solde=tR-sorties;
   const el=document.getElementById('solde-hero');
   el.textContent=(solde>=0?'+':'−')+fmt(Math.abs(solde));
   el.className='solde '+(solde>=0?'pos':'neg');
+
+  const nRev=data.revenus.length, nPrel=data.prel.length;
+  const nCharges=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM)).length;
+
   document.getElementById('dash-rev').textContent=fmt(tR);
+  const sRevSub=document.getElementById('dash-rev-sub');
+  if(sRevSub) sRevSub.textContent=nRev+' source'+(nRev>1?'s':'');
+
+  const dPrel=document.getElementById('dash-prel');
+  if(dPrel) dPrel.textContent=fmt(tP);
+  const sPrelSub=document.getElementById('dash-prel-sub');
+  if(sPrelSub) sPrelSub.textContent=nPrel+' prelevement'+(nPrel>1?'s':'')+' mensuels';
+
+  const dC=document.getElementById('dash-charges');
+  if(dC) dC.textContent=fmt(tC);
+  const sCsub=document.getElementById('dash-charges-sub');
+  if(sCsub) sCsub.textContent=nCharges+' entree'+(nCharges>1?'s':'')+' ce mois';
+
   document.getElementById('dash-out').textContent=fmt(sorties);
+  const sOutSub=document.getElementById('dash-out-sub');
+  if(sOutSub) sOutSub.textContent=fmt(tP)+' prelev. + '+fmt(tC)+' charges';
+
   document.getElementById('solde-detail').textContent=fmt(tR)+' revenus — '+fmt(tP)+' prelev. — '+fmt(tC)+' charges';
 }
 let charts={};
@@ -1022,7 +1261,20 @@ function refreshCharts() {
   data.chargeEntries.forEach(x=>{ if(x.date){const m=MONTHS[new Date(x.date+'T12:00:00').getMonth()]; if(cbm[m]!==undefined) cbm[m]+=x.amount;} });
   charts['charges']=new Chart(document.getElementById('chartCharges'),{type:'line',data:{labels:MONTHS,datasets:[{label:'Charges',data:MONTHS.map(m=>cbm[m]),borderColor:'#ea580c',backgroundColor:'rgba(234,88,12,.1)',tension:.4,fill:true,pointBackgroundColor:'#ea580c',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TK},grid:{color:GR}},y:{ticks:{color:TK,callback:v=>v+' €'},grid:{color:GR},beginAtZero:true}}}});
   dc('rev');
-  if(data.revenus.length) charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:gc(data.revenus.length,140),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
+  // Graphique revenus : évolution mensuelle par source
+  dc('rev');
+  if(data.revenus.length&&data.revenuEntries.length){
+    const revDatasets=data.revenus.map((cat,i)=>{
+      const color='hsl('+(140+i*(200/Math.max(data.revenus.length,1)))%360+',55%,42%)';
+      return {label:cat.name,data:MONTHS.map(m=>{
+        const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===m&&r.year===nowY);
+        return e?e.amount:0;
+      }),borderColor:color,backgroundColor:color.replace('42%)','42%,.1)').replace('hsl','hsla'),tension:.4,fill:false,pointRadius:4,pointBackgroundColor:color};
+    });
+    charts['rev']=new Chart(document.getElementById('chartRev'),{type:'line',data:{labels:MONTHS,datasets:revDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG},scales:{x:{ticks:{color:TK},grid:{color:GR}},y:{ticks:{color:TK,callback:v=>v+' €'},grid:{color:GR},beginAtZero:true}}}});
+  } else if(data.revenus.length) {
+    charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:gc(data.revenus.length,140),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
+  }
 }
 
 /* ── AUTH STATE ── */
