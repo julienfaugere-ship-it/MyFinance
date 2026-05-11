@@ -238,6 +238,14 @@
   /* Bouton suppr catégorie */
   .btn-del-cat{background:none;border:none;color:var(--text-muted);font-size:.95rem;cursor:pointer;padding:4px;border-radius:8px;transition:color .2s;}
   .btn-del-cat:hover{color:var(--danger);}
+  /* Bouton éditer entrée */
+  .btn-edit-entry{background:none;border:none;color:var(--accent);font-size:.9rem;cursor:pointer;padding:4px;border-radius:8px;transition:color .2s;}
+  .btn-edit-entry:hover{color:#1d4ed8;}
+  /* Filtre mois charges */
+  .charge-month-bar{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+  .charge-month-bar::-webkit-scrollbar{display:none;}
+  /* Total mois dans le groupe */
+  .charge-month-total{font-size:.75rem;color:var(--text-muted);margin-top:1px;}
 
   /* Modale */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,32,68,.45);backdrop-filter:blur(4px);z-index:800;align-items:center;justify-content:center;padding:16px;}
@@ -508,6 +516,32 @@
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeChargeModal()">Annuler</button>
         <button class="btn-modal-save"   onclick="saveCatRename()">💾 Renommer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE ÉDITION ENTRÉE -->
+  <div class="modal-overlay" id="entryModal">
+    <div class="modal-box">
+      <div class="modal-title">✏️ Modifier l'entrée</div>
+      <input type="hidden" id="edit-entry-id">
+      <div class="modal-fields">
+        <div>
+          <label class="field-label">Date</label>
+          <input type="date" id="edit-entry-date">
+        </div>
+        <div>
+          <label class="field-label">Montant (€)</label>
+          <input type="number" id="edit-entry-amount" placeholder="0,00" step="0.01" min="0">
+        </div>
+        <div>
+          <label class="field-label">Note (optionnel)</label>
+          <input type="text" id="edit-entry-note" placeholder="Ex: plein complet…">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeEntryModal()">Annuler</button>
+        <button class="btn-modal-save"   onclick="saveEntryEdit()">💾 Enregistrer</button>
       </div>
     </div>
   </div>
@@ -795,10 +829,51 @@ window.toggleChargeGroup = function(catId) {
 };
 
 /* ── Render ── */
+/* ── Modale édition d'une entrée ── */
+window.openEntryModal = function(entryId) {
+  const e = chargeEntries.find(x => x.id === entryId); if (!e) return;
+  document.getElementById('edit-entry-id').value     = entryId;
+  document.getElementById('edit-entry-date').value   = e.date   || '';
+  document.getElementById('edit-entry-amount').value = e.amount || '';
+  document.getElementById('edit-entry-note').value   = e.note   || '';
+  document.getElementById('entryModal').classList.add('open');
+};
+window.closeEntryModal = function() {
+  document.getElementById('entryModal').classList.remove('open');
+};
+window.saveEntryEdit = async function() {
+  const u = auth.currentUser; if (!u) return;
+  const id     = document.getElementById('edit-entry-id').value;
+  const date   = document.getElementById('edit-entry-date').value;
+  const amount = parseFloat(document.getElementById('edit-entry-amount').value);
+  const note   = document.getElementById('edit-entry-note').value.trim();
+  if (!date || isNaN(amount) || amount <= 0) { toast('⚠️ Remplis la date et le montant'); return; }
+  await fsUpdate(u.uid, 'chargeEntries', id, { date, amount, note });
+  closeEntryModal();
+  toast('✏️ Entrée modifiée !');
+};
+document.getElementById('entryModal').addEventListener('click', function(e){ if(e.target===this) closeEntryModal(); });
+
+/* ── Filtre mois actif ── */
+let activeChargeMonthFilter = ''; // '' = mois courant
+
+function initChargeMonthFilter() {
+  const now = new Date();
+  // Format YYYY-MM pour comparer avec e.date
+  activeChargeMonthFilter = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+}
+initChargeMonthFilter();
+
+window.setChargeMonthFilter = function(ym) {
+  activeChargeMonthFilter = ym;
+  renderCharges();
+};
+
 function renderCharges() {
   const cats = data.charges;
-  // Calcul du total global à partir des entrées
-  const grandTotal = chargeEntries.reduce((s,e) => s + e.amount, 0);
+  // Calcul total du mois filtré
+  const filtered = chargeEntries.filter(e => !activeChargeMonthFilter || (e.date && e.date.startsWith(activeChargeMonthFilter)));
+  const grandTotal = filtered.reduce((s,e) => s + e.amount, 0);
   document.getElementById('total-charges').textContent = fmt(grandTotal);
   document.getElementById('count-charges').textContent = cats.length + ' catégorie(s)';
 
@@ -808,17 +883,38 @@ function renderCharges() {
     return;
   }
 
+  // Construire les chips de mois disponibles (à partir des dates saisies)
+  const allMonthsSet = new Set();
+  chargeEntries.forEach(e => { if (e.date && e.date.length >= 7) allMonthsSet.add(e.date.substring(0,7)); });
+  // Ajouter le mois courant même s'il n'a pas d'entrée
+  const now = new Date();
+  const currentYM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  allMonthsSet.add(currentYM);
+  const sortedMonths = [...allMonthsSet].sort().reverse(); // plus récent en premier
+
+  const chipsHtml = sortedMonths.map(ym => {
+    const [y, m] = ym.split('-');
+    const label = new Date(parseInt(y), parseInt(m)-1, 1).toLocaleDateString('fr-FR', { month:'short', year:'numeric' });
+    const active = activeChargeMonthFilter === ym;
+    return `<span class="month-chip ${active?'active':''}" onclick="setChargeMonthFilter('${ym}')">${label}</span>`;
+  }).join('');
+
   // Date du jour pour le champ date par défaut
   const todayISO = new Date().toISOString().split('T')[0];
 
-  container.innerHTML = cats.map(cat => {
-    const entries = chargeEntries
+  container.innerHTML = `
+    <div class="charge-month-bar">${chipsHtml}</div>
+    ` + cats.map(cat => {
+    // Entrées du mois filtré pour cette catégorie
+    const allEntries = chargeEntries
       .filter(e => e.catId === cat.id)
-      .sort((a,b) => a.date < b.date ? 1 : -1); // plus récent en premier
-    const catTotal = entries.reduce((s,e) => s + e.amount, 0);
-    const count    = entries.length;
+      .sort((a,b) => a.date < b.date ? 1 : -1);
+    const visibleEntries = allEntries.filter(e => !activeChargeMonthFilter || (e.date && e.date.startsWith(activeChargeMonthFilter)));
+    const catTotalMois  = visibleEntries.reduce((s,e) => s + e.amount, 0);
+    const catTotalAll   = allEntries.reduce((s,e) => s + e.amount, 0);
+    const count = visibleEntries.length;
 
-    const entriesHtml = entries.map(e => `
+    const entriesHtml = visibleEntries.map(e => `
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-date">📅 ${formatEntryDate(e.date)}</div>
@@ -826,7 +922,8 @@ function renderCharges() {
           ${e.note ? `<div class="entry-note">💬 ${escHtml(e.note)}</div>` : ''}
         </div>
         <div class="entry-right">
-          <button class="btn btn-del" onclick="delChargeEntry('${e.id}')">🗑</button>
+          <button class="btn-edit-entry" onclick="openEntryModal('${e.id}')" title="Modifier">✏️</button>
+          <button class="btn btn-del"    onclick="delChargeEntry('${e.id}')">🗑</button>
         </div>
       </div>`).join('');
 
@@ -837,18 +934,17 @@ function renderCharges() {
             <div class="charge-group-icon">${getIcon(cat.name, ICONS_CHARGE)}</div>
             <div>
               <div class="charge-group-name">${escHtml(cat.name)}</div>
-              <div class="charge-group-sub">${count} entrée${count>1?'s':''} · cumulé</div>
+              <div class="charge-group-sub">${count} entrée${count>1?'s':''} ce mois · cumul ${fmt(catTotalAll)}</div>
             </div>
           </div>
           <div class="charge-group-right">
-            <div class="charge-group-total">${fmt(catTotal)}</div>
+            <div class="charge-group-total">${fmt(catTotalMois)}</div>
             <button class="btn-del-cat" onclick="event.stopPropagation();openChargeModal('${cat.id}')" title="Renommer">✏️</button>
             <button class="btn-del-cat" onclick="event.stopPropagation();delChargeCat('${cat.id}')" title="Supprimer">🗑</button>
             <div class="charge-group-chevron" id="cg-chev-${cat.id}">▼</div>
           </div>
         </div>
         <div class="charge-group-body" id="cg-body-${cat.id}">
-          <!-- Formulaire ajout entrée -->
           <div class="entry-add-form">
             <div class="field-wrap fw-date">
               <label class="field-label">Date</label>
@@ -864,9 +960,10 @@ function renderCharges() {
             </div>
             <button class="btn-entry-add" onclick="addChargeEntry('${cat.id}')">＋ Ajouter</button>
           </div>
-          <!-- Entrées existantes -->
           <div class="entry-list">
-            ${entries.length ? entriesHtml : '<div class="empty" style="padding:16px 0 8px"><span class="emoji" style="font-size:1.5rem">📭</span>Aucune entrée</div>'}
+            ${visibleEntries.length
+              ? entriesHtml
+              : '<div class="empty" style="padding:16px 0 8px"><span class="emoji" style="font-size:1.5rem">📭</span>Aucune entrée ce mois</div>'}
           </div>
         </div>
       </div>`;
