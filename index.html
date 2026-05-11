@@ -16,57 +16,73 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--bg); color:var(--text); font-family:var(--font-body); min-height:100vh; overflow-x:hidden; }
 
-  /* LOADER */
-  #loader {
-    position:fixed; inset:0; background:var(--bg);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    z-index:999; gap:16px; transition:opacity .4s;
-  }
+  /* ── LOADER ── */
+  #loader { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:16px; transition:opacity .4s; }
   #loader.hide { opacity:0; pointer-events:none; }
   .loader-logo { font-family:var(--font-head); font-size:2.2rem; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
   .spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
   .loader-text { color:var(--text-muted); font-size:.85rem; }
 
-  /* TOAST */
-  #toast {
-    position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px);
-    background:var(--surface2); border:1px solid var(--border); border-radius:20px;
-    padding:9px 22px; font-size:.84rem; color:var(--text);
-    opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; z-index:500; white-space:nowrap;
+  /* ── ÉCRAN AUTH ── */
+  #authScreen {
+    display:none; position:fixed; inset:0; background:var(--bg);
+    align-items:center; justify-content:center; z-index:998; padding:20px;
   }
+  #authScreen.show { display:flex; }
+  .auth-box {
+    background:var(--surface); border:1px solid var(--border); border-radius:24px;
+    padding:36px 28px; width:100%; max-width:380px;
+  }
+  .auth-logo { font-family:var(--font-head); font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-align:center; margin-bottom:6px; }
+  .auth-logo span { -webkit-text-fill-color:var(--accent2); }
+  .auth-subtitle { text-align:center; color:var(--text-muted); font-size:.85rem; margin-bottom:28px; }
+  .auth-tabs { display:flex; background:var(--surface2); border-radius:12px; padding:4px; margin-bottom:24px; }
+  .auth-tab { flex:1; text-align:center; padding:9px; border-radius:9px; cursor:pointer; font-size:.88rem; font-weight:500; color:var(--text-muted); transition:all .2s; border:none; background:none; font-family:var(--font-body); }
+  .auth-tab.active { background:var(--accent); color:#fff; }
+  .auth-field { margin-bottom:14px; }
+  .auth-field label { display:block; font-size:.78rem; color:var(--text-muted); margin-bottom:6px; letter-spacing:.05em; text-transform:uppercase; }
+  .auth-field input { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-family:var(--font-body); font-size:.95rem; outline:none; width:100%; transition:border-color .2s; }
+  .auth-field input:focus { border-color:var(--accent); }
+  .auth-field input::placeholder { color:var(--text-muted); }
+  .auth-btn { width:100%; padding:13px; border:none; border-radius:12px; background:var(--accent); color:#fff; font-family:var(--font-head); font-size:1rem; font-weight:700; cursor:pointer; margin-top:8px; transition:opacity .2s,transform .1s; }
+  .auth-btn:hover { opacity:.9; }
+  .auth-btn:active { transform:scale(.98); }
+  .auth-error { background:rgba(244,63,94,.1); border:1px solid rgba(244,63,94,.3); border-radius:10px; padding:10px 14px; color:var(--danger); font-size:.84rem; margin-top:12px; display:none; }
+  .auth-error.show { display:block; }
+
+  /* ── TOAST ── */
+  #toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:9px 22px; font-size:.84rem; color:var(--text); opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; z-index:500; white-space:nowrap; }
   #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-  /* HEADER */
-  header {
-    background:var(--surface); border-bottom:1px solid var(--border);
-    padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
-    position:sticky; top:0; z-index:100;
-  }
-  .logo { font-family:var(--font-head); font-size:1.5rem; font-weight:800; letter-spacing:-1px; background:linear-gradient(135deg,var(--accent),var(--accent3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  /* ── HEADER ── */
+  header { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+  .logo { font-family:var(--font-head); font-size:1.4rem; font-weight:800; letter-spacing:-1px; background:linear-gradient(135deg,var(--accent),var(--accent3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
   .logo span { -webkit-text-fill-color:var(--accent2); }
   .header-right { display:flex; align-items:center; gap:10px; }
-  .sync-indicator { display:flex; align-items:center; gap:6px; font-size:.75rem; color:var(--text-muted); }
+  .sync-indicator { display:flex; align-items:center; gap:5px; font-size:.75rem; color:var(--text-muted); }
   .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--accent3); box-shadow:0 0 6px var(--accent3); flex-shrink:0; }
   .sync-dot.syncing { background:var(--accent2); box-shadow:0 0 6px var(--accent2); animation:pulse .9s infinite; }
   .sync-dot.error   { background:var(--danger);  box-shadow:0 0 6px var(--danger); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .header-date { font-size:.78rem; color:var(--text-muted); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+  .user-email { font-size:.75rem; color:var(--text-muted); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .btn-logout { background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; color:var(--text-muted); font-size:.75rem; cursor:pointer; font-family:var(--font-body); transition:all .2s; }
+  .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-  /* TABS */
+  /* ── TABS ── */
   .tabs-container { background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px; display:flex; overflow-x:auto; scrollbar-width:none; }
   .tabs-container::-webkit-scrollbar { display:none; }
   .tab-btn { display:flex; align-items:center; gap:7px; padding:14px 18px; background:none; border:none; border-bottom:3px solid transparent; color:var(--text-muted); font-family:var(--font-body); font-size:.9rem; font-weight:500; cursor:pointer; white-space:nowrap; transition:color .2s,border-color .2s; }
   .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); }
   .tab-btn:hover:not(.active) { color:var(--text); }
 
-  /* MAIN */
+  /* ── MAIN ── */
   main { padding:20px 16px 80px; max-width:680px; margin:0 auto; }
   .section { display:none; animation:fadeUp .3s ease; }
   .section.active { display:block; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-  /* SUMMARY CARD */
+  /* ── SUMMARY CARD ── */
   .summary-card { background:linear-gradient(135deg,var(--surface2),var(--surface)); border:1px solid var(--border); border-radius:var(--card-radius); padding:20px; margin-bottom:20px; position:relative; overflow:hidden; }
   .summary-card::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; opacity:.07; }
   .summary-card.blue::before   { background:var(--accent); }
@@ -79,7 +95,7 @@
   .summary-amount.green  { color:var(--accent3); }
   .summary-sub { font-size:.8rem; color:var(--text-muted); margin-top:4px; }
 
-  /* FORM CARD */
+  /* ── FORM CARD ── */
   .form-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--card-radius); padding:20px; margin-bottom:20px; }
   .form-card h3 { font-family:var(--font-head); font-size:1rem; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .form-row { display:grid; grid-template-columns:1fr auto auto; gap:8px; }
@@ -95,7 +111,7 @@
   .btn-add.green  { background:var(--accent3); color:#0d0f14; }
   .btn-del { background:var(--surface2); border:1px solid var(--border); color:var(--danger); width:36px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1rem; }
 
-  /* LIST */
+  /* ── LIST ── */
   .item-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
   .item-row { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; animation:fadeUp .2s ease; }
   .item-left { display:flex; align-items:center; gap:10px; }
@@ -111,12 +127,12 @@
   .item-amount.orange { color:var(--accent2); }
   .item-amount.green  { color:var(--accent3); }
 
-  /* CHARTS */
+  /* ── CHARTS ── */
   .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--card-radius); padding:20px; margin-bottom:20px; }
   .chart-card h3 { font-family:var(--font-head); font-size:1rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
   .chart-wrap { position:relative; height:220px; }
 
-  /* DASHBOARD */
+  /* ── DASHBOARD ── */
   .balance-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
   .mini-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; }
   .mini-label { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
@@ -124,21 +140,20 @@
   .bilan-hero { background:linear-gradient(135deg,#1b2035,#1a2a1e); border:1px solid var(--border); border-radius:var(--card-radius); padding:24px 20px; margin-bottom:20px; text-align:center; }
   .bilan-hero .label { font-size:.8rem; color:var(--text-muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
   .bilan-hero .solde { font-family:var(--font-head); font-size:2.8rem; font-weight:800; letter-spacing:-2px; }
-  .solde.pos { color:var(--accent3); }
-  .solde.neg { color:var(--danger); }
+  .solde.pos { color:var(--accent3); } .solde.neg { color:var(--danger); }
   .bilan-hero .sublabel { font-size:.8rem; color:var(--text-muted); margin-top:6px; }
 
-  /* EMPTY */
+  /* ── EMPTY ── */
   .empty { text-align:center; padding:30px 20px; color:var(--text-muted); font-size:.9rem; }
   .empty .emoji { font-size:2rem; display:block; margin-bottom:8px; }
 
-  /* MONTH FILTER */
+  /* ── MONTH FILTER ── */
   .month-filter { display:flex; gap:8px; margin-bottom:16px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
   .month-filter::-webkit-scrollbar { display:none; }
   .month-chip { border:1px solid var(--border); background:var(--surface2); border-radius:20px; padding:5px 14px; font-size:.8rem; color:var(--text-muted); cursor:pointer; white-space:nowrap; transition:all .2s; }
   .month-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-  /* BOTTOM NAV */
+  /* ── BOTTOM NAV ── */
   .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border); z-index:200; padding:8px 0 env(safe-area-inset-bottom); }
   .bottom-nav-inner { display:flex; justify-content:space-around; }
   .bnav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; cursor:pointer; padding:4px 12px; color:var(--text-muted); font-family:var(--font-body); font-size:.65rem; transition:color .2s; }
@@ -149,7 +164,8 @@
     .tabs-container { display:none; }
     .bottom-nav { display:block; }
     .form-row.with-month { grid-template-columns:1fr 80px auto auto; }
-    .sync-indicator span { display:none; }
+    .user-email { display:none; }
+    .sync-indicator span:not(.sync-dot) { display:none; }
   }
 </style>
 </head>
@@ -157,35 +173,58 @@
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-logo">MyFinance</div>
+  <div class="loader-logo">My<span style="-webkit-text-fill-color:var(--accent2)">Finance</span></div>
   <div class="spinner"></div>
-  <div class="loader-text" id="loaderText">Connexion à Firebase…</div>
+  <div class="loader-text" id="loaderText">Chargement…</div>
+</div>
+
+<!-- ÉCRAN CONNEXION / INSCRIPTION -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">My<span>Finance</span></div>
+    <div class="auth-subtitle">Vos finances, partout avec vous</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin"    onclick="switchAuthTab('login')">Connexion</button>
+      <button class="auth-tab"        id="tabRegister" onclick="switchAuthTab('register')">Créer un compte</button>
+    </div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="authEmail" placeholder="votre@email.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label>Mot de passe</label>
+      <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="auth-btn" id="authSubmitBtn" onclick="handleAuth()">Se connecter</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
 </div>
 
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- HEADER -->
-<header>
+<!-- HEADER APP -->
+<header id="appHeader" style="display:none">
   <div class="logo">My<span>Finance</span></div>
   <div class="header-right">
     <div class="sync-indicator">
       <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Synchronisé</span>
+      <span id="syncLabel">Sync</span>
     </div>
-    <div class="header-date" id="headerDate"></div>
+    <span class="user-email" id="userEmail"></span>
+    <button class="btn-logout" onclick="handleLogout()">Déconnexion</button>
   </div>
 </header>
 
-<!-- TABS DESKTOP -->
-<nav class="tabs-container">
-  <button class="tab-btn active" onclick="showTab('dashboard')"    id="tab-dashboard">    <span class="tab-icon">🏠</span> Tableau de bord</button>
-  <button class="tab-btn"        onclick="showTab('prelevements')" id="tab-prelevements"> <span class="tab-icon">📅</span> Prélèvements</button>
-  <button class="tab-btn"        onclick="showTab('charges')"      id="tab-charges">      <span class="tab-icon">⚡</span> Charges</button>
-  <button class="tab-btn"        onclick="showTab('revenus')"      id="tab-revenus">      <span class="tab-icon">💶</span> Revenus</button>
+<!-- TABS -->
+<nav class="tabs-container" id="appTabs" style="display:none">
+  <button class="tab-btn active" onclick="showTab('dashboard')"    id="tab-dashboard">    <span>🏠</span> Tableau de bord</button>
+  <button class="tab-btn"        onclick="showTab('prelevements')" id="tab-prelevements"> <span>📅</span> Prélèvements</button>
+  <button class="tab-btn"        onclick="showTab('charges')"      id="tab-charges">      <span>⚡</span> Charges</button>
+  <button class="tab-btn"        onclick="showTab('revenus')"      id="tab-revenus">      <span>💶</span> Revenus</button>
 </nav>
 
-<main>
+<main id="appMain" style="display:none">
 
   <!-- DASHBOARD -->
   <div class="section active" id="section-dashboard">
@@ -200,7 +239,7 @@
         <div class="mini-amount" style="color:var(--accent3)" id="dash-revenus">0,00 €</div>
       </div>
       <div class="mini-card">
-        <div class="mini-label">📤 Sorties totales</div>
+        <div class="mini-label">📤 Sorties</div>
         <div class="mini-amount" style="color:var(--danger)" id="dash-sorties">0,00 €</div>
       </div>
     </div>
@@ -295,7 +334,7 @@
 </main>
 
 <!-- BOTTOM NAV MOBILE -->
-<nav class="bottom-nav">
+<nav class="bottom-nav" id="appBottomNav" style="display:none">
   <div class="bottom-nav-inner">
     <button class="bnav-btn active" onclick="showTab('dashboard')"    id="bnav-dashboard">    <span class="bnav-icon">🏠</span>Bilan</button>
     <button class="bnav-btn"        onclick="showTab('prelevements')" id="bnav-prelevements"> <span class="bnav-icon">📅</span>Prélèv.</button>
@@ -304,21 +343,24 @@
   </div>
 </nav>
 
-<!-- ════════════════════════════════════════════
-     FIREBASE  (SDK modulaire v10, via CDN ESM)
-════════════════════════════════════════════ -->
 <script type="module">
-
 import { initializeApp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, addDoc, deleteDoc,
   doc, onSnapshot, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ─────────────────────────────────────────
-   1. CONFIG FIREBASE
-───────────────────────────────────────── */
+/* ── CONFIG ── */
 const firebaseConfig = {
   apiKey:            "AIzaSyApGZSp0yc12M8zn5eCGmkpbKeDyChLDv4",
   authDomain:        "myfinance-36fe2.firebaseapp.com",
@@ -328,185 +370,208 @@ const firebaseConfig = {
   appId:             "1:806675583832:web:4792077fb24342f2654b2d"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
-/* ─────────────────────────────────────────
-   2. IDENTIFIANT UTILISATEUR PERSISTANT
-   (stocké dans localStorage — pas besoin
-    d'Auth Firebase du tout)
-───────────────────────────────────────── */
-function getOrCreateUID() {
-  let uid = localStorage.getItem('mf_uid');
-  if (!uid) {
-    uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem('mf_uid', uid);
-  }
-  return uid;
-}
-const UID = getOrCreateUID();
+// Persistance locale → reste connecté même après fermeture du navigateur
+await setPersistence(auth, browserLocalPersistence);
 
-/* ─────────────────────────────────────────
-   3. CONSTANTES & UTILITAIRES
-───────────────────────────────────────── */
+/* ── CONSTANTES ── */
 const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 const ICONS_PREL   = { netflix:'🎬',spotify:'🎵',amazon:'📦',assurance:'🛡️',mutuelle:'🏥',salle:'💪',téléphone:'📱',internet:'🌐',eau:'💧',électricité:'⚡',edf:'⚡',gaz:'🔥',loyer:'🏠',free:'📡',sfr:'📡',bouygues:'📡',orange:'📡' };
 const ICONS_CHARGE = { edf:'⚡',électricité:'⚡',eau:'💧',gaz:'🔥',internet:'🌐',téléphone:'📱',courses:'🛒',chauffage:'🔥' };
 const ICONS_REV    = { salaire:'💼',prime:'🎯',freelance:'💻',retraite:'🏖️',allocations:'📋',loyer:'🏠',caf:'👶',dividende:'📈' };
 
 const nowDate = new Date();
-document.getElementById('headerDate').textContent =
-  nowDate.toLocaleDateString('fr-FR',{ weekday:'short', day:'numeric', month:'long', year:'numeric' });
 document.getElementById('charge-month').value = MONTHS[nowDate.getMonth()];
 
-function getIcon(name, map) {
-  const l = name.toLowerCase();
-  for (const k in map) if (l.includes(k)) return map[k];
-  return '💰';
-}
-function fmt(n) {
-  return n.toLocaleString('fr-FR',{ minimumFractionDigits:2, maximumFractionDigits:2 }) + ' €';
-}
+function getIcon(n, m) { const l=n.toLowerCase(); for(const k in m) if(l.includes(k)) return m[k]; return '💰'; }
+function fmt(n) { return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 let toastTimer;
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
 }
-
 function setSync(state) {
-  const dot   = document.getElementById('syncDot');
-  const label = document.getElementById('syncLabel');
-  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
-  label.textContent = state === 'syncing' ? 'Sync…' : state === 'error' ? 'Erreur' : 'Synchronisé';
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
+  lbl.textContent = state==='syncing'?'Sync…':state==='error'?'Erreur':'✓ Sync';
 }
 
-/* ─────────────────────────────────────────
-   4. ÉTAT LOCAL (mis à jour par onSnapshot)
-───────────────────────────────────────── */
+/* ── ÉTAT ── */
 let data = { prel:[], charges:[], revenus:[] };
 let activeChargeMonth = 'Tous';
+let unsubscribers = [];
 
-/* ─────────────────────────────────────────
-   5. NAVIGATION
-───────────────────────────────────────── */
+/* ── AUTH UI ── */
+let authMode = 'login';
+
+window.switchAuthTab = function(mode) {
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('tabRegister').classList.toggle('active', mode==='register');
+  document.getElementById('authSubmitBtn').textContent = mode==='login' ? 'Se connecter' : 'Créer mon compte';
+  document.getElementById('authError').classList.remove('show');
+};
+
+window.handleAuth = async function() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  const btn      = document.getElementById('authSubmitBtn');
+  errEl.classList.remove('show');
+
+  if (!email || !password) { showAuthError('Remplis l\'email et le mot de passe.'); return; }
+  if (password.length < 6) { showAuthError('Le mot de passe doit faire au moins 6 caractères.'); return; }
+
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  try {
+    if (authMode === 'login') {
+      await signInWithEmailAndPassword(auth, email, password);
+    } else {
+      await createUserWithEmailAndPassword(auth, email, password);
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = authMode==='login' ? 'Se connecter' : 'Créer mon compte';
+    const msgs = {
+      'auth/user-not-found':      'Aucun compte avec cet email.',
+      'auth/wrong-password':      'Mot de passe incorrect.',
+      'auth/invalid-credential':  'Email ou mot de passe incorrect.',
+      'auth/email-already-in-use':'Cet email est déjà utilisé.',
+      'auth/invalid-email':       'Email invalide.',
+      'auth/too-many-requests':   'Trop de tentatives. Réessaie plus tard.',
+    };
+    showAuthError(msgs[e.code] || e.message);
+  }
+};
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+window.handleLogout = async function() {
+  // Arrêter les listeners Firestore
+  unsubscribers.forEach(u => u());
+  unsubscribers = [];
+  data = { prel:[], charges:[], revenus:[] };
+  await signOut(auth);
+};
+
+// Permettre la touche Entrée sur l'écran de connexion
+document.getElementById('authPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.handleAuth();
+});
+document.getElementById('authEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('authPassword').focus();
+});
+
+/* ── SHOW / HIDE APP ── */
+function showApp(user) {
+  document.getElementById('authScreen').classList.remove('show');
+  document.getElementById('appHeader').style.display   = 'flex';
+  document.getElementById('appTabs').style.display     = 'flex';
+  document.getElementById('appMain').style.display     = 'block';
+  document.getElementById('appBottomNav').style.display = 'block';
+  document.getElementById('userEmail').textContent = user.email;
+  setSync('ok');
+  startListeners(user.uid);
+  toast('👋 Bonjour ' + user.email.split('@')[0] + ' !');
+}
+
+function showAuthPage() {
+  document.getElementById('authScreen').classList.add('show');
+  document.getElementById('appHeader').style.display    = 'none';
+  document.getElementById('appTabs').style.display      = 'none';
+  document.getElementById('appMain').style.display      = 'none';
+  document.getElementById('appBottomNav').style.display = 'none';
+  document.getElementById('authSubmitBtn').disabled     = false;
+  document.getElementById('authSubmitBtn').textContent  = 'Se connecter';
+}
+
+/* ── NAVIGATION ── */
 window.showTab = function(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn,.bnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-' + id).classList.add('active');
-  const tb = document.getElementById('tab-' + id);
-  const bb = document.getElementById('bnav-' + id);
-  if (tb) tb.classList.add('active');
-  if (bb) bb.classList.add('active');
+  document.getElementById('section-'+id).classList.add('active');
+  const tb = document.getElementById('tab-'+id);
+  const bb = document.getElementById('bnav-'+id);
+  if(tb) tb.classList.add('active');
+  if(bb) bb.classList.add('active');
 };
 
-/* ─────────────────────────────────────────
-   6. HELPERS FIRESTORE
-───────────────────────────────────────── */
-// Chemin : /users/{uid}/{type}
-function col(type) {
-  return collection(db, 'users', UID, type);
-}
+/* ── FIRESTORE ── */
+function col(uid, type) { return collection(db,'users',uid,type); }
 
-async function fsAdd(type, payload) {
+async function fsAdd(uid, type, payload) {
   setSync('syncing');
   try {
-    await addDoc(col(type), { ...payload, createdAt: Date.now() });
+    await addDoc(col(uid,type), { ...payload, createdAt: Date.now() });
     setSync('ok');
-    toast('✅ Sauvegardé');
-  } catch(e) {
-    setSync('error');
-    toast('❌ ' + e.message);
-    console.error(e);
-  }
+  } catch(e) { setSync('error'); toast('❌ '+e.message); }
 }
-
-async function fsDel(type, docId) {
+async function fsDel(uid, type, docId) {
   setSync('syncing');
   try {
-    await deleteDoc(doc(db, 'users', UID, type, docId));
-    setSync('ok');
-    toast('🗑 Supprimé');
-  } catch(e) {
-    setSync('error');
-    toast('❌ ' + e.message);
-    console.error(e);
-  }
+    await deleteDoc(doc(db,'users',uid,type,docId));
+    setSync('ok'); toast('🗑 Supprimé');
+  } catch(e) { setSync('error'); toast('❌ '+e.message); }
 }
 
-/* ─────────────────────────────────────────
-   7. LISTENERS TEMPS RÉEL (onSnapshot)
-   → Se déclenchent à chaque modif Firestore
-───────────────────────────────────────── */
-function startListeners() {
-  // Prélèvements
-  onSnapshot(
-    query(col('prelevements'), orderBy('createdAt')),
-    snap => {
-      data.prel = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderPrel();
-      refreshCharts();
-    },
-    err => { setSync('error'); toast('❌ Prélèv: ' + err.message); }
-  );
+/* ── LISTENERS TEMPS RÉEL ── */
+function startListeners(uid) {
+  unsubscribers.forEach(u => u());
+  unsubscribers = [];
 
-  // Charges
-  onSnapshot(
-    query(col('charges'), orderBy('createdAt')),
-    snap => {
-      data.charges = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderCharges();
-      refreshCharts();
-    },
-    err => { setSync('error'); toast('❌ Charges: ' + err.message); }
-  );
+  unsubscribers.push(onSnapshot(query(col(uid,'prelevements'),orderBy('createdAt')), snap => {
+    data.prel = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPrel(); refreshCharts();
+  }, err => { setSync('error'); toast('❌ '+err.message); }));
 
-  // Revenus
-  onSnapshot(
-    query(col('revenus'), orderBy('createdAt')),
-    snap => {
-      data.revenus = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderRevenus();
-      refreshCharts();
-    },
-    err => { setSync('error'); toast('❌ Revenus: ' + err.message); }
-  );
+  unsubscribers.push(onSnapshot(query(col(uid,'charges'),orderBy('createdAt')), snap => {
+    data.charges = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCharges(); refreshCharts();
+  }, err => { setSync('error'); toast('❌ '+err.message); }));
+
+  unsubscribers.push(onSnapshot(query(col(uid,'revenus'),orderBy('createdAt')), snap => {
+    data.revenus = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderRevenus(); refreshCharts();
+  }, err => { setSync('error'); toast('❌ '+err.message); }));
 }
 
-/* ─────────────────────────────────────────
-   8. PRÉLÈVEMENTS
-───────────────────────────────────────── */
+/* ── PRÉLÈVEMENTS ── */
 window.addPrel = async function() {
+  const user = auth.currentUser; if (!user) return;
   const name   = document.getElementById('prel-name').value.trim();
   const amount = parseFloat(document.getElementById('prel-amount').value);
   if (!name || isNaN(amount) || amount <= 0) { toast('⚠️ Remplis le nom et le montant'); return; }
-  document.getElementById('prel-name').value   = '';
+  document.getElementById('prel-name').value = '';
   document.getElementById('prel-amount').value = '';
-  await fsAdd('prelevements', { name, amount });
+  await fsAdd(user.uid,'prelevements',{name,amount});
 };
-
-window.delPrel = id => fsDel('prelevements', id);
+window.delPrel = id => { const u=auth.currentUser; if(u) fsDel(u.uid,'prelevements',id); };
 
 function renderPrel() {
-  const total = data.prel.reduce((s, x) => s + x.amount, 0);
+  const total = data.prel.reduce((s,x)=>s+x.amount,0);
   document.getElementById('total-prel').textContent = fmt(total);
-  document.getElementById('count-prel').textContent = data.prel.length + ' prélèvement(s)';
+  document.getElementById('count-prel').textContent = data.prel.length+' prélèvement(s)';
   const ul = document.getElementById('list-prel');
-  if (!data.prel.length) {
-    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement pour l\'instant</div></li>';
-    return;
-  }
-  ul.innerHTML = data.prel.map(x => `
+  if (!data.prel.length) { ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement pour l\'instant</div></li>'; return; }
+  ul.innerHTML = data.prel.map(x=>`
     <li class="item-row">
       <div class="item-left">
-        <div class="item-icon blue">${getIcon(x.name, ICONS_PREL)}</div>
-        <div>
-          <div class="item-name">${escHtml(x.name)}</div>
-          <div class="item-meta">Mensuel</div>
-        </div>
+        <div class="item-icon blue">${getIcon(x.name,ICONS_PREL)}</div>
+        <div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">Mensuel</div></div>
       </div>
       <div class="item-right">
         <div class="item-amount blue">${fmt(x.amount)}</div>
@@ -515,49 +580,37 @@ function renderPrel() {
     </li>`).join('');
 }
 
-/* ─────────────────────────────────────────
-   9. CHARGES
-───────────────────────────────────────── */
+/* ── CHARGES ── */
 window.addCharge = async function() {
+  const user = auth.currentUser; if (!user) return;
   const name   = document.getElementById('charge-name').value.trim();
   const month  = document.getElementById('charge-month').value;
   const amount = parseFloat(document.getElementById('charge-amount').value);
   if (!name || isNaN(amount) || amount <= 0) { toast('⚠️ Remplis le nom et le montant'); return; }
-  document.getElementById('charge-name').value   = '';
+  document.getElementById('charge-name').value = '';
   document.getElementById('charge-amount').value = '';
-  await fsAdd('charges', { name, amount, month });
+  await fsAdd(user.uid,'charges',{name,amount,month});
 };
-
-window.delCharge   = id => fsDel('charges', id);
-window.setChargeMonth = m => { activeChargeMonth = m; renderCharges(); };
+window.delCharge = id => { const u=auth.currentUser; if(u) fsDel(u.uid,'charges',id); };
+window.setChargeMonth = m => { activeChargeMonth=m; renderCharges(); };
 
 function renderCharges() {
-  const total = data.charges.reduce((s, x) => s + x.amount, 0);
+  const total = data.charges.reduce((s,x)=>s+x.amount,0);
   document.getElementById('total-charges').textContent = fmt(total);
-  document.getElementById('count-charges').textContent = data.charges.length + ' charge(s)';
-
-  const usedMonths = [...new Set(data.charges.map(x => x.month))];
-  const chips      = ['Tous', ...MONTHS.filter(m => usedMonths.includes(m))];
-  document.getElementById('charge-month-filter').innerHTML = chips.map(m =>
-    `<span class="month-chip ${activeChargeMonth === m ? 'active' : ''}" onclick="setChargeMonth('${m}')">${m}</span>`
+  document.getElementById('count-charges').textContent = data.charges.length+' charge(s)';
+  const used  = [...new Set(data.charges.map(x=>x.month))];
+  const chips = ['Tous',...MONTHS.filter(m=>used.includes(m))];
+  document.getElementById('charge-month-filter').innerHTML = chips.map(m=>
+    `<span class="month-chip ${activeChargeMonth===m?'active':''}" onclick="setChargeMonth('${m}')">${m}</span>`
   ).join('');
-
-  const visible = activeChargeMonth === 'Tous'
-    ? data.charges
-    : data.charges.filter(x => x.month === activeChargeMonth);
+  const visible = activeChargeMonth==='Tous' ? data.charges : data.charges.filter(x=>x.month===activeChargeMonth);
   const ul = document.getElementById('list-charges');
-  if (!visible.length) {
-    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucune charge pour l\'instant</div></li>';
-    return;
-  }
-  ul.innerHTML = visible.map(x => `
+  if (!visible.length) { ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucune charge pour l\'instant</div></li>'; return; }
+  ul.innerHTML = visible.map(x=>`
     <li class="item-row">
       <div class="item-left">
-        <div class="item-icon orange">${getIcon(x.name, ICONS_CHARGE)}</div>
-        <div>
-          <div class="item-name">${escHtml(x.name)}</div>
-          <div class="item-meta">${x.month}</div>
-        </div>
+        <div class="item-icon orange">${getIcon(x.name,ICONS_CHARGE)}</div>
+        <div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">${x.month}</div></div>
       </div>
       <div class="item-right">
         <div class="item-amount orange">${fmt(x.amount)}</div>
@@ -566,37 +619,29 @@ function renderCharges() {
     </li>`).join('');
 }
 
-/* ─────────────────────────────────────────
-   10. REVENUS
-───────────────────────────────────────── */
+/* ── REVENUS ── */
 window.addRevenu = async function() {
+  const user = auth.currentUser; if (!user) return;
   const name   = document.getElementById('rev-name').value.trim();
   const amount = parseFloat(document.getElementById('rev-amount').value);
   if (!name || isNaN(amount) || amount <= 0) { toast('⚠️ Remplis le nom et le montant'); return; }
-  document.getElementById('rev-name').value   = '';
+  document.getElementById('rev-name').value = '';
   document.getElementById('rev-amount').value = '';
-  await fsAdd('revenus', { name, amount });
+  await fsAdd(user.uid,'revenus',{name,amount});
 };
-
-window.delRevenu = id => fsDel('revenus', id);
+window.delRevenu = id => { const u=auth.currentUser; if(u) fsDel(u.uid,'revenus',id); };
 
 function renderRevenus() {
-  const total = data.revenus.reduce((s, x) => s + x.amount, 0);
+  const total = data.revenus.reduce((s,x)=>s+x.amount,0);
   document.getElementById('total-revenus').textContent = fmt(total);
-  document.getElementById('count-revenus').textContent = data.revenus.length + ' revenu(s)';
+  document.getElementById('count-revenus').textContent = data.revenus.length+' revenu(s)';
   const ul = document.getElementById('list-revenus');
-  if (!data.revenus.length) {
-    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucun revenu pour l\'instant</div></li>';
-    return;
-  }
-  ul.innerHTML = data.revenus.map(x => `
+  if (!data.revenus.length) { ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun revenu pour l\'instant</div></li>'; return; }
+  ul.innerHTML = data.revenus.map(x=>`
     <li class="item-row">
       <div class="item-left">
-        <div class="item-icon green">${getIcon(x.name, ICONS_REV)}</div>
-        <div>
-          <div class="item-name">${escHtml(x.name)}</div>
-          <div class="item-meta">Mensuel</div>
-        </div>
+        <div class="item-icon green">${getIcon(x.name,ICONS_REV)}</div>
+        <div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">Mensuel</div></div>
       </div>
       <div class="item-right">
         <div class="item-amount green">${fmt(x.amount)}</div>
@@ -605,126 +650,85 @@ function renderRevenus() {
     </li>`).join('');
 }
 
-/* ─────────────────────────────────────────
-   11. DASHBOARD
-───────────────────────────────────────── */
+/* ── DASHBOARD ── */
 function refreshDashboard() {
-  const tP = data.prel.reduce((s, x) => s + x.amount, 0);
-  const tC = data.charges.reduce((s, x) => s + x.amount, 0);
-  const tR = data.revenus.reduce((s, x) => s + x.amount, 0);
-  const sorties = tP + tC;
-  const solde   = tR - sorties;
-  const el = document.getElementById('solde-hero');
-  el.textContent = (solde >= 0 ? '+' : '−') + fmt(Math.abs(solde));
-  el.className = 'solde ' + (solde >= 0 ? 'pos' : 'neg');
-  document.getElementById('dash-revenus').textContent = fmt(tR);
-  document.getElementById('dash-sorties').textContent = fmt(sorties);
-  document.getElementById('solde-detail').textContent =
-    `${fmt(tR)} revenus  −  ${fmt(tP)} prélèv.  −  ${fmt(tC)} charges`;
+  const tP=data.prel.reduce((s,x)=>s+x.amount,0);
+  const tC=data.charges.reduce((s,x)=>s+x.amount,0);
+  const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
+  const sorties=tP+tC, solde=tR-sorties;
+  const el=document.getElementById('solde-hero');
+  el.textContent=(solde>=0?'+':'−')+fmt(Math.abs(solde));
+  el.className='solde '+(solde>=0?'pos':'neg');
+  document.getElementById('dash-revenus').textContent=fmt(tR);
+  document.getElementById('dash-sorties').textContent=fmt(sorties);
+  document.getElementById('solde-detail').textContent=`${fmt(tR)} revenus  −  ${fmt(tP)} prélèv.  −  ${fmt(tC)} charges`;
 }
 
-/* ─────────────────────────────────────────
-   12. GRAPHIQUES
-───────────────────────────────────────── */
-let charts = {};
-const TICK = '#6b7390', GRID = '#2a3045';
-const LEG  = { labels:{ color:'#6b7390', font:{ family:'DM Sans' }, boxWidth:12 } };
-
-function dc(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-function genColors(n, h) { return Array.from({ length:n }, (_, i) => `hsl(${(h + i*(360/n)) % 360},70%,55%)`); }
+/* ── CHARTS ── */
+let charts={};
+const TICK='#6b7390',GRID='#2a3045',LEG={labels:{color:'#6b7390',font:{family:'DM Sans'},boxWidth:12}};
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function genColors(n,h){return Array.from({length:n},(_,i)=>`hsl(${(h+i*(360/n))%360},70%,55%)`);}
 
 function refreshCharts() {
   refreshDashboard();
-  const tP = data.prel.reduce((s, x) => s + x.amount, 0);
-  const tC = data.charges.reduce((s, x) => s + x.amount, 0);
-  const tR = data.revenus.reduce((s, x) => s + x.amount, 0);
+  const tP=data.prel.reduce((s,x)=>s+x.amount,0);
+  const tC=data.charges.reduce((s,x)=>s+x.amount,0);
+  const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
 
-  // Donut dépenses
   dc('doughnut');
-  if (tP + tC > 0) {
-    charts['doughnut'] = new Chart(document.getElementById('chartDoughnut'), {
-      type: 'doughnut',
-      data: { labels:['Prélèvements','Charges'], datasets:[{ data:[tP,tC], backgroundColor:['#5b8dee','#f97316'], borderWidth:0, hoverOffset:6 }] },
-      options: { cutout:'65%', responsive:true, maintainAspectRatio:false, plugins:{ legend:LEG } }
-    });
-  }
-
-  // Barres comparatif
-  dc('bar');
-  charts['bar'] = new Chart(document.getElementById('chartBar'), {
-    type: 'bar',
-    data: { labels:['Revenus','Prélèvements','Charges'], datasets:[{ data:[tR,tP,tC], backgroundColor:['rgba(34,211,165,.75)','rgba(91,141,238,.75)','rgba(249,115,22,.75)'], borderRadius:8, borderSkipped:false }] },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:TICK }, grid:{ color:GRID } }, y:{ ticks:{ color:TICK, callback:v=>v+' €' }, grid:{ color:GRID } } } }
+  if(tP+tC>0) charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{
+    type:'doughnut', data:{labels:['Prélèvements','Charges'],datasets:[{data:[tP,tC],backgroundColor:['#5b8dee','#f97316'],borderWidth:0,hoverOffset:6}]},
+    options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}
   });
 
-  // Pie prélèvements
+  dc('bar'); charts['bar']=new Chart(document.getElementById('chartBar'),{
+    type:'bar', data:{labels:['Revenus','Prélèvements','Charges'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(34,211,165,.75)','rgba(91,141,238,.75)','rgba(249,115,22,.75)'],borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID}}}}
+  });
+
   dc('prel');
-  if (data.prel.length) {
-    charts['prel'] = new Chart(document.getElementById('chartPrel'), {
-      type: 'pie',
-      data: { labels:data.prel.map(x=>x.name), datasets:[{ data:data.prel.map(x=>x.amount), backgroundColor:genColors(data.prel.length,200), borderWidth:0 }] },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:LEG } }
-    });
-  }
-
-  // Ligne charges par mois
-  dc('charges');
-  const cbm = {}; MONTHS.forEach(m => cbm[m] = 0);
-  data.charges.forEach(x => { if (cbm[x.month] !== undefined) cbm[x.month] += x.amount; });
-  charts['charges'] = new Chart(document.getElementById('chartCharges'), {
-    type: 'line',
-    data: { labels:MONTHS, datasets:[{ label:'Charges', data:MONTHS.map(m=>cbm[m]), borderColor:'#f97316', backgroundColor:'rgba(249,115,22,.1)', tension:.4, fill:true, pointBackgroundColor:'#f97316', pointRadius:4 }] },
-    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:TICK }, grid:{ color:GRID } }, y:{ ticks:{ color:TICK, callback:v=>v+' €' }, grid:{ color:GRID }, beginAtZero:true } } }
+  if(data.prel.length) charts['prel']=new Chart(document.getElementById('chartPrel'),{
+    type:'pie', data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:genColors(data.prel.length,200),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}
   });
 
-  // Donut revenus
+  dc('charges');
+  const cbm={}; MONTHS.forEach(m=>cbm[m]=0); data.charges.forEach(x=>{if(cbm[x.month]!==undefined)cbm[x.month]+=x.amount;});
+  charts['charges']=new Chart(document.getElementById('chartCharges'),{
+    type:'line', data:{labels:MONTHS,datasets:[{label:'Charges',data:MONTHS.map(m=>cbm[m]),borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.1)',tension:.4,fill:true,pointBackgroundColor:'#f97316',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID},beginAtZero:true}}}
+  });
+
   dc('rev');
-  if (data.revenus.length) {
-    charts['rev'] = new Chart(document.getElementById('chartRev'), {
-      type: 'doughnut',
-      data: { labels:data.revenus.map(x=>x.name), datasets:[{ data:data.revenus.map(x=>x.amount), backgroundColor:genColors(data.revenus.length,150), borderWidth:0 }] },
-      options: { cutout:'55%', responsive:true, maintainAspectRatio:false, plugins:{ legend:LEG } }
-    });
+  if(data.revenus.length) charts['rev']=new Chart(document.getElementById('chartRev'),{
+    type:'doughnut', data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:genColors(data.revenus.length,150),borderWidth:0}]},
+    options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}
+  });
+}
+
+/* ── AUTH STATE OBSERVER ── */
+onAuthStateChanged(auth, user => {
+  // Masquer le loader
+  const loader = document.getElementById('loader');
+  loader.classList.add('hide');
+  setTimeout(() => loader.style.display='none', 400);
+
+  if (user) {
+    showApp(user);
+  } else {
+    showAuthPage();
   }
-}
+});
 
-/* ─────────────────────────────────────────
-   13. SÉCURITÉ : échappement HTML
-───────────────────────────────────────── */
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ─────────────────────────────────────────
-   14. DÉMARRAGE
-───────────────────────────────────────── */
-// On lance directement les listeners (pas d'auth nécessaire)
-// Les règles Firestore autorisent la lecture/écriture en mode test
-try {
-  startListeners();
-  // Masquer le loader après le premier snapshot (géré via les renders)
-  // Fallback : masquer après 3s si tout va bien
-  setTimeout(() => {
-    const loader = document.getElementById('loader');
-    loader.classList.add('hide');
-    setTimeout(() => loader.style.display = 'none', 400);
-  }, 1200);
-  setSync('ok');
-  toast('🔥 Connecté à Firebase');
-} catch(e) {
-  document.getElementById('loaderText').textContent = '❌ Erreur : ' + e.message;
-  setSync('error');
-}
-
-/* ─────────────────────────────────────────
-   15. TOUCHE ENTRÉE
-───────────────────────────────────────── */
+/* ── TOUCHE ENTRÉE DANS L'APP ── */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  const id = document.querySelector('.section.active').id;
-  if      (id === 'section-prelevements') window.addPrel();
-  else if (id === 'section-charges')      window.addCharge();
-  else if (id === 'section-revenus')      window.addRevenu();
+  const active = document.querySelector('.section.active');
+  if (!active) return;
+  if      (active.id==='section-prelevements') window.addPrel();
+  else if (active.id==='section-charges')      window.addCharge();
+  else if (active.id==='section-revenus')      window.addRevenu();
 });
 
 </script>
