@@ -227,13 +227,13 @@
 
   /* Liste des entrées */
   .entry-list{padding:0 16px 12px;}
-  .entry-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);min-width:0;}
+  .entry-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);min-width:0;}
   .entry-row:last-child{border-bottom:none;}
-  .entry-left{display:flex;flex-direction:column;flex:1;min-width:0;}
-  .entry-date{font-size:.82rem;font-weight:600;color:var(--text);}
-  .entry-note{font-size:.75rem;color:var(--text-muted);font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .entry-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-  .entry-amount{font-family:var(--font-head);font-size:.95rem;font-weight:800;color:#c2410c;white-space:nowrap;}
+  .entry-left{display:flex;flex-direction:column;flex:1;min-width:0;gap:3px;}
+  .entry-date{font-size:.84rem;font-weight:600;color:var(--text);}
+  .entry-amount{font-family:var(--font-head);font-size:1.15rem;font-weight:800;color:#c2410c;}
+  .entry-note{font-size:.75rem;color:var(--text-muted);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .entry-right{display:flex;align-items:center;gap:6px;flex-shrink:0;padding-top:2px;}
 
   /* Bouton suppr catégorie */
   .btn-del-cat{background:none;border:none;color:var(--text-muted);font-size:.95rem;cursor:pointer;padding:4px;border-radius:8px;transition:color .2s;}
@@ -822,10 +822,10 @@ function renderCharges() {
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-date">📅 ${formatEntryDate(e.date)}</div>
+          <div class="entry-amount">${fmt(e.amount)}</div>
           ${e.note ? `<div class="entry-note">💬 ${escHtml(e.note)}</div>` : ''}
         </div>
         <div class="entry-right">
-          <div class="entry-amount">${fmt(e.amount)}</div>
           <button class="btn btn-del" onclick="delChargeEntry('${e.id}')">🗑</button>
         </div>
       </div>`).join('');
