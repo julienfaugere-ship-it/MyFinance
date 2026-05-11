@@ -191,6 +191,41 @@
   .month-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25);}
   .year-chip.active{background:var(--accent4);border-color:var(--accent4);}
 
+  /* ── CHARGES AMÉLIORÉES ── */
+  /* Formulaire mobile-first : empilement sur 2 lignes */
+  .charge-form-top{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .charge-form-mid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .charge-form-bottom{display:flex;gap:10px;align-items:flex-end;}
+  .charge-form-bottom textarea{flex:1;min-height:54px;resize:none;}
+  .btn-charge-add{min-height:54px;padding:0 22px;font-size:1rem;border-radius:12px;background:linear-gradient(135deg,#c2410c,#f97316);color:#fff;border:none;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 10px rgba(234,88,12,.35);transition:opacity .2s,box-shadow .2s;white-space:nowrap;font-family:var(--font-body);}
+  .btn-charge-add:hover{opacity:.92;box-shadow:0 5px 16px rgba(234,88,12,.4);}
+  .btn-charge-add:active{transform:scale(.97);}
+  .field-label{display:block;font-size:.75rem;color:var(--text-muted);margin-bottom:5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+
+  /* Carte charge avec note */
+  .charge-note-text{font-size:.8rem;color:var(--text-muted);margin-top:4px;font-style:italic;line-height:1.4;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* Modale édition */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,32,68,.45);backdrop-filter:blur(4px);z-index:800;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);animation:fadeUp .25s ease;}
+  .modal-title{font-family:var(--font-head);font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+  .modal-fields{display:flex;flex-direction:column;gap:10px;}
+  .modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .btn-modal-save{flex:1;padding:12px;border-radius:12px;background:linear-gradient(135deg,#c2410c,#f97316);color:#fff;border:none;font-family:var(--font-head);font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(234,88,12,.3);transition:opacity .2s;}
+  .btn-modal-save:hover{opacity:.9;}
+  .btn-modal-cancel{padding:12px 20px;border-radius:12px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text-muted);font-family:var(--font-body);font-size:.9rem;cursor:pointer;transition:background .2s;}
+  .btn-modal-cancel:hover{background:var(--surface3);}
+
+  /* Bouton édition dans la liste */
+  .btn-edit{background:var(--surface2);border:1.5px solid var(--border);color:var(--accent);width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;border-radius:10px;cursor:pointer;transition:background .2s;}
+  .btn-edit:hover{background:#dbeafe;border-color:#93c5fd;}
+
+  @media(max-width:480px){
+    .charge-form-top,.charge-form-mid,.modal-row{grid-template-columns:1fr;}
+  }
+
   /* ── SUIVI DÉPENSES ── */
   .depense-group{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--card-radius);margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow-sm);}
   .depense-group-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .2s;}
@@ -406,23 +441,85 @@
       <div class="summary-amount" id="total-charges">0,00 €</div>
       <div class="summary-sub" id="count-charges">0 charge(s)</div>
     </div>
-    <div class="form-card"><h3>⚡ Ajouter une charge</h3>
-      <div class="form-row with-month">
-        <input type="text" id="charge-name" placeholder="Ex: EDF, Eau, Gaz…">
-        <select id="charge-month">
-          <option>Jan</option><option>Fév</option><option>Mar</option><option>Avr</option>
-          <option>Mai</option><option>Juin</option><option>Juil</option><option>Aoû</option>
-          <option>Sep</option><option>Oct</option><option>Nov</option><option>Déc</option>
-        </select>
-        <input type="number" id="charge-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
-        <button class="btn btn-add orange" onclick="addCharge()">＋</button>
+
+    <!-- Formulaire amélioré -->
+    <div class="form-card">
+      <h3>⚡ Ajouter une charge</h3>
+      <div class="charge-form-top">
+        <div>
+          <label class="field-label">Nom de la charge</label>
+          <input type="text" id="charge-name" placeholder="Ex: EDF, Eau, Gaz…">
+        </div>
+        <div>
+          <label class="field-label">Montant (€)</label>
+          <input type="number" id="charge-amount" placeholder="0,00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="charge-form-mid">
+        <div>
+          <label class="field-label">Mois</label>
+          <select id="charge-month">
+            <option>Jan</option><option>Fév</option><option>Mar</option><option>Avr</option>
+            <option>Mai</option><option>Juin</option><option>Juil</option><option>Aoû</option>
+            <option>Sep</option><option>Oct</option><option>Nov</option><option>Déc</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Année</label>
+          <select id="charge-year-add"></select>
+        </div>
+      </div>
+      <div class="charge-form-bottom">
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <label class="field-label">Note / commentaire (optionnel)</label>
+          <textarea id="charge-note" placeholder="Ex: Facture bimestrielle, contrat n°…"></textarea>
+        </div>
+        <button class="btn-charge-add" onclick="addCharge()">＋<span>Ajouter</span></button>
       </div>
     </div>
+
+    <!-- Liste avec filtre mois -->
     <div class="form-card" style="padding:16px 20px">
       <div class="month-filter" id="charge-month-filter"></div>
       <ul class="item-list" id="list-charges"><li><div class="empty"><span class="emoji">⏳</span>Chargement…</div></li></ul>
     </div>
     <div class="chart-card"><h3>📈 Évolution mensuelle</h3><div class="chart-wrap"><canvas id="chartCharges"></canvas></div></div>
+  </div>
+
+  <!-- MODALE ÉDITION CHARGE -->
+  <div class="modal-overlay" id="chargeModal">
+    <div class="modal-box">
+      <div class="modal-title">✏️ Modifier la charge</div>
+      <input type="hidden" id="edit-charge-id">
+      <div class="modal-fields">
+        <div>
+          <label class="field-label">Nom de la charge</label>
+          <input type="text" id="edit-charge-name" placeholder="Nom…">
+        </div>
+        <div class="modal-row">
+          <div>
+            <label class="field-label">Montant (€)</label>
+            <input type="number" id="edit-charge-amount" placeholder="0,00" step="0.01" min="0">
+          </div>
+          <div>
+            <label class="field-label">Mois</label>
+            <select id="edit-charge-month">
+              <option>Jan</option><option>Fév</option><option>Mar</option><option>Avr</option>
+              <option>Mai</option><option>Juin</option><option>Juil</option><option>Aoû</option>
+              <option>Sep</option><option>Oct</option><option>Nov</option><option>Déc</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Note / commentaire</label>
+          <textarea id="edit-charge-note" placeholder="Note…" style="min-height:60px"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeChargeModal()">Annuler</button>
+        <button class="btn-modal-save"   onclick="saveChargeEdit()">💾 Enregistrer</button>
+      </div>
+    </div>
   </div>
 
   <!-- REVENUS -->
@@ -571,6 +668,9 @@ document.getElementById('suivi-month').value=MONTHS[nowDate.getMonth()];
 document.getElementById('note-deadline').min=nowDate.toISOString().split('T')[0];
 const selYear=document.getElementById('suivi-year');
 for(let y=nowYear-2;y<=nowYear+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===nowYear)o.selected=true;selYear.appendChild(o);}
+// Sélecteur année pour l'ajout de charge
+const selChargeYear=document.getElementById('charge-year-add');
+for(let y=nowYear-2;y<=nowYear+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===nowYear)o.selected=true;selChargeYear.appendChild(o);}
 
 function getIcon(n,m){const l=n.toLowerCase();for(const k in m)if(l.includes(k))return m[k];return '💰';}
 function getSuiviIcon(n){const l=n.toLowerCase();for(const k in ICONS_SUIVI)if(l.includes(k))return ICONS_SUIVI[k];return '🎯';}
@@ -621,10 +721,81 @@ window.delPrel=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'prelevements',id)
 function renderPrel(){const total=data.prel.reduce((s,x)=>s+x.amount,0);document.getElementById('total-prel').textContent=fmt(total);document.getElementById('count-prel').textContent=data.prel.length+' prélèvement(s)';const ul=document.getElementById('list-prel');if(!data.prel.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}ul.innerHTML=data.prel.map(x=>`<li class="item-row"><div class="item-left"><div class="item-icon blue">${getIcon(x.name,ICONS_PREL)}</div><div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">Mensuel</div></div></div><div class="item-right"><div class="item-amount blue">${fmt(x.amount)}</div><button class="btn btn-del" onclick="delPrel('${x.id}')">🗑</button></div></li>`).join('');}
 
 /* CHARGES */
-window.addCharge=async function(){const u=auth.currentUser;if(!u)return;const name=document.getElementById('charge-name').value.trim(),month=document.getElementById('charge-month').value,amount=parseFloat(document.getElementById('charge-amount').value);if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}document.getElementById('charge-name').value='';document.getElementById('charge-amount').value='';await fsAdd(u.uid,'charges',{name,amount,month});};
+window.addCharge=async function(){
+  const u=auth.currentUser;if(!u)return;
+  const name=document.getElementById('charge-name').value.trim();
+  const month=document.getElementById('charge-month').value;
+  const yearEl=document.getElementById('charge-year-add');
+  const year=yearEl?parseInt(yearEl.value):nowYear;
+  const amount=parseFloat(document.getElementById('charge-amount').value);
+  const note=document.getElementById('charge-note').value.trim();
+  if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}
+  document.getElementById('charge-name').value='';
+  document.getElementById('charge-amount').value='';
+  document.getElementById('charge-note').value='';
+  await fsAdd(u.uid,'charges',{name,amount,month,year,note});
+  toast('✅ Charge ajoutée !');
+};
 window.delCharge=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'charges',id);};
 window.setChargeMonth=m=>{activeChargeMonth=m;renderCharges();};
-function renderCharges(){const total=data.charges.reduce((s,x)=>s+x.amount,0);document.getElementById('total-charges').textContent=fmt(total);document.getElementById('count-charges').textContent=data.charges.length+' charge(s)';const used=[...new Set(data.charges.map(x=>x.month))];const chips=['Tous',...MONTHS.filter(m=>used.includes(m))];document.getElementById('charge-month-filter').innerHTML=chips.map(m=>`<span class="month-chip ${activeChargeMonth===m?'active':''}" onclick="setChargeMonth('${m}')">${m}</span>`).join('');const visible=activeChargeMonth==='Tous'?data.charges:data.charges.filter(x=>x.month===activeChargeMonth);const ul=document.getElementById('list-charges');if(!visible.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucune charge</div></li>';return;}ul.innerHTML=visible.map(x=>`<li class="item-row"><div class="item-left"><div class="item-icon orange">${getIcon(x.name,ICONS_CHARGE)}</div><div><div class="item-name">${escHtml(x.name)}</div><div class="item-meta">${x.month}</div></div></div><div class="item-right"><div class="item-amount orange">${fmt(x.amount)}</div><button class="btn btn-del" onclick="delCharge('${x.id}')">🗑</button></div></li>`).join('');}
+
+/* Modale édition */
+window.openChargeModal=function(id){
+  const c=data.charges.find(x=>x.id===id);if(!c)return;
+  document.getElementById('edit-charge-id').value=id;
+  document.getElementById('edit-charge-name').value=c.name;
+  document.getElementById('edit-charge-amount').value=c.amount;
+  document.getElementById('edit-charge-month').value=c.month;
+  document.getElementById('edit-charge-note').value=c.note||'';
+  document.getElementById('chargeModal').classList.add('open');
+};
+window.closeChargeModal=function(){
+  document.getElementById('chargeModal').classList.remove('open');
+};
+window.saveChargeEdit=async function(){
+  const u=auth.currentUser;if(!u)return;
+  const id=document.getElementById('edit-charge-id').value;
+  const name=document.getElementById('edit-charge-name').value.trim();
+  const amount=parseFloat(document.getElementById('edit-charge-amount').value);
+  const month=document.getElementById('edit-charge-month').value;
+  const note=document.getElementById('edit-charge-note').value.trim();
+  if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}
+  await fsUpdate(u.uid,'charges',id,{name,amount,month,note});
+  closeChargeModal();
+  toast('✏️ Charge mise à jour !');
+};
+// Fermer modale en cliquant hors
+document.getElementById('chargeModal').addEventListener('click',function(e){if(e.target===this)closeChargeModal();});
+
+function renderCharges(){
+  const total=data.charges.reduce((s,x)=>s+x.amount,0);
+  document.getElementById('total-charges').textContent=fmt(total);
+  document.getElementById('count-charges').textContent=data.charges.length+' charge(s)';
+  const used=[...new Set(data.charges.map(x=>x.month))];
+  const chips=['Tous',...MONTHS.filter(m=>used.includes(m))];
+  document.getElementById('charge-month-filter').innerHTML=chips.map(m=>
+    `<span class="month-chip ${activeChargeMonth===m?'active':''}" onclick="setChargeMonth('${m}')">${m}</span>`
+  ).join('');
+  const visible=activeChargeMonth==='Tous'?data.charges:data.charges.filter(x=>x.month===activeChargeMonth);
+  const ul=document.getElementById('list-charges');
+  if(!visible.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucune charge</div></li>';return;}
+  ul.innerHTML=visible.map(x=>`
+    <li class="item-row">
+      <div class="item-left">
+        <div class="item-icon orange">${getIcon(x.name,ICONS_CHARGE)}</div>
+        <div>
+          <div class="item-name">${escHtml(x.name)}</div>
+          <div class="item-meta">${x.month}${x.year&&x.year!==nowYear?' '+x.year:''}</div>
+          ${x.note?`<div class="charge-note-text">💬 ${escHtml(x.note)}</div>`:''}
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount orange">${fmt(x.amount)}</div>
+        <button class="btn-edit" onclick="openChargeModal('${x.id}')" title="Modifier">✏️</button>
+        <button class="btn btn-del" onclick="delCharge('${x.id}')">🗑</button>
+      </div>
+    </li>`).join('');
+}
 
 /* REVENUS */
 window.addRevenu=async function(){const u=auth.currentUser;if(!u)return;const name=document.getElementById('rev-name').value.trim(),amount=parseFloat(document.getElementById('rev-amount').value);if(!name||isNaN(amount)||amount<=0){toast('⚠️ Remplis le nom et le montant');return;}document.getElementById('rev-name').value='';document.getElementById('rev-amount').value='';await fsAdd(u.uid,'revenus',{name,amount});};
