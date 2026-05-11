@@ -244,12 +244,8 @@
   /* Filtre mois charges */
   .charge-month-bar{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
   .charge-month-bar::-webkit-scrollbar{display:none;}
-  /* Chip "Tout" actif = couleur orange */
-  .month-chip.all-active{background:var(--accent2);border-color:var(--accent2);color:#fff;}
-  /* Liste catégories existantes dans le formulaire */
-  .cat-list-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
-  .cat-pill{display:inline-flex;align-items:center;gap:5px;background:#ffedd5;border:1px solid #fdba74;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:600;color:#c2410c;cursor:default;}
-  .cat-pill-icon{font-size:.9rem;}
+  /* Total mois dans le groupe */
+  .charge-month-total{font-size:.75rem;color:var(--text-muted);margin-top:1px;}
 
   /* Modale */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,32,68,.45);backdrop-filter:blur(4px);z-index:800;align-items:center;justify-content:center;padding:16px;}
@@ -489,21 +485,12 @@
     <!-- Nouvelle catégorie -->
     <div class="form-card">
       <h3>⚡ Nouvelle catégorie de charge</h3>
-      <!-- Catégories existantes -->
-      <div id="cat-existing-list" style="margin-bottom:12px;">
-        <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;">Catégories existantes</div>
-        <div class="cat-list-preview" id="cat-pills">
-          <span style="font-size:.8rem;color:var(--text-muted);font-style:italic;">Aucune catégorie</span>
+      <div class="charge-new-cat">
+        <div class="field-wrap">
+          <label class="field-label">Nom</label>
+          <input type="text" id="charge-cat-name" placeholder="Ex: Essence, EDF, Eau…">
         </div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:12px;">
-        <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;">Créer une nouvelle catégorie</div>
-        <div class="charge-new-cat">
-          <div class="field-wrap">
-            <input type="text" id="charge-cat-name" placeholder="Ex: Essence, EDF, Eau…">
-          </div>
-          <button class="btn-charge-add" onclick="addChargeCat()">＋ Créer</button>
-        </div>
+        <button class="btn-charge-add" onclick="addChargeCat()">＋ Créer</button>
       </div>
     </div>
 
@@ -690,8 +677,7 @@ import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signO
 
 const firebaseConfig={apiKey:"AIzaSyApGZSp0yc12M8zn5eCGmkpbKeDyChLDv4",authDomain:"myfinance-36fe2.firebaseapp.com",projectId:"myfinance-36fe2",storageBucket:"myfinance-36fe2.firebasestorage.app",messagingSenderId:"806675583832",appId:"1:806675583832:web:4792077fb24342f2654b2d"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);const auth=getAuth(app);
-// Persistance locale — ne bloque plus le démarrage
-setPersistence(auth,browserLocalPersistence).catch(()=>{});
+await setPersistence(auth,browserLocalPersistence);
 
 const MONTHS=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
 const ICONS_PREL={netflix:'🎬',spotify:'🎵',amazon:'📦',assurance:'🛡️',mutuelle:'🏥',salle:'💪',téléphone:'📱',internet:'🌐',eau:'💧',électricité:'⚡',edf:'⚡',gaz:'🔥',loyer:'🏠',free:'📡',sfr:'📡',bouygues:'📡',orange:'📡'};
@@ -869,9 +855,14 @@ window.saveEntryEdit = async function() {
 document.getElementById('entryModal').addEventListener('click', function(e){ if(e.target===this) closeEntryModal(); });
 
 /* ── Filtre mois actif ── */
-// '' = 'YYYY-MM' du mois courant, 'ALL' = tout voir
-const _now0 = new Date();
-let activeChargeMonthFilter = _now0.getFullYear() + '-' + String(_now0.getMonth()+1).padStart(2,'0');
+let activeChargeMonthFilter = ''; // '' = mois courant
+
+function initChargeMonthFilter() {
+  const now = new Date();
+  // Format YYYY-MM pour comparer avec e.date
+  activeChargeMonthFilter = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+}
+initChargeMonthFilter();
 
 window.setChargeMonthFilter = function(ym) {
   activeChargeMonthFilter = ym;
@@ -880,33 +871,11 @@ window.setChargeMonthFilter = function(ym) {
 
 function renderCharges() {
   const cats = data.charges;
-
-  // ── Mettre à jour la liste des catégories existantes dans le formulaire ──
-  const pillsEl = document.getElementById('cat-pills');
-  if (pillsEl) {
-    if (!cats.length) {
-      pillsEl.innerHTML = '<span style="font-size:.8rem;color:var(--text-muted);font-style:italic;">Aucune catégorie</span>';
-    } else {
-      pillsEl.innerHTML = cats.map(c =>
-        `<span class="cat-pill"><span class="cat-pill-icon">${getIcon(c.name, ICONS_CHARGE)}</span>${escHtml(c.name)}</span>`
-      ).join('');
-    }
-  }
-
-  // ── Total global (toutes périodes) ──
-  const grandTotalAll = chargeEntries.reduce((s,e) => s + e.amount, 0);
-
-  // ── Total du mois filtré ──
-  const isAll = (activeChargeMonthFilter === 'ALL');
-  const filteredMonth = isAll
-    ? chargeEntries
-    : chargeEntries.filter(e => e.date && e.date.startsWith(activeChargeMonthFilter));
-  const grandTotalMois = filteredMonth.reduce((s,e) => s + e.amount, 0);
-
-  // Afficher global ou mois selon sélection
-  document.getElementById('total-charges').textContent = fmt(isAll ? grandTotalAll : grandTotalMois);
-  document.getElementById('count-charges').textContent =
-    (isAll ? 'Cumul toutes périodes' : 'Ce mois') + ' · ' + cats.length + ' catégorie(s)';
+  // Calcul total du mois filtré
+  const filtered = chargeEntries.filter(e => !activeChargeMonthFilter || (e.date && e.date.startsWith(activeChargeMonthFilter)));
+  const grandTotal = filtered.reduce((s,e) => s + e.amount, 0);
+  document.getElementById('total-charges').textContent = fmt(grandTotal);
+  document.getElementById('count-charges').textContent = cats.length + ' catégorie(s)';
 
   const container = document.getElementById('charge-groups');
   if (!cats.length) {
@@ -914,42 +883,37 @@ function renderCharges() {
     return;
   }
 
-  // ── Chips de mois ──
+  // Construire les chips de mois disponibles (à partir des dates saisies)
   const allMonthsSet = new Set();
   chargeEntries.forEach(e => { if (e.date && e.date.length >= 7) allMonthsSet.add(e.date.substring(0,7)); });
+  // Ajouter le mois courant même s'il n'a pas d'entrée
   const now = new Date();
   const currentYM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   allMonthsSet.add(currentYM);
-  const sortedMonths = [...allMonthsSet].sort().reverse();
+  const sortedMonths = [...allMonthsSet].sort().reverse(); // plus récent en premier
 
-  const chipsHtml =
-    // Chip "Tout" en premier
-    `<span class="month-chip ${isAll?'all-active':''}" onclick="setChargeMonthFilter('ALL')">Tout</span>` +
-    sortedMonths.map(ym => {
-      const [y, m] = ym.split('-');
-      const label = new Date(parseInt(y), parseInt(m)-1, 1)
-        .toLocaleDateString('fr-FR', { month:'short', year:'numeric' });
-      const active = !isAll && activeChargeMonthFilter === ym;
-      return `<span class="month-chip ${active?'active':''}" onclick="setChargeMonthFilter('${ym}')">${label}</span>`;
-    }).join('');
+  const chipsHtml = sortedMonths.map(ym => {
+    const [y, m] = ym.split('-');
+    const label = new Date(parseInt(y), parseInt(m)-1, 1).toLocaleDateString('fr-FR', { month:'short', year:'numeric' });
+    const active = activeChargeMonthFilter === ym;
+    return `<span class="month-chip ${active?'active':''}" onclick="setChargeMonthFilter('${ym}')">${label}</span>`;
+  }).join('');
 
-  const todayISO = now.toISOString().split('T')[0];
+  // Date du jour pour le champ date par défaut
+  const todayISO = new Date().toISOString().split('T')[0];
 
-  // ── Groupes : on masque les catégories à 0 en mode mensuel ──
-  const groupsHtml = cats.map(cat => {
+  container.innerHTML = `
+    <div class="charge-month-bar">${chipsHtml}</div>
+    ` + cats.map(cat => {
+    // Entrées du mois filtré pour cette catégorie
     const allEntries = chargeEntries
       .filter(e => e.catId === cat.id)
       .sort((a,b) => a.date < b.date ? 1 : -1);
-    const visibleEntries = isAll
-      ? allEntries
-      : allEntries.filter(e => e.date && e.date.startsWith(activeChargeMonthFilter));
-    const catTotalMois = visibleEntries.reduce((s,e) => s + e.amount, 0);
-    const catTotalAll  = allEntries.reduce((s,e) => s + e.amount, 0);
-
-    // ── MASQUER si 0 en mode mensuel ──
-    if (!isAll && catTotalMois === 0) return '';
-
+    const visibleEntries = allEntries.filter(e => !activeChargeMonthFilter || (e.date && e.date.startsWith(activeChargeMonthFilter)));
+    const catTotalMois  = visibleEntries.reduce((s,e) => s + e.amount, 0);
+    const catTotalAll   = allEntries.reduce((s,e) => s + e.amount, 0);
     const count = visibleEntries.length;
+
     const entriesHtml = visibleEntries.map(e => `
       <div class="entry-row">
         <div class="entry-left">
@@ -963,10 +927,6 @@ function renderCharges() {
         </div>
       </div>`).join('');
 
-    const subLabel = isAll
-      ? `${count} entrée${count>1?'s':''} · cumul total`
-      : `${count} entrée${count>1?'s':''} ce mois · cumul ${fmt(catTotalAll)}`;
-
     return `
       <div class="charge-group">
         <div class="charge-group-header" onclick="toggleChargeGroup('${cat.id}')">
@@ -974,11 +934,11 @@ function renderCharges() {
             <div class="charge-group-icon">${getIcon(cat.name, ICONS_CHARGE)}</div>
             <div>
               <div class="charge-group-name">${escHtml(cat.name)}</div>
-              <div class="charge-group-sub">${subLabel}</div>
+              <div class="charge-group-sub">${count} entrée${count>1?'s':''} ce mois · cumul ${fmt(catTotalAll)}</div>
             </div>
           </div>
           <div class="charge-group-right">
-            <div class="charge-group-total">${fmt(isAll ? catTotalAll : catTotalMois)}</div>
+            <div class="charge-group-total">${fmt(catTotalMois)}</div>
             <button class="btn-del-cat" onclick="event.stopPropagation();openChargeModal('${cat.id}')" title="Renommer">✏️</button>
             <button class="btn-del-cat" onclick="event.stopPropagation();delChargeCat('${cat.id}')" title="Supprimer">🗑</button>
             <div class="charge-group-chevron" id="cg-chev-${cat.id}">▼</div>
@@ -1008,17 +968,6 @@ function renderCharges() {
         </div>
       </div>`;
   }).join('');
-
-  // Message si toutes les catégories sont à 0 ce mois
-  const noVisible = !isAll && cats.every(cat => {
-    const vis = chargeEntries.filter(e => e.catId===cat.id && e.date && e.date.startsWith(activeChargeMonthFilter));
-    return vis.reduce((s,e)=>s+e.amount,0) === 0;
-  });
-
-  container.innerHTML = `<div class="charge-month-bar">${chipsHtml}</div>` +
-    (noVisible
-      ? '<div class="empty"><span class="emoji">📭</span>Aucune charge ce mois — passe sur <b>Tout</b> pour voir l’historique</div>'
-      : groupsHtml);
 }
 
 function formatEntryDate(iso) {
@@ -1072,29 +1021,7 @@ function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function genColors(n,h){return Array.from({length:n},(_,i)=>`hsl(${(h+i*(360/n))%360},60%,50%)`);}
 function refreshCharts(){refreshDashboard();const tP=data.prel.reduce((s,x)=>s+x.amount,0),tC=chargeEntries.reduce((s,x)=>s+x.amount,0),tR=data.revenus.reduce((s,x)=>s+x.amount,0);dc('doughnut');if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges'],datasets:[{data:[tP,tC],backgroundColor:['#2563eb','#ea580c'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});dc('bar');charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(5,150,105,.75)','rgba(37,99,235,.75)','rgba(234,88,12,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID}}}}});dc('prel');if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:genColors(data.prel.length,210),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});dc('charges');const cbm={};MONTHS.forEach(m=>cbm[m]=0);chargeEntries.forEach(x=>{if(x.date){const m=MONTHS[new Date(x.date+'T12:00:00').getMonth()];if(cbm[m]!==undefined)cbm[m]+=x.amount;}});charts['charges']=new Chart(document.getElementById('chartCharges'),{type:'line',data:{labels:MONTHS,datasets:[{label:'Charges',data:MONTHS.map(m=>cbm[m]),borderColor:'#ea580c',backgroundColor:'rgba(234,88,12,.1)',tension:.4,fill:true,pointBackgroundColor:'#ea580c',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TICK},grid:{color:GRID}},y:{ticks:{color:TICK,callback:v=>v+' €'},grid:{color:GRID},beginAtZero:true}}}});dc('rev');if(data.revenus.length)charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:genColors(data.revenus.length,140),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});}
 
-onAuthStateChanged(auth, user => {
-  const loader = document.getElementById('loader');
-  loader.classList.add('hide');
-  setTimeout(() => loader.style.display = 'none', 500);
-  if (user) showApp(user); else showAuthPage();
-}, err => {
-  // Si Firebase Auth plante, on montre quand même l'écran de connexion
-  const loader = document.getElementById('loader');
-  loader.classList.add('hide');
-  setTimeout(() => loader.style.display = 'none', 400);
-  showAuthPage();
-  console.error('Auth error:', err);
-});
-
-// Fallback : si après 8s le loader est encore visible, on force l'affichage
-setTimeout(() => {
-  const loader = document.getElementById('loader');
-  if (loader && loader.style.display !== 'none') {
-    loader.classList.add('hide');
-    setTimeout(() => loader.style.display = 'none', 400);
-    showAuthPage();
-  }
-}, 8000);
+onAuthStateChanged(auth,user=>{const loader=document.getElementById('loader');loader.classList.add('hide');setTimeout(()=>loader.style.display='none',500);if(user)showApp(user);else showAuthPage();});
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const a=document.querySelector('.section.active');if(!a)return;if(a.id==='section-prelevements')window.addPrel();else if(a.id==='section-charges')window.addCharge();else if(a.id==='section-revenus')window.addRevenu();else if(a.id==='section-notes')window.addNote();});
 </script>
 </body>
