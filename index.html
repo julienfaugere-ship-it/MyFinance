@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyFinance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #5b8dee;
+    --accent2: #f97316;
+    --accent3: #22d3a5;
+    --text: #e8eaf0;
+    --text-muted: #6b7390;
+    --danger: #f43f5e;
+    --card-radius: 16px;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .logo span { color: var(--accent2); -webkit-text-fill-color: var(--accent2); }
+  .header-date {
+    font-size: .8rem;
+    color: var(--text-muted);
+  }
+
+  /* ── TABS ── */
+  .tabs-container {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-container::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 14px 18px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .2s, border-color .2s;
+  }
+  .tab-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+  .tab-icon { font-size: 1.1rem; }
+
+  /* ── MAIN ── */
+  main { padding: 20px 16px 80px; max-width: 680px; margin: 0 auto; }
+
+  /* ── SECTION ── */
+  .section { display: none; animation: fadeUp .3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SUMMARY CARD ── */
+  .summary-card {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: .07;
+  }
+  .summary-card.blue::before  { background: var(--accent);  }
+  .summary-card.orange::before{ background: var(--accent2); }
+  .summary-card.green::before { background: var(--accent3); }
+
+  .summary-label {
+    font-size: .75rem;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .summary-amount {
+    font-family: var(--font-head);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .summary-amount.blue   { color: var(--accent); }
+  .summary-amount.orange { color: var(--accent2); }
+  .summary-amount.green  { color: var(--accent3); }
+  .summary-sub {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .form-card h3 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .form-row.with-month {
+    grid-template-columns: 1fr 90px auto auto;
+  }
+  input[type="text"], input[type="number"], select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: .9rem;
+    outline: none;
+    width: 100%;
+    transition: border-color .2s;
+  }
+  input[type="text"]::placeholder,
+  input[type="number"]::placeholder { color: var(--text-muted); }
+  input:focus, select:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: var(--font-body);
+    font-size: .9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform .1s, opacity .2s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-add  { background: var(--accent);  color: #fff; }
+  .btn-add.orange { background: var(--accent2); }
+  .btn-add.green  { background: var(--accent3); color: #0d0f14; }
+  .btn-del  { background: var(--surface2); border: 1px solid var(--border); color: var(--danger); width: 36px; padding: 0; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+
+  /* ── LIST ── */
+  .item-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .item-row {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeUp .2s ease;
+  }
+  .item-left { display: flex; align-items: center; gap: 10px; }
+  .item-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .item-icon.blue   { background: rgba(91,141,238,.15); }
+  .item-icon.orange { background: rgba(249,115,22,.15); }
+  .item-icon.green  { background: rgba(34,211,165,.15); }
+  .item-name { font-size: .9rem; font-weight: 500; }
+  .item-meta { font-size: .75rem; color: var(--text-muted); margin-top: 1px; }
+  .item-right { display: flex; align-items: center; gap: 10px; }
+  .item-amount { font-family: var(--font-head); font-size: 1rem; font-weight: 700; }
+  .item-amount.blue   { color: var(--accent); }
+  .item-amount.orange { color: var(--accent2); }
+  .item-amount.green  { color: var(--accent3); }
+
+  /* ── CHART ── */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .chart-card h3 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── BALANCE CARD ── */
+  .balance-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .mini-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .mini-label { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+  .mini-amount { font-family: var(--font-head); font-size: 1.25rem; font-weight: 800; }
+
+  /* ── BILAN SECTION ── */
+  .bilan-hero {
+    background: linear-gradient(135deg, #1b2035, #1a2a1e);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .bilan-hero .label { font-size: .8rem; color: var(--text-muted); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+  .bilan-hero .solde {
+    font-family: var(--font-head);
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+  }
+  .solde.pos { color: var(--accent3); }
+  .solde.neg { color: var(--danger); }
+  .bilan-hero .sublabel { font-size: .8rem; color: var(--text-muted); margin-top: 6px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+    font-size: .9rem;
+  }
+  .empty .emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
+
+  /* ── MONTH FILTER ── */
+  .month-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .month-filter::-webkit-scrollbar { display: none; }
+  .month-chip {
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+  .month-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ── MOBILE BOTTOM NAV ── */
+  .bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 200;
+    padding: 8px 0 env(safe-area-inset-bottom);
+  }
+  .bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+  }
+  .bnav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 12px;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: .65rem;
+    transition: color .2s;
+  }
+  .bnav-btn .bnav-icon { font-size: 1.4rem; }
+  .bnav-btn.active { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .tabs-container { display: none; }
+    .bottom-nav { display: block; }
+    .form-row { grid-template-columns: 1fr auto; }
+    .form-row .month-sel { display: none; }
+    .form-row.with-month { grid-template-columns: 1fr 80px auto auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">My<span>Finance</span></div>
+  <div class="header-date" id="headerDate"></div>
+</header>
+
+<!-- DESKTOP TABS -->
+<nav class="tabs-container">
+  <button class="tab-btn active" onclick="showTab('dashboard')" id="tab-dashboard">
+    <span class="tab-icon">🏠</span> Tableau de bord
+  </button>
+  <button class="tab-btn" onclick="showTab('prelevements')" id="tab-prelevements">
+    <span class="tab-icon">📅</span> Prélèvements
+  </button>
+  <button class="tab-btn" onclick="showTab('charges')" id="tab-charges">
+    <span class="tab-icon">⚡</span> Charges
+  </button>
+  <button class="tab-btn" onclick="showTab('revenus')" id="tab-revenus">
+    <span class="tab-icon">💶</span> Revenus
+  </button>
+</nav>
+
+<main>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div class="section active" id="section-dashboard">
+    <div class="bilan-hero">
+      <div class="label">Solde net du mois</div>
+      <div class="solde" id="solde-hero">0,00 €</div>
+      <div class="sublabel" id="solde-detail">Revenus - Prélèvements - Charges</div>
+    </div>
+
+    <div class="balance-row">
+      <div class="mini-card">
+        <div class="mini-label">💶 Revenus</div>
+        <div class="mini-amount" style="color:var(--accent3)" id="dash-revenus">0,00 €</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-label">📤 Sorties</div>
+        <div class="mini-amount" style="color:var(--danger)" id="dash-sorties">0,00 €</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>📊 Répartition des dépenses</h3>
+      <div class="chart-wrap">
+        <canvas id="chartDoughnut"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>📈 Vue mensuelle</h3>
+      <div class="chart-wrap">
+        <canvas id="chartBar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PRÉLÈVEMENTS ══════════ -->
+  <div class="section" id="section-prelevements">
+    <div class="summary-card blue">
+      <div class="summary-label">Total prélèvements mensuels</div>
+      <div class="summary-amount blue" id="total-prel">0,00 €</div>
+      <div class="summary-sub" id="count-prel">0 prélèvement(s) enregistré(s)</div>
+    </div>
+
+    <div class="form-card">
+      <h3>📅 Ajouter un prélèvement</h3>
+      <div class="form-row">
+        <input type="text" id="prel-name" placeholder="Ex: Netflix, Assurance…">
+        <input type="number" id="prel-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
+        <button class="btn btn-add" onclick="addPrel()">＋</button>
+      </div>
+    </div>
+
+    <div class="form-card" style="padding:16px 20px">
+      <ul class="item-list" id="list-prel">
+        <li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement pour l'instant</div></li>
+      </ul>
+    </div>
+
+    <div class="chart-card">
+      <h3>📊 Répartition</h3>
+      <div class="chart-wrap">
+        <canvas id="chartPrel"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CHARGES ══════════ -->
+  <div class="section" id="section-charges">
+    <div class="summary-card orange">
+      <div class="summary-label">Total charges mensuelles</div>
+      <div class="summary-amount orange" id="total-charges">0,00 €</div>
+      <div class="summary-sub" id="count-charges">0 charge(s) enregistrée(s)</div>
+    </div>
+
+    <div class="form-card">
+      <h3>⚡ Ajouter une charge</h3>
+      <div class="form-row with-month">
+        <input type="text" id="charge-name" placeholder="Ex: EDF, Eau, Gaz…">
+        <select id="charge-month" class="month-sel">
+          <option value="Jan">Jan</option><option value="Fév">Fév</option>
+          <option value="Mar">Mar</option><option value="Avr">Avr</option>
+          <option value="Mai">Mai</option><option value="Juin">Juin</option>
+          <option value="Juil">Juil</option><option value="Aoû">Aoû</option>
+          <option value="Sep">Sep</option><option value="Oct">Oct</option>
+          <option value="Nov">Nov</option><option value="Déc">Déc</option>
+        </select>
+        <input type="number" id="charge-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
+        <button class="btn btn-add orange" onclick="addCharge()">＋</button>
+      </div>
+    </div>
+
+    <div class="form-card" style="padding:16px 20px">
+      <div class="month-filter" id="charge-month-filter"></div>
+      <ul class="item-list" id="list-charges">
+        <li><div class="empty"><span class="emoji">📭</span>Aucune charge pour l'instant</div></li>
+      </ul>
+    </div>
+
+    <div class="chart-card">
+      <h3>📈 Évolution mensuelle des charges</h3>
+      <div class="chart-wrap">
+        <canvas id="chartCharges"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ REVENUS ══════════ -->
+  <div class="section" id="section-revenus">
+    <div class="summary-card green">
+      <div class="summary-label">Total revenus mensuels</div>
+      <div class="summary-amount green" id="total-revenus">0,00 €</div>
+      <div class="summary-sub" id="count-revenus">0 revenu(s) enregistré(s)</div>
+    </div>
+
+    <div class="form-card">
+      <h3>💶 Ajouter un revenu</h3>
+      <div class="form-row">
+        <input type="text" id="rev-name" placeholder="Ex: Salaire, Prime…">
+        <input type="number" id="rev-amount" placeholder="€" step="0.01" min="0" style="max-width:100px">
+        <button class="btn btn-add green" onclick="addRevenu()">＋</button>
+      </div>
+    </div>
+
+    <div class="form-card" style="padding:16px 20px">
+      <ul class="item-list" id="list-revenus">
+        <li><div class="empty"><span class="emoji">📭</span>Aucun revenu pour l'instant</div></li>
+      </ul>
+    </div>
+
+    <div class="chart-card">
+      <h3>📊 Répartition des revenus</h3>
+      <div class="chart-wrap">
+        <canvas id="chartRev"></canvas>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-btn active" onclick="showTab('dashboard')" id="bnav-dashboard">
+      <span class="bnav-icon">🏠</span>Bilan
+    </button>
+    <button class="bnav-btn" onclick="showTab('prelevements')" id="bnav-prelevements">
+      <span class="bnav-icon">📅</span>Prélèv.
+    </button>
+    <button class="bnav-btn" onclick="showTab('charges')" id="bnav-charges">
+      <span class="bnav-icon">⚡</span>Charges
+    </button>
+    <button class="bnav-btn" onclick="showTab('revenus')" id="bnav-revenus">
+      <span class="bnav-icon">💶</span>Revenus
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ── DATA ── */
+let data = JSON.parse(localStorage.getItem('myfinance') || '{"prel":[],"charges":[],"revenus":[]}');
+
+const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+const ICONS_PREL = { 'netflix':'🎬','spotify':'🎵','amazon':'📦','assurance':'🛡️','mutuelle':'🏥','salle':'💪','téléphone':'📱','internet':'🌐','eau':'💧','électricité':'⚡','edf':'⚡','gaz':'🔥','loyer':'🏠' };
+const ICONS_CHARGE = { 'edf':'⚡','électricité':'⚡','eau':'💧','gaz':'🔥','internet':'🌐','téléphone':'📱','courses':'🛒' };
+const ICONS_REV = { 'salaire':'💼','prime':'🎯','freelance':'💻','retraite':'🏖️','allocations':'📋','loyer':'🏠' };
+
+function getIcon(name, map) {
+  const l = name.toLowerCase();
+  for (const k in map) { if (l.includes(k)) return map[k]; }
+  return '💰';
+}
+
+/* ── SAVE ── */
+function save() { localStorage.setItem('myfinance', JSON.stringify(data)); }
+
+/* ── FORMAT ── */
+function fmt(n) { return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+
+/* ── TABS ── */
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  const tb = document.getElementById('tab-' + id);
+  const bb = document.getElementById('bnav-' + id);
+  if (tb) tb.classList.add('active');
+  if (bb) bb.classList.add('active');
+  refreshCharts();
+}
+
+/* ── HEADER DATE ── */
+const now = new Date();
+document.getElementById('headerDate').textContent =
+  now.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+
+// Init month select to current month
+document.getElementById('charge-month').value = MONTHS[now.getMonth()];
+
+/* ── PRÉLÈVEMENTS ── */
+function addPrel() {
+  const name = document.getElementById('prel-name').value.trim();
+  const amount = parseFloat(document.getElementById('prel-amount').value);
+  if (!name || isNaN(amount) || amount <= 0) return;
+  data.prel.push({ id: Date.now(), name, amount });
+  save(); renderPrel();
+  document.getElementById('prel-name').value = '';
+  document.getElementById('prel-amount').value = '';
+  refreshCharts();
+}
+
+function delPrel(id) {
+  data.prel = data.prel.filter(x => x.id !== id);
+  save(); renderPrel(); refreshCharts();
+}
+
+function renderPrel() {
+  const ul = document.getElementById('list-prel');
+  const total = data.prel.reduce((s, x) => s + x.amount, 0);
+  document.getElementById('total-prel').textContent = fmt(total);
+  document.getElementById('count-prel').textContent = data.prel.length + ' prélèvement(s) enregistré(s)';
+  if (!data.prel.length) {
+    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement pour l\'instant</div></li>';
+    return;
+  }
+  ul.innerHTML = data.prel.map(x => `
+    <li class="item-row">
+      <div class="item-left">
+        <div class="item-icon blue">${getIcon(x.name, ICONS_PREL)}</div>
+        <div>
+          <div class="item-name">${x.name}</div>
+          <div class="item-meta">Mensuel</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount blue">${fmt(x.amount)}</div>
+        <button class="btn btn-del" onclick="delPrel(${x.id})">🗑</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+/* ── CHARGES ── */
+let activeChargeMonth = 'Tous';
+
+function addCharge() {
+  const name = document.getElementById('charge-name').value.trim();
+  const month = document.getElementById('charge-month').value;
+  const amount = parseFloat(document.getElementById('charge-amount').value);
+  if (!name || isNaN(amount) || amount <= 0) return;
+  data.charges.push({ id: Date.now(), name, amount, month });
+  save(); renderCharges();
+  document.getElementById('charge-name').value = '';
+  document.getElementById('charge-amount').value = '';
+  refreshCharts();
+}
+
+function delCharge(id) {
+  data.charges = data.charges.filter(x => x.id !== id);
+  save(); renderCharges(); refreshCharts();
+}
+
+function renderCharges() {
+  const allMonths = [...new Set(data.charges.map(x => x.month))];
+  const total = data.charges.reduce((s, x) => s + x.amount, 0);
+  document.getElementById('total-charges').textContent = fmt(total);
+  document.getElementById('count-charges').textContent = data.charges.length + ' charge(s) enregistrée(s)';
+
+  // Month filter chips
+  const filter = document.getElementById('charge-month-filter');
+  const allChips = ['Tous', ...MONTHS.filter(m => allMonths.includes(m))];
+  filter.innerHTML = allChips.map(m => `
+    <span class="month-chip ${activeChargeMonth === m ? 'active' : ''}" onclick="setChargeMonth('${m}')">${m}</span>
+  `).join('');
+
+  const visible = activeChargeMonth === 'Tous' ? data.charges : data.charges.filter(x => x.month === activeChargeMonth);
+  const ul = document.getElementById('list-charges');
+  if (!visible.length) {
+    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucune charge pour l\'instant</div></li>';
+    return;
+  }
+  ul.innerHTML = visible.map(x => `
+    <li class="item-row">
+      <div class="item-left">
+        <div class="item-icon orange">${getIcon(x.name, ICONS_CHARGE)}</div>
+        <div>
+          <div class="item-name">${x.name}</div>
+          <div class="item-meta">${x.month}</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount orange">${fmt(x.amount)}</div>
+        <button class="btn btn-del" onclick="delCharge(${x.id})">🗑</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+function setChargeMonth(m) {
+  activeChargeMonth = m;
+  renderCharges();
+}
+
+/* ── REVENUS ── */
+function addRevenu() {
+  const name = document.getElementById('rev-name').value.trim();
+  const amount = parseFloat(document.getElementById('rev-amount').value);
+  if (!name || isNaN(amount) || amount <= 0) return;
+  data.revenus.push({ id: Date.now(), name, amount });
+  save(); renderRevenus();
+  document.getElementById('rev-name').value = '';
+  document.getElementById('rev-amount').value = '';
+  refreshCharts();
+}
+
+function delRevenu(id) {
+  data.revenus = data.revenus.filter(x => x.id !== id);
+  save(); renderRevenus(); refreshCharts();
+}
+
+function renderRevenus() {
+  const total = data.revenus.reduce((s, x) => s + x.amount, 0);
+  document.getElementById('total-revenus').textContent = fmt(total);
+  document.getElementById('count-revenus').textContent = data.revenus.length + ' revenu(s) enregistré(s)';
+  const ul = document.getElementById('list-revenus');
+  if (!data.revenus.length) {
+    ul.innerHTML = '<li><div class="empty"><span class="emoji">📭</span>Aucun revenu pour l\'instant</div></li>';
+    return;
+  }
+  ul.innerHTML = data.revenus.map(x => `
+    <li class="item-row">
+      <div class="item-left">
+        <div class="item-icon green">${getIcon(x.name, ICONS_REV)}</div>
+        <div>
+          <div class="item-name">${x.name}</div>
+          <div class="item-meta">Mensuel</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount green">${fmt(x.amount)}</div>
+        <button class="btn btn-del" onclick="delRevenu(${x.id})">🗑</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+/* ── DASHBOARD ── */
+function refreshDashboard() {
+  const totPrel = data.prel.reduce((s, x) => s + x.amount, 0);
+  const totCharges = data.charges.reduce((s, x) => s + x.amount, 0);
+  const totRevenu = data.revenus.reduce((s, x) => s + x.amount, 0);
+  const sorties = totPrel + totCharges;
+  const solde = totRevenu - sorties;
+
+  const soldeEl = document.getElementById('solde-hero');
+  soldeEl.textContent = fmt(Math.abs(solde)) + (solde < 0 ? ' −' : ' +').split('').reverse().join('');
+  soldeEl.textContent = (solde >= 0 ? '+' : '-') + fmt(Math.abs(solde));
+  soldeEl.className = 'solde ' + (solde >= 0 ? 'pos' : 'neg');
+  document.getElementById('dash-revenus').textContent = fmt(totRevenu);
+  document.getElementById('dash-sorties').textContent = fmt(sorties);
+  document.getElementById('solde-detail').textContent =
+    `${fmt(totRevenu)} revenus  −  ${fmt(totPrel)} prélèv.  −  ${fmt(totCharges)} charges`;
+}
+
+/* ── CHARTS ── */
+let charts = {};
+const CHART_DEFAULTS = {
+  color: '#e8eaf0',
+  plugins: { legend: { labels: { color: '#6b7390', font: { family: 'DM Sans' }, boxWidth: 12 } } }
+};
+
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function refreshCharts() {
+  refreshDashboard();
+
+  const totPrel    = data.prel.reduce((s, x) => s + x.amount, 0);
+  const totCharges = data.charges.reduce((s, x) => s + x.amount, 0);
+  const totRevenu  = data.revenus.reduce((s, x) => s + x.amount, 0);
+
+  /* --- DOUGHNUT dashboard --- */
+  destroyChart('doughnut');
+  if (totPrel + totCharges > 0) {
+    charts['doughnut'] = new Chart(document.getElementById('chartDoughnut'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Prélèvements', 'Charges'],
+        datasets: [{ data: [totPrel, totCharges], backgroundColor: ['#5b8dee', '#f97316'], borderWidth: 0, hoverOffset: 6 }]
+      },
+      options: {
+        cutout: '65%', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: CHART_DEFAULTS.plugins.legend }
+      }
+    });
+  }
+
+  /* --- BAR dashboard (par catégorie) --- */
+  destroyChart('bar');
+  charts['bar'] = new Chart(document.getElementById('chartBar'), {
+    type: 'bar',
+    data: {
+      labels: ['Revenus', 'Prélèvements', 'Charges'],
+      datasets: [{
+        data: [totRevenu, totPrel, totCharges],
+        backgroundColor: ['rgba(34,211,165,.7)', 'rgba(91,141,238,.7)', 'rgba(249,115,22,.7)'],
+        borderRadius: 8, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#6b7390' }, grid: { color: '#2a3045' } },
+        y: { ticks: { color: '#6b7390', callback: v => v + ' €' }, grid: { color: '#2a3045' } }
+      }
+    }
+  });
+
+  /* --- PIE prélèvements --- */
+  destroyChart('prel');
+  if (data.prel.length) {
+    charts['prel'] = new Chart(document.getElementById('chartPrel'), {
+      type: 'pie',
+      data: {
+        labels: data.prel.map(x => x.name),
+        datasets: [{ data: data.prel.map(x => x.amount), backgroundColor: genColors(data.prel.length, 200), borderWidth: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: CHART_DEFAULTS.plugins.legend } }
+    });
+  }
+
+  /* --- LINE charges par mois --- */
+  destroyChart('charges');
+  const chargeByMonth = {};
+  MONTHS.forEach(m => { chargeByMonth[m] = 0; });
+  data.charges.forEach(x => { if (chargeByMonth[x.month] !== undefined) chargeByMonth[x.month] += x.amount; });
+  charts['charges'] = new Chart(document.getElementById('chartCharges'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        label: 'Charges (€)',
+        data: MONTHS.map(m => chargeByMonth[m]),
+        borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,.1)',
+        tension: .4, fill: true, pointBackgroundColor: '#f97316', pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#6b7390' }, grid: { color: '#2a3045' } },
+        y: { ticks: { color: '#6b7390', callback: v => v + ' €' }, grid: { color: '#2a3045' }, beginAtZero: true }
+      }
+    }
+  });
+
+  /* --- PIE revenus --- */
+  destroyChart('rev');
+  if (data.revenus.length) {
+    charts['rev'] = new Chart(document.getElementById('chartRev'), {
+      type: 'doughnut',
+      data: {
+        labels: data.revenus.map(x => x.name),
+        datasets: [{ data: data.revenus.map(x => x.amount), backgroundColor: genColors(data.revenus.length, 150), borderWidth: 0 }]
+      },
+      options: { cutout: '55%', responsive: true, maintainAspectRatio: false, plugins: { legend: CHART_DEFAULTS.plugins.legend } }
+    });
+  }
+}
+
+function genColors(n, hueStart) {
+  const colors = [];
+  for (let i = 0; i < n; i++) {
+    const hue = (hueStart + i * (360 / n)) % 360;
+    colors.push(`hsl(${hue},70%,55%)`);
+  }
+  return colors;
+}
+
+/* ── INIT ── */
+renderPrel();
+renderCharges();
+renderRevenus();
+refreshCharts();
+
+/* ── ENTER KEY ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const active = document.querySelector('.section.active').id;
+    if (active === 'section-prelevements') addPrel();
+    else if (active === 'section-charges') addCharge();
+    else if (active === 'section-revenus') addRevenu();
+  }
+});
+</script>
+</body>
+</html>
