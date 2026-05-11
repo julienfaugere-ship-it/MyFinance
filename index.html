@@ -508,7 +508,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
       <div class="modal-title">✏️ Modifier ce revenu</div>
       <input type="hidden" id="re-id">
       <div class="modal-fields">
-        <div><label class="fl">Mois</label><select id="re-month"><option>Jan</option><option>Fev</option><option>Mar</option><option>Avr</option><option>Mai</option><option>Juin</option><option>Juil</option><option>Aou</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select></div>
+        <div><label class="fl">Mois</label><select id="re-month"><option>Jan</option><option>Fév</option><option>Mar</option><option>Avr</option><option>Mai</option><option>Juin</option><option>Juil</option><option>Aoû</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Déc</option></select></div>
         <div><label class="fl">Annee</label><select id="re-year"></select></div>
         <div><label class="fl">Montant €</label><input type="number" id="re-amount" placeholder="0,00" step="0.01" min="0"></div>
         <div><label class="fl">Note (optionnel)</label><input type="text" id="re-note" placeholder="Ex: prime incluse…"></div>
@@ -607,6 +607,8 @@ const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+const MONTH_NORM = {'Fev':'Fév','Aou':'Aoû','Dec':'Déc'};
+function normMonth(m) { return MONTH_NORM[m] || m; }
 const IC_PREL   = {netflix:'🎬',spotify:'🎵',amazon:'📦',assurance:'🛡️',mutuelle:'🏥',salle:'💪',telephone:'📱',internet:'🌐',eau:'💧',electricite:'⚡',edf:'⚡',gaz:'🔥',loyer:'🏠',free:'📡',sfr:'📡',bouygues:'📡',orange:'📡'};
 const IC_CHARGE = {edf:'⚡',electricite:'⚡',eau:'💧',gaz:'🔥',internet:'🌐',telephone:'📱',courses:'🛒',chauffage:'🔥',essence:'⛽',carburant:'⛽',voiture:'🚗'};
 const IC_REV    = {salaire:'💼',prime:'🎯',freelance:'💻',retraite:'🏖️',allocations:'📋',loyer:'🏠',caf:'👶',dividende:'📈'};
@@ -993,7 +995,7 @@ window.saveRevEntry = async function() {
   const note=document.getElementById('re-note').value.trim();
   if(!month||isNaN(year)||isNaN(amount)||amount<=0){toast('Remplis le mois, annee et montant');return;}
   // Vérifier doublon mois/an pour cette catégorie
-  const existing=data.revenuEntries.find(e=>e.catId===catId&&e.month===month&&e.year===year&&e.id!==id);
+  const existing=data.revenuEntries.find(e=>e.catId===catId&&normMonth(e.month)===month&&e.year===year&&e.id!==id);
   if(existing){toast('Une entree existe deja pour ce mois/annee');return;}
   if(id) {
     await fsUpd(u.uid,'revenuEntries',id,{month,year,amount,note});
@@ -1015,7 +1017,7 @@ function renderRevenu() {
   // Total mois courant : pour chaque cat, entrée du mois courant OU montant par défaut
   const curM=MONTHS[nowD.getMonth()], curY=nowY;
   const totalMoisCourant=cats.reduce((s,cat)=>{
-    const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===curM&&r.year===curY);
+    const e=data.revenuEntries.find(r=>r.catId===cat.id&&normMonth(r.month)===curM&&r.year===curY);
     return s+(e?e.amount:cat.amount);
   },0);
   document.getElementById('total-rev').textContent=fmt(totalMoisCourant);
@@ -1028,9 +1030,9 @@ function renderRevenu() {
     // Entrées triées par date décroissante
     const allE=data.revenuEntries
       .filter(e=>e.catId===cat.id)
-      .sort((a,b)=>(a.year!==b.year?b.year-a.year:MONTHS.indexOf(b.month)-MONTHS.indexOf(a.month)));
+      .sort((a,b)=>(a.year!==b.year?b.year-a.year:MONTHS.indexOf(normMonth(b.month))-MONTHS.indexOf(normMonth(a.month))));
     // Montant mois courant
-    const eC=allE.find(e=>e.month===curM&&e.year===curY);
+    const eC=allE.find(e=>normMonth(e.month)===curM&&e.year===curY);
     const amtMoisC=eC?eC.amount:cat.amount;
     // Total annuel
     const totalAnn=allE.filter(e=>e.year===curY).reduce((s,e)=>s+e.amount,0);
@@ -1039,7 +1041,7 @@ function renderRevenu() {
     const eRows=allE.map(e=>`
       <div class="rev-entry-row">
         <div class="rev-el">
-          <div class="rev-period">${e.month} ${e.year}</div>
+          <div class="rev-period">${normMonth(e.month)} ${e.year}</div>
           <div class="rev-eamt">${fmt(e.amount)}</div>
           ${e.note?'<div class="rev-enote">💬 '+esc(e.note)+'</div>':''}
         </div>
@@ -1202,7 +1204,7 @@ function refreshDashboard() {
 
   // REVENUS du mois courant : entrée saisie OU montant par défaut
   const tR=data.revenus.reduce((s,cat)=>{
-    const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===curM&&r.year===curY);
+    const e=data.revenuEntries.find(r=>r.catId===cat.id&&normMonth(r.month)===curM&&r.year===curY);
     return s+(e?e.amount:cat.amount);
   },0);
 
@@ -1267,7 +1269,7 @@ function refreshCharts() {
     const revDatasets=data.revenus.map((cat,i)=>{
       const color='hsl('+(140+i*(200/Math.max(data.revenus.length,1)))%360+',55%,42%)';
       return {label:cat.name,data:MONTHS.map(m=>{
-        const e=data.revenuEntries.find(r=>r.catId===cat.id&&r.month===m&&r.year===nowY);
+        const e=data.revenuEntries.find(r=>r.catId===cat.id&&normMonth(r.month)===m&&r.year===nowY);
         return e?e.amount:0;
       }),borderColor:color,backgroundColor:color.replace('42%)','42%,.1)').replace('hsl','hsla'),tension:.4,fill:false,pointRadius:4,pointBackgroundColor:color};
     });
