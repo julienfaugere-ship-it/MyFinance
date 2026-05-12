@@ -327,6 +327,70 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:2px solid var(--border);z-index:200;padding:6px 0 env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(37,99,235,.1);}
 .bottom-nav-inner{display:flex;justify-content:space-around;}
+
+/* ══ EXPORT PDF ══ */
+.export-header{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:var(--r);padding:22px 20px;margin-bottom:20px;box-shadow:var(--s3);}
+.export-header h2{font-family:var(--fh);font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px;}
+.export-header p{font-size:.83rem;color:#bfdbfe;}
+.export-selector{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--s1);}
+.export-selector h3{font-family:var(--fh);font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.month-year-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.export-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.export-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:background .15s;}
+.export-opt:hover{background:var(--surface3);}
+.export-opt input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.export-opt-label{font-size:.88rem;font-weight:500;color:var(--text);}
+.export-opt-sub{font-size:.75rem;color:var(--text-muted);margin-top:1px;}
+.btn-export{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-family:var(--fh);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px rgba(220,38,38,.35);transition:opacity .2s;}
+.btn-export:hover{opacity:.92;}
+.btn-export:disabled{opacity:.5;cursor:not-allowed;}
+.export-preview{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-top:16px;box-shadow:var(--s1);}
+.export-preview h3{font-family:var(--fh);font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.preview-kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.preview-kpi{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;text-align:center;}
+.preview-kpi-lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px;}
+.preview-kpi-val{font-family:var(--fh);font-size:1.1rem;font-weight:800;}
+.preview-section{margin-bottom:16px;}
+.preview-section-title{font-family:var(--fh);font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:6px;}
+.preview-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.preview-row:last-child{border-bottom:none;}
+.preview-row-name{color:var(--text);font-weight:500;flex:1;}
+.preview-row-amt{font-family:var(--fh);font-weight:700;font-size:.88rem;white-space:nowrap;}
+.preview-row-amt.green{color:#065f46;}
+.preview-row-amt.blue{color:#1d4ed8;}
+.preview-row-amt.orange{color:#c2410c;}
+.preview-row-amt.purple{color:#5b21b6;}
+.top-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.72rem;font-weight:800;margin-right:6px;flex-shrink:0;}
+.top-badge.gold{background:#fef3c7;color:#92400e;}
+.top-badge.silver{background:#f1f5f9;color:#475569;}
+.top-badge.bronze{background:#ffedd5;color:#c2410c;}
+.solde-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-family:var(--fh);font-size:1rem;font-weight:800;margin:0 auto;display:block;text-align:center;}
+.solde-badge.pos{background:#d1fae5;color:#065f46;}
+.solde-badge.neg{background:#fef2f2;color:var(--danger);}
+/* Zone d'impression cachée */
+#pdf-print-zone{display:none;}
+@media print{
+  body > *:not(#pdf-print-zone){ display:none !important; }
+  #pdf-print-zone{ display:block !important; font-family:'DM Sans',sans-serif; color:#0f2044; }
+  .pdf-page{ padding:24px; max-width:800px; margin:0 auto; }
+  .pdf-header{ background:#1d4ed8; color:#fff; padding:20px 24px; border-radius:12px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-start; }
+  .pdf-logo{ font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; }
+  .pdf-meta{ font-size:.8rem; opacity:.8; text-align:right; }
+  .pdf-solde{ text-align:center; padding:16px; background:#f0fdf4; border-radius:12px; margin-bottom:20px; }
+  .pdf-solde-val{ font-size:2rem; font-weight:800; }
+  .pdf-solde-val.pos{ color:#065f46; } .pdf-solde-val.neg{ color:#dc2626; }
+  .pdf-section{ margin-bottom:20px; page-break-inside:avoid; }
+  .pdf-section-title{ font-size:1rem; font-weight:700; border-bottom:2px solid #c4d7f0; padding-bottom:6px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  .pdf-kpis{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:20px; }
+  .pdf-kpi{ background:#f0f5fd; border-radius:10px; padding:12px; text-align:center; }
+  .pdf-kpi-lbl{ font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#6480a8; margin-bottom:4px; }
+  .pdf-kpi-val{ font-size:1.1rem; font-weight:800; }
+  .pdf-row{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #e2ecf9; font-size:.85rem; }
+  .pdf-row:last-child{ border-bottom:none; }
+  .pdf-row-name{ flex:1; }
+  .pdf-row-amt{ font-weight:700; }
+  .pdf-footer{ text-align:center; font-size:.72rem; color:#6480a8; margin-top:24px; padding-top:12px; border-top:1px solid #c4d7f0; }
+}
 .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-family:var(--fb);font-size:.58rem;font-weight:500;}
 .bnav-btn .bi{font-size:1.25rem;}
 .bnav-btn.active{color:var(--accent);}
@@ -391,6 +455,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
   <button class="tab-btn" onclick="showTab('revenus')"             id="tab-revenus">💶 Revenus</button>
   <button class="tab-btn" onclick="showTab('suivi')"               id="tab-suivi">🎯 Suivi</button>
   <button class="tab-btn" onclick="showTab('notes')"               id="tab-notes">📝 Notes</button>
+  <button class="tab-btn" onclick="showTab('export')"              id="tab-export">📄 Export PDF</button>
 </nav>
 
 <main id="appMain" style="display:none">
@@ -582,6 +647,56 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
   <div class="notes-list" id="notes-list"><div class="empty"><span class="emoji">📝</span>Aucune note</div></div>
 </div>
 
+<!-- ═══ EXPORT PDF ═══ -->
+<div class="section" id="section-export">
+
+  <div class="export-header">
+    <h2>📄 Export PDF mensuel</h2>
+    <p>Genere un rapport complet de vos finances pour le mois choisi</p>
+  </div>
+
+  <div class="export-selector">
+    <h3>📅 Choisir la periode</h3>
+    <div class="month-year-row">
+      <div><label class="fl">Mois</label>
+        <select id="exp-month">
+          <option>Jan</option><option>Fév</option><option>Mar</option><option>Avr</option>
+          <option>Mai</option><option>Juin</option><option>Juil</option><option>Aoû</option>
+          <option>Sep</option><option>Oct</option><option>Nov</option><option>Déc</option>
+        </select>
+      </div>
+      <div><label class="fl">Annee</label><select id="exp-year"></select></div>
+    </div>
+
+    <div style="font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Inclure dans le rapport</div>
+    <div class="export-options">
+      <label class="export-opt"><input type="checkbox" id="exp-kpi" checked><div><div class="export-opt-label">📊 KPIs & solde du mois</div><div class="export-opt-sub">Revenus, sorties, solde net</div></div></label>
+      <label class="export-opt"><input type="checkbox" id="exp-rev" checked><div><div class="export-opt-label">💶 Revenus du mois</div><div class="export-opt-sub">Detail par source</div></div></label>
+      <label class="export-opt"><input type="checkbox" id="exp-prel" checked><div><div class="export-opt-label">📅 Prélèvements mensuels</div><div class="export-opt-sub">Tous les prelevements fixes</div></div></label>
+      <label class="export-opt"><input type="checkbox" id="exp-charges" checked><div><div class="export-opt-label">⚡ Charges du mois</div><div class="export-opt-sub">Toutes les charges saisies ce mois</div></div></label>
+      <label class="export-opt"><input type="checkbox" id="exp-top" checked><div><div class="export-opt-label">🏆 Top depenses</div><div class="export-opt-sub">Classement des plus grosses depenses</div></div></label>
+      <label class="export-opt"><input type="checkbox" id="exp-notes" checked><div><div class="export-opt-label">📝 Notes & pense-bete</div><div class="export-opt-sub">Notes a faire et urgentes</div></div></label>
+    </div>
+
+    <button class="btn-export" id="btn-gen-preview" onclick="genExport()">
+      👁️ Aperçu &amp; Imprimer en PDF
+    </button>
+  </div>
+
+  <!-- APERÇU -->
+  <div class="export-preview" id="export-preview" style="display:none">
+    <h3>👁️ Aperçu — <span id="preview-title"></span></h3>
+    <div id="preview-content"></div>
+    <button class="btn-export" style="margin-top:16px;background:linear-gradient(135deg,#065f46,#059669);" onclick="doPrint()">
+      🖨️ Imprimer / Enregistrer en PDF
+    </button>
+  </div>
+
+</div>
+
+<!-- ZONE D'IMPRESSION CACHEE -->
+<div id="pdf-print-zone"></div>
+
 </main>
 
 <nav class="bottom-nav" id="appBottomNav" style="display:none">
@@ -592,6 +707,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
     <button class="bnav-btn" onclick="showTab('revenus')" id="bnav-revenus"><span class="bi">💶</span>Revenus</button>
     <button class="bnav-btn" onclick="showTab('suivi')" id="bnav-suivi"><span class="bi">🎯</span>Suivi</button>
     <button class="bnav-btn" onclick="showTab('notes')" id="bnav-notes"><span class="bi">📝</span>Notes</button>
+    <button class="bnav-btn" onclick="showTab('export')" id="bnav-export"><span class="bi">📄</span>Export</button>
   </div>
 </nav>
 
@@ -1278,6 +1394,213 @@ function refreshCharts() {
     charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:gc(data.revenus.length,140),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
   }
 }
+
+/* ══ EXPORT PDF ══ */
+
+// Init sélecteurs export
+(function() {
+  const nowD2 = new Date();
+  const MONTHS2 = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+  const selEM = document.getElementById('exp-month');
+  if (selEM) selEM.value = MONTHS2[nowD2.getMonth()];
+  const selEY = document.getElementById('exp-year');
+  if (selEY) {
+    const y = nowD2.getFullYear();
+    for (let i = y-2; i <= y+1; i++) {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = i; if(i===y) o.selected=true;
+      selEY.appendChild(o);
+    }
+  }
+})();
+
+window.genExport = function() {
+  const month  = document.getElementById('exp-month').value;
+  const year   = parseInt(document.getElementById('exp-year').value);
+  const YM     = year + '-' + String(['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'].indexOf(month)+1).padStart(2,'0');
+
+  const inclKpi     = document.getElementById('exp-kpi').checked;
+  const inclRev     = document.getElementById('exp-rev').checked;
+  const inclPrel    = document.getElementById('exp-prel').checked;
+  const inclCharges = document.getElementById('exp-charges').checked;
+  const inclTop     = document.getElementById('exp-top').checked;
+  const inclNotes   = document.getElementById('exp-notes').checked;
+
+  // ─── Calculs ───
+  const tR = data.revenus.reduce((s,cat) => {
+    const e = data.revenuEntries.find(r=>r.catId===cat.id&&normMonth(r.month)===month&&r.year===year);
+    return s + (e?e.amount:cat.amount);
+  },0);
+  const tP  = data.prel.reduce((s,x)=>s+x.amount,0);
+  const tC  = data.chargeEntries.filter(e=>e.date&&e.date.startsWith(YM)).reduce((s,e)=>s+e.amount,0);
+  const sorties = tP + tC;
+  const solde   = tR - sorties;
+
+  // ─── Revenus détail ───
+  const revDetails = data.revenus.map(cat=>{
+    const e = data.revenuEntries.find(r=>r.catId===cat.id&&normMonth(r.month)===month&&r.year===year);
+    return {name:cat.name, amount:e?e.amount:cat.amount, isDefault:!e};
+  });
+
+  // ─── Charges du mois ───
+  const chargesM = data.chargeEntries.filter(e=>e.date&&e.date.startsWith(YM));
+  // Groupées par catégorie
+  const chargesByCat = {};
+  chargesM.forEach(e=>{
+    const cat = data.charges.find(c=>c.id===e.catId);
+    const name = cat?cat.name:'Divers';
+    if(!chargesByCat[name]) chargesByCat[name]=0;
+    chargesByCat[name]+=e.amount;
+  });
+
+  // ─── Top dépenses (charges + prélèvements) ───
+  const allDeps = [
+    ...Object.entries(chargesByCat).map(([n,a])=>({name:n,amount:a,type:'Charge'})),
+    ...data.prel.map(x=>({name:x.name,amount:x.amount,type:'Prelevement'}))
+  ].sort((a,b)=>b.amount-a.amount).slice(0,5);
+
+  // ─── Notes à faire / urgentes ───
+  const notesActives = data.notes.filter(n=>!n.done&&(n.priorite==='haute'||n.deadline)).slice(0,8);
+
+  // ─── Construire l'aperçu HTML ───
+  let html = '';
+
+  if(inclKpi) {
+    html += '<div class="preview-section">';
+    html += '<div class="preview-section-title">📊 Bilan du mois</div>';
+    html += '<div class="preview-kpi-row">';
+    html += '<div class="preview-kpi"><div class="preview-kpi-lbl">💶 Revenus</div><div class="preview-kpi-val" style="color:#065f46">'+fmt(tR)+'</div></div>';
+    html += '<div class="preview-kpi"><div class="preview-kpi-lbl">📅 Prélèvements</div><div class="preview-kpi-val" style="color:#1d4ed8">'+fmt(tP)+'</div></div>';
+    html += '<div class="preview-kpi"><div class="preview-kpi-lbl">⚡ Charges</div><div class="preview-kpi-val" style="color:#c2410c">'+fmt(tC)+'</div></div>';
+    html += '<div class="preview-kpi"><div class="preview-kpi-lbl">📤 Sorties</div><div class="preview-kpi-val" style="color:var(--danger)">'+fmt(sorties)+'</div></div>';
+    html += '</div>';
+    html += '<div class="solde-badge '+(solde>=0?'pos':'neg')+'">'+(solde>=0?'✅':'⚠️')+' Solde net : '+(solde>=0?'+':'−')+fmt(Math.abs(solde))+'</div>';
+    html += '</div>';
+  }
+
+  if(inclRev && revDetails.length) {
+    html += '<div class="preview-section"><div class="preview-section-title">💶 Revenus</div>';
+    revDetails.forEach(r=>{
+      html += '<div class="preview-row"><span class="preview-row-name">'+esc(r.name)+(r.isDefault?' <em style="font-size:.75rem;color:var(--text-muted)">(montant par defaut)</em>':'')+'</span><span class="preview-row-amt green">'+fmt(r.amount)+'</span></div>';
+    });
+    html += '<div class="preview-row" style="font-weight:700;background:var(--surface2);padding:8px 4px;border-radius:6px;margin-top:4px;"><span class="preview-row-name">Total revenus</span><span class="preview-row-amt green">'+fmt(tR)+'</span></div>';
+    html += '</div>';
+  }
+
+  if(inclPrel && data.prel.length) {
+    html += '<div class="preview-section"><div class="preview-section-title">📅 Prélèvements mensuels</div>';
+    data.prel.forEach(p=>{
+      html += '<div class="preview-row"><span class="preview-row-name">'+esc(p.name)+'</span><span class="preview-row-amt blue">'+fmt(p.amount)+'</span></div>';
+    });
+    html += '<div class="preview-row" style="font-weight:700;background:var(--surface2);padding:8px 4px;border-radius:6px;margin-top:4px;"><span class="preview-row-name">Total prelevements</span><span class="preview-row-amt blue">'+fmt(tP)+'</span></div>';
+    html += '</div>';
+  }
+
+  if(inclCharges) {
+    html += '<div class="preview-section"><div class="preview-section-title">⚡ Charges du mois</div>';
+    if(Object.keys(chargesByCat).length) {
+      const sorted = Object.entries(chargesByCat).sort((a,b)=>b[1]-a[1]);
+      sorted.forEach(([name,amt])=>{
+        html += '<div class="preview-row"><span class="preview-row-name">'+esc(name)+'</span><span class="preview-row-amt orange">'+fmt(amt)+'</span></div>';
+      });
+      html += '<div class="preview-row" style="font-weight:700;background:var(--surface2);padding:8px 4px;border-radius:6px;margin-top:4px;"><span class="preview-row-name">Total charges</span><span class="preview-row-amt orange">'+fmt(tC)+'</span></div>';
+    } else {
+      html += '<div class="empty" style="padding:14px 0"><span class="emoji" style="font-size:1.5rem">📭</span>Aucune charge ce mois</div>';
+    }
+    html += '</div>';
+  }
+
+  if(inclTop && allDeps.length) {
+    const medals = ['gold','silver','bronze'];
+    html += '<div class="preview-section"><div class="preview-section-title">🏆 Top depenses</div>';
+    allDeps.forEach((d,i)=>{
+      const medalClass = i<3?medals[i]:'';
+      const num = i<3?['🥇','🥈','🥉'][i]:(i+1)+'e';
+      html += '<div class="preview-row"><span class="preview-row-name"><span class="top-badge '+(medalClass||'')+'">'+num+'</span>'+esc(d.name)+' <em style="font-size:.75rem;color:var(--text-muted)">('+d.type+')</em></span><span class="preview-row-amt '+(d.type==='Charge'?'orange':'blue')+'">'+fmt(d.amount)+'</span></div>';
+    });
+    html += '</div>';
+  }
+
+  if(inclNotes && notesActives.length) {
+    html += '<div class="preview-section"><div class="preview-section-title">📝 Notes prioritaires</div>';
+    notesActives.forEach(n=>{
+      const dl = n.deadline?dlStatus(n.deadline):null;
+      html += '<div class="preview-row" style="align-items:flex-start;gap:8px;">';
+      html += '<span class="preview-row-name">'+(n.priorite==='haute'?'🔴 ':'🟠 ')+esc(n.title)+(dl?'<br><em style="font-size:.75rem;color:var(--text-muted)">'+dl.label+'</em>':'')+'</span>';
+      html += '<span style="font-size:.75rem;color:var(--text-muted);white-space:nowrap;">'+esc(n.cat||'')+'</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Afficher l'aperçu
+  document.getElementById('preview-title').textContent = month + ' ' + year;
+  document.getElementById('preview-content').innerHTML = html;
+  document.getElementById('export-preview').style.display = 'block';
+
+  // Construire la zone d'impression
+  buildPrintZone(month, year, YM, tR, tP, tC, sorties, solde, revDetails, chargesByCat, allDeps, notesActives, inclKpi, inclRev, inclPrel, inclCharges, inclTop, inclNotes);
+};
+
+function buildPrintZone(month, year, YM, tR, tP, tC, sorties, solde, revDetails, chargesByCat, allDeps, notesActives, inclKpi, inclRev, inclPrel, inclCharges, inclTop, inclNotes) {
+  const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  let html = '<div class="pdf-page">';
+
+  // En-tête
+  html += '<div class="pdf-header"><div><div class="pdf-logo">MyFinance — Foyer Chaju</div><div style="font-size:.85rem;opacity:.8;margin-top:4px;">Rapport mensuel — '+month+' '+year+'</div></div><div class="pdf-meta">Genere le '+today+'</div></div>';
+
+  // Solde
+  html += '<div class="pdf-solde"><div style="font-size:.8rem;color:#6480a8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Solde net du mois</div>';
+  html += '<div class="pdf-solde-val '+(solde>=0?'pos':'neg')+'">'+(solde>=0?'+':'−')+fmt(Math.abs(solde))+'</div></div>';
+
+  // KPIs
+  if(inclKpi) {
+    html += '<div class="pdf-kpis">';
+    html += '<div class="pdf-kpi"><div class="pdf-kpi-lbl">Revenus</div><div class="pdf-kpi-val" style="color:#065f46">'+fmt(tR)+'</div></div>';
+    html += '<div class="pdf-kpi"><div class="pdf-kpi-lbl">Prelevements</div><div class="pdf-kpi-val" style="color:#1d4ed8">'+fmt(tP)+'</div></div>';
+    html += '<div class="pdf-kpi"><div class="pdf-kpi-lbl">Charges</div><div class="pdf-kpi-val" style="color:#c2410c">'+fmt(tC)+'</div></div>';
+    html += '<div class="pdf-kpi"><div class="pdf-kpi-lbl">Total sorties</div><div class="pdf-kpi-val" style="color:#dc2626">'+fmt(sorties)+'</div></div>';
+    html += '</div>';
+  }
+
+  if(inclRev && revDetails.length) {
+    html += '<div class="pdf-section"><div class="pdf-section-title">💶 Revenus</div>';
+    revDetails.forEach(r=>{ html += '<div class="pdf-row"><span class="pdf-row-name">'+esc(r.name)+(r.isDefault?' (defaut)':'')+'</span><span class="pdf-row-amt" style="color:#065f46">'+fmt(r.amount)+'</span></div>'; });
+    html += '<div class="pdf-row" style="font-weight:700;"><span class="pdf-row-name">Total</span><span class="pdf-row-amt" style="color:#065f46">'+fmt(tR)+'</span></div></div>';
+  }
+
+  if(inclPrel && data.prel.length) {
+    html += '<div class="pdf-section"><div class="pdf-section-title">📅 Prelevements mensuels</div>';
+    data.prel.forEach(p=>{ html += '<div class="pdf-row"><span class="pdf-row-name">'+esc(p.name)+'</span><span class="pdf-row-amt" style="color:#1d4ed8">'+fmt(p.amount)+'</span></div>'; });
+    html += '<div class="pdf-row" style="font-weight:700;"><span class="pdf-row-name">Total</span><span class="pdf-row-amt" style="color:#1d4ed8">'+fmt(tP)+'</span></div></div>';
+  }
+
+  if(inclCharges && Object.keys(chargesByCat).length) {
+    html += '<div class="pdf-section"><div class="pdf-section-title">⚡ Charges du mois</div>';
+    Object.entries(chargesByCat).sort((a,b)=>b[1]-a[1]).forEach(([n,a])=>{ html += '<div class="pdf-row"><span class="pdf-row-name">'+esc(n)+'</span><span class="pdf-row-amt" style="color:#c2410c">'+fmt(a)+'</span></div>'; });
+    html += '<div class="pdf-row" style="font-weight:700;"><span class="pdf-row-name">Total</span><span class="pdf-row-amt" style="color:#c2410c">'+fmt(tC)+'</span></div></div>';
+  }
+
+  if(inclTop && allDeps.length) {
+    html += '<div class="pdf-section"><div class="pdf-section-title">🏆 Top depenses</div>';
+    allDeps.forEach((d,i)=>{ html += '<div class="pdf-row"><span class="pdf-row-name">'+(i+1)+'. '+esc(d.name)+' ('+d.type+')</span><span class="pdf-row-amt">'+fmt(d.amount)+'</span></div>'; });
+    html += '</div>';
+  }
+
+  if(inclNotes && notesActives.length) {
+    html += '<div class="pdf-section"><div class="pdf-section-title">📝 Notes prioritaires</div>';
+    notesActives.forEach(n=>{ html += '<div class="pdf-row"><span class="pdf-row-name">'+(n.priorite==='haute'?'[HAUTE] ':'[MOY] ')+esc(n.title)+'</span><span class="pdf-row-amt">'+esc(n.cat||'')+'</span></div>'; });
+    html += '</div>';
+  }
+
+  html += '<div class="pdf-footer">MyFinance — Foyer Chaju | Rapport genere automatiquement | '+today+'</div>';
+  html += '</div>';
+  document.getElementById('pdf-print-zone').innerHTML = html;
+}
+
+window.doPrint = function() {
+  window.print();
+};
 
 /* ── AUTH STATE ── */
 onAuthStateChanged(auth, user => {
