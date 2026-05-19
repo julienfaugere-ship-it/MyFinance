@@ -272,6 +272,58 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 .btn-ndel{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:2px 4px;border-radius:6px;}
 .btn-ndel:hover{color:var(--danger);}
 
+/* RECHERCHE CATÉGORIE CHARGES */
+.cat-search-wrap{position:relative;margin-bottom:10px;}
+.cat-search-inp{width:100%;background:var(--surface2);border:1.5px solid var(--accent2);border-radius:10px;padding:10px 14px 10px 36px;color:var(--text);font-family:var(--fb);font-size:.9rem;outline:none;}
+.cat-search-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.cat-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none;}
+.cat-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;box-shadow:var(--s2);z-index:50;max-height:200px;overflow-y:auto;display:none;}
+.cat-results.show{display:block;}
+.cat-result-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s;font-size:.9rem;}
+.cat-result-item:hover{background:var(--surface2);}
+.cat-result-item:first-child{border-radius:10px 10px 0 0;}
+.cat-result-item:last-child{border-radius:0 0 10px 10px;}
+.cat-result-ico{width:30px;height:30px;border-radius:8px;background:#ffedd5;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.cat-result-name{font-weight:600;color:var(--text);}
+.cat-result-total{font-size:.78rem;color:var(--text-muted);margin-left:auto;}
+.cat-search-no{padding:12px 14px;font-size:.85rem;color:var(--text-muted);font-style:italic;}
+
+/* ONGLET ANALYSE */
+.analyse-hero{background:linear-gradient(135deg,#1e3a8a,#4c1d95);border-radius:var(--r);padding:22px 20px;margin-bottom:20px;box-shadow:var(--s3);}
+.analyse-hero h2{font-family:var(--fh);font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px;}
+.analyse-hero p{font-size:.83rem;color:#c4b5fd;}
+.analyse-select-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--s1);}
+.analyse-select-card h3{font-family:var(--fh);font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.cat-btn-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.cat-sel-btn{border:1.5px solid var(--border);background:var(--surface2);border-radius:20px;padding:7px 16px;font-size:.84rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;font-family:var(--fb);}
+.cat-sel-btn:hover{background:var(--surface3);color:var(--text);}
+.cat-sel-btn.active{background:var(--accent4);border-color:var(--accent4);color:#fff;}
+.analyse-result{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--s1);}
+.analyse-result h3{font-family:var(--fh);font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.analyse-kpi-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.a-kpi{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.a-kpi-lbl{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px;}
+.a-kpi-val{font-family:var(--fh);font-size:1.05rem;font-weight:800;}
+.month-detail-list{display:flex;flex-direction:column;gap:6px;}
+.month-detail-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;min-width:0;}
+.mdr-month{font-weight:600;font-size:.85rem;color:var(--text);width:80px;flex-shrink:0;}
+.mdr-bar-wrap{flex:1;background:var(--surface3);border-radius:20px;height:10px;overflow:hidden;}
+.mdr-bar{height:100%;border-radius:20px;transition:width .5s ease;}
+.mdr-bar.up{background:linear-gradient(90deg,#dc2626,#ef4444);}
+.mdr-bar.dn{background:linear-gradient(90deg,#059669,#34d399);}
+.mdr-bar.eq{background:linear-gradient(90deg,#2563eb,#60a5fa);}
+.mdr-amt{font-family:var(--fh);font-size:.92rem;font-weight:800;color:var(--text);width:90px;text-align:right;flex-shrink:0;}
+.mdr-delta{font-size:.75rem;font-weight:600;width:60px;text-align:right;flex-shrink:0;}
+.mdr-delta.up{color:var(--danger);}
+.mdr-delta.dn{color:var(--success);}
+.mdr-delta.eq{color:var(--accent);}
+.mdr-entries{font-size:.72rem;color:var(--text-muted);width:55px;text-align:right;flex-shrink:0;}
+.trend-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:.82rem;font-weight:700;}
+.trend-badge.up{background:#fef2f2;color:var(--danger);}
+.trend-badge.dn{background:#d1fae5;color:#065f46;}
+.trend-badge.eq{background:#dbeafe;color:#1d4ed8;}
+@media(max-width:600px){.analyse-kpi-row{grid-template-columns:1fr 1fr;}}
+
 /* REVENUS HISTORISES */
 .rev-group{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;box-shadow:var(--s1);}
 .rev-hdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:background .2s;min-width:0;}
@@ -327,6 +379,230 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:2px solid var(--border);z-index:200;padding:6px 0 env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(37,99,235,.1);}
 .bottom-nav-inner{display:flex;justify-content:space-around;}
+
+/* ══ RECHERCHE CATÉGORIE CHARGES ══ */
+
+window.filterCatSearch = function(val) {
+  const res = document.getElementById('cat-results');
+  if (!val.trim()) { res.classList.remove('show'); return; }
+  const q = val.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const matches = data.charges.filter(c =>
+    c.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q)
+  );
+  if (!matches.length) {
+    res.innerHTML = '<div class="cat-search-no">Aucune categorie trouvee</div>';
+    res.classList.add('show'); return;
+  }
+  res.innerHTML = matches.map(c => {
+    const total = data.chargeEntries.filter(e=>e.catId===c.id).reduce((s,e)=>s+e.amount,0);
+    return `<div class="cat-result-item" data-id="${c.id}" onclick="jumpToCat(this.dataset.id)">`
+      +`<div class="cat-result-ico">${gi(c.name,IC_CHARGE)}</div>`
+      +`<div class="cat-result-name">${esc(c.name)}</div>`
+      +`<div class="cat-result-total">${fmt(total)}</div>`
+      +`</div>`;
+  }).join('');
+  res.classList.add('show');
+};
+
+window.jumpToCat = function(catId) {
+  // Fermer la recherche
+  document.getElementById('cat-search').value = '';
+  document.getElementById('cat-results').classList.remove('show');
+  // Ouvrir le groupe et scroller
+  const body = document.getElementById('cgb-'+catId);
+  const chev  = document.getElementById('cgc-'+catId);
+  if (body && !body.classList.contains('open')) {
+    body.classList.add('open');
+    if (chev) chev.classList.add('open');
+  }
+  setTimeout(()=>{
+    const el = document.getElementById('cgb-'+catId);
+    if (el) el.closest('.cg').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 100);
+};
+
+// Fermer dropdown si clic ailleurs
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('cat-results');
+  if (wrap && !e.target.closest('.cat-search-wrap')) wrap.classList.remove('show');
+});
+
+/* ══ ANALYSE ══ */
+
+let anaSelectedCat = null;
+let anaSelectedType = 'charge';
+let chartAnalyse = null;
+
+// Init sélecteur année analyse
+(function(){
+  const sel = document.getElementById('ana-year');
+  if(!sel) return;
+  for(let y=nowY-2;y<=nowY+1;y++){
+    const o=document.createElement('option');
+    o.value=y; o.textContent=y; if(y===nowY) o.selected=true;
+    sel.appendChild(o);
+  }
+})();
+
+window.updateAnaCategories = function() {
+  anaSelectedType = document.getElementById('ana-type').value;
+  anaSelectedCat = null;
+  document.getElementById('ana-result').style.display = 'none';
+  document.getElementById('ana-empty').style.display = 'block';
+  renderAnaCatBtns();
+};
+
+function renderAnaCatBtns() {
+  const cont = document.getElementById('ana-cat-btns');
+  if (!cont) return;
+  const cats = anaSelectedType === 'charge'
+    ? data.charges
+    : [...new Set(data.suivi.map(x=>x.name))].map(n=>({id:n,name:n}));
+  if (!cats.length) {
+    cont.innerHTML = '<span style="font-size:.85rem;color:var(--text-muted);font-style:italic;">Aucune categorie disponible</span>';
+    return;
+  }
+  cont.innerHTML = cats.map(c=>`
+    <button class="cat-sel-btn ${anaSelectedCat===c.id?'active':''}" onclick="selectAnaCat('${c.id}')">
+      ${anaSelectedType==='charge'?gi(c.name,IC_CHARGE):gi(c.name,IC_SUIVI)} ${esc(c.name)}
+    </button>`).join('');
+}
+
+window.selectAnaCat = function(id) {
+  anaSelectedCat = id;
+  renderAnaCatBtns();
+  runAnalyse();
+};
+
+window.runAnalyse = function() {
+  if (!anaSelectedCat) return;
+  const year = parseInt(document.getElementById('ana-year').value);
+  const type = anaSelectedType;
+
+  // Données par mois
+  const monthData = MONTHS.map(m => {
+    let amt = 0, entries = 0;
+    if (type === 'charge') {
+      const YM = year + '-' + String(MONTHS.indexOf(m)+1).padStart(2,'0');
+      const es = data.chargeEntries.filter(e=>e.catId===anaSelectedCat&&e.date&&e.date.startsWith(YM));
+      amt = es.reduce((s,e)=>s+e.amount,0);
+      entries = es.length;
+    } else {
+      const e = data.suivi.find(x=>x.name===anaSelectedCat&&x.month===m&&x.year===year);
+      amt = e?e.amount:0;
+      entries = e?1:0;
+    }
+    return {month:m, amt, entries};
+  });
+
+  // KPIs
+  const nonZero = monthData.filter(d=>d.amt>0);
+  const total   = monthData.reduce((s,d)=>s+d.amt,0);
+  const avg     = nonZero.length ? total/nonZero.length : 0;
+  const maxD    = nonZero.length ? nonZero.reduce((a,b)=>a.amt>b.amt?a:b) : null;
+  const minD    = nonZero.length ? nonZero.reduce((a,b)=>a.amt<b.amt?a:b) : null;
+
+  // Tendance : compare 1ere moitie vs 2e moitie des mois renseignes
+  let trendCls='eq', trendLabel='Stable', trendPct=0;
+  if (nonZero.length >= 2) {
+    const first = nonZero.slice(0, Math.ceil(nonZero.length/2));
+    const last  = nonZero.slice(Math.ceil(nonZero.length/2));
+    const avgFirst = first.reduce((s,d)=>s+d.amt,0)/first.length;
+    const avgLast  = last.reduce((s,d)=>s+d.amt,0)/last.length;
+    trendPct = avgFirst>0?((avgLast-avgFirst)/avgFirst)*100:0;
+    if      (trendPct > 5)  { trendCls='up'; trendLabel='En hausse'; }
+    else if (trendPct < -5) { trendCls='dn'; trendLabel='En baisse'; }
+    else                    { trendCls='eq'; trendLabel='Stable'; }
+  }
+
+  // Nom de la catégorie
+  let catName = anaSelectedCat;
+  if (type==='charge') { const c=data.charges.find(x=>x.id===anaSelectedCat); if(c) catName=c.name; }
+
+  // ─── Affichage ───
+  document.getElementById('ana-result-title').textContent = catName + ' — ' + year;
+  document.getElementById('ana-result').style.display = 'block';
+  document.getElementById('ana-empty').style.display  = 'none';
+
+  document.getElementById('ana-kpis').innerHTML =
+    '<div class="a-kpi"><div class="a-kpi-lbl">Total '+year+'</div><div class="a-kpi-val" style="color:#5b21b6">'+fmt(total)+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Moy. mensuelle</div><div class="a-kpi-val" style="color:var(--accent)">'+fmt(avg)+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois max</div><div class="a-kpi-val" style="color:var(--danger)">'+(maxD?maxD.month+' '+fmt(maxD.amt):'-')+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois min</div><div class="a-kpi-val" style="color:var(--success)">'+(minD?minD.month+' '+fmt(minD.amt):'-')+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois actifs</div><div class="a-kpi-val" style="color:var(--text)">'+nonZero.length+'/12</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Tendance</div><div class="a-kpi-val"><span class="trend-badge '+trendCls+'">'+(trendCls==='up'?'▲':trendCls==='dn'?'▼':'➡')+' '+Math.abs(trendPct).toFixed(0)+'%</span></div></div>';
+
+  document.getElementById('ana-trend-badge').innerHTML = '<span class="trend-badge '+trendCls+'">'+(trendCls==='up'?'📈 En hausse':trendCls==='dn'?'📉 En baisse':'➡ Stable')+'</span>';
+  document.getElementById('ana-trend-text').textContent = trendCls==='up'
+    ? 'Les depenses augmentent vs debut annee ('+trendPct.toFixed(0)+'%)'
+    : trendCls==='dn'
+    ? 'Les depenses diminuent vs debut annee ('+Math.abs(trendPct).toFixed(0)+'% de moins)'
+    : 'Les depenses sont stables sur l’annee';
+
+  // ─── Graphique ───
+  if (chartAnalyse) { chartAnalyse.destroy(); chartAnalyse=null; }
+  const maxAmt = Math.max(...monthData.map(d=>d.amt), 1);
+  const barColors = monthData.map(d => {
+    if (d.amt===0) return 'rgba(196,215,240,.4)';
+    if (maxD && d.month===maxD.month) return 'rgba(220,38,38,.8)';
+    if (minD && d.month===minD.month) return 'rgba(5,150,105,.8)';
+    return 'rgba(124,58,237,.7)';
+  });
+  chartAnalyse = new Chart(document.getElementById('chartAnalyse'),{
+    type:'bar',
+    data:{
+      labels:MONTHS,
+      datasets:[
+        {type:'bar',label:'Montant',data:monthData.map(d=>d.amt),backgroundColor:barColors,borderRadius:8,borderSkipped:false,order:2},
+        {type:'line',label:'Moyenne',data:MONTHS.map(()=>avg),borderColor:'rgba(37,99,235,.6)',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,order:1}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#6480a8',font:{family:'DM Sans'},boxWidth:12}},
+        tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}
+      },
+      scales:{
+        x:{ticks:{color:'#6480a8'},grid:{color:'#c4d7f0'}},
+        y:{ticks:{color:'#6480a8',callback:v=>v===0?'0':fmt(v)},grid:{color:'#c4d7f0'},beginAtZero:true}
+      }
+    }
+  });
+
+  // ─── Détail mois par mois ───
+  const maxForBar = maxAmt || 1;
+  document.getElementById('ana-months').innerHTML = monthData.map((d,i)=>{
+    if (d.amt===0) return `
+      <div class="month-detail-row" style="opacity:.45;">
+        <div class="mdr-month">${d.month}</div>
+        <div class="mdr-bar-wrap"><div class="mdr-bar eq" style="width:0%"></div></div>
+        <div class="mdr-amt" style="color:var(--text-muted)">—</div>
+        <div class="mdr-delta eq">—</div>
+        <div class="mdr-entries">${d.entries} entrée</div>
+      </div>`;
+    const prev = monthData.slice(0,i).reverse().find(p=>p.amt>0);
+    let deltaHtml='—', deltaCls='eq';
+    if (prev && prev.amt>0) {
+      const pct=((d.amt-prev.amt)/prev.amt)*100;
+      deltaCls = pct>5?'up':pct<-5?'dn':'eq';
+      deltaHtml = (pct>0?'+':'')+pct.toFixed(0)+'%';
+    }
+    const barW = Math.round((d.amt/maxForBar)*100);
+    const barCls = d.month===maxD?.month?'up':d.month===minD?.month?'dn':'eq';
+    return `
+      <div class="month-detail-row">
+        <div class="mdr-month">${d.month}</div>
+        <div class="mdr-bar-wrap"><div class="mdr-bar ${barCls}" style="width:${barW}%"></div></div>
+        <div class="mdr-amt">${fmt(d.amt)}</div>
+        <div class="mdr-delta ${deltaCls}">${deltaHtml}</div>
+        <div class="mdr-entries">${d.entries} entr.</div>
+      </div>`;
+  }).join('');
+};
+
+// Initialiser les catégories quand les données chargent (hook sur renderCharges)
+const _origRenderCharges = renderCharges ? undefined : undefined;
+function postRenderAnalyse() { if(document.getElementById('ana-cat-btns')) renderAnaCatBtns(); }
 
 /* ══ EXPORT PDF ══ */
 .export-header{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);border-radius:var(--r);padding:22px 20px;margin-bottom:20px;box-shadow:var(--s3);}
@@ -455,6 +731,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
   <button class="tab-btn" onclick="showTab('revenus')"             id="tab-revenus">💶 Revenus</button>
   <button class="tab-btn" onclick="showTab('suivi')"               id="tab-suivi">🎯 Suivi</button>
   <button class="tab-btn" onclick="showTab('notes')"               id="tab-notes">📝 Notes</button>
+  <button class="tab-btn" onclick="showTab('analyse')"             id="tab-analyse">📈 Analyse</button>
   <button class="tab-btn" onclick="showTab('export')"              id="tab-export">📄 Export PDF</button>
 </nav>
 
@@ -514,7 +791,17 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
     </div>
   </div>
 
-  <div id="charge-groups"><div class="empty"><span class="emoji">⏳</span>Chargement…</div></div>
+  <!-- Recherche rapide catégorie -->
+  <div class="fc" style="padding:16px 20px;margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:none;">
+    <div style="font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🔍 Accès rapide à une catégorie</div>
+    <div class="cat-search-wrap">
+      <span class="cat-search-icon">🔍</span>
+      <input class="cat-search-inp" type="text" id="cat-search" placeholder="Tapez pour chercher : Essence, EDF…" oninput="filterCatSearch(this.value)" autocomplete="off">
+      <div class="cat-results" id="cat-results"></div>
+    </div>
+  </div>
+
+  <div id="charge-groups" style="border-top:none;"><div class="empty"><span class="emoji">⏳</span>Chargement…</div></div>
   <div class="chart-card"><h3>📈 Évolution mensuelle</h3><div class="chart-wrap"><canvas id="chartCharges"></canvas></div></div>
 </div>
 
@@ -647,6 +934,56 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
   <div class="notes-list" id="notes-list"><div class="empty"><span class="emoji">📝</span>Aucune note</div></div>
 </div>
 
+<!-- ═══ ANALYSE ═══ -->
+<div class="section" id="section-analyse">
+
+  <div class="analyse-hero">
+    <h2>📈 Analyse par catégorie</h2>
+    <p>Visualisez l'évolution d'une catégorie mois par mois</p>
+  </div>
+
+  <!-- Sélection catégorie -->
+  <div class="analyse-select-card">
+    <h3>🎯 Choisir une catégorie</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label class="fl">Type</label>
+        <select id="ana-type" onchange="updateAnaCategories()">
+          <option value="charge">⚡ Charges</option>
+          <option value="suivi">🎯 Suivi dépenses</option>
+        </select>
+      </div>
+      <div>
+        <label class="fl">Année</label>
+        <select id="ana-year" onchange="runAnalyse()"></select>
+      </div>
+    </div>
+    <label class="fl">Catégorie</label>
+    <div class="cat-btn-grid" id="ana-cat-btns">
+      <span style="font-size:.85rem;color:var(--text-muted);font-style:italic;">Chargement…</span>
+    </div>
+  </div>
+
+  <!-- Résultat analyse -->
+  <div class="analyse-result" id="ana-result" style="display:none">
+    <h3>📊 <span id="ana-result-title">Catégorie</span></h3>
+    <div class="analyse-kpi-row" id="ana-kpis"></div>
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div id="ana-trend-badge"></div>
+      <span style="font-size:.8rem;color:var(--text-muted);" id="ana-trend-text"></span>
+    </div>
+    <div class="chart-card" style="margin-bottom:16px;"><div class="chart-wrap"><canvas id="chartAnalyse"></canvas></div></div>
+    <div style="font-family:var(--fh);font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Détail mois par mois</div>
+    <div class="month-detail-list" id="ana-months"></div>
+  </div>
+
+  <div class="analyse-result" id="ana-empty" style="text-align:center;padding:30px;">
+    <span style="font-size:2.5rem;">📈</span>
+    <div style="margin-top:10px;color:var(--text-muted);font-size:.9rem;">Sélectionne une catégorie ci-dessus pour voir son évolution</div>
+  </div>
+
+</div>
+
 <!-- ═══ EXPORT PDF ═══ -->
 <div class="section" id="section-export">
 
@@ -707,6 +1044,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
     <button class="bnav-btn" onclick="showTab('revenus')" id="bnav-revenus"><span class="bi">💶</span>Revenus</button>
     <button class="bnav-btn" onclick="showTab('suivi')" id="bnav-suivi"><span class="bi">🎯</span>Suivi</button>
     <button class="bnav-btn" onclick="showTab('notes')" id="bnav-notes"><span class="bi">📝</span>Notes</button>
+    <button class="bnav-btn" onclick="showTab('analyse')" id="bnav-analyse"><span class="bi">📈</span>Analyse</button>
     <button class="bnav-btn" onclick="showTab('export')" id="bnav-export"><span class="bi">📄</span>Export</button>
   </div>
 </nav>
@@ -856,7 +1194,7 @@ async function fsUpd(uid, type, id, payload) {
 function startListeners(uid) {
   unsubs.forEach(u=>u()); unsubs=[];
   unsubs.push(onSnapshot(query(col(uid,'prelevements'),orderBy('createdAt')),snap=>{data.prel=snap.docs.map(d=>({id:d.id,...d.data()}));renderPrel();refreshCharts();}));
-  unsubs.push(onSnapshot(query(col(uid,'charges'),orderBy('createdAt')),snap=>{data.charges=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();}));
+  unsubs.push(onSnapshot(query(col(uid,'charges'),orderBy('createdAt')),snap=>{data.charges=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();postRenderAnalyse();}));
   unsubs.push(onSnapshot(query(col(uid,'chargeEntries'),orderBy('createdAt')),snap=>{data.chargeEntries=snap.docs.map(d=>({id:d.id,...d.data()}));renderCharges();refreshCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'revenus'),orderBy('createdAt')),snap=>{data.revenus=snap.docs.map(d=>({id:d.id,...d.data()}));renderRevenu();refreshCharts();}));
   unsubs.push(onSnapshot(query(col(uid,'revenuEntries'),orderBy('createdAt')),snap=>{data.revenuEntries=snap.docs.map(d=>({id:d.id,...d.data()}));renderRevenu();refreshCharts();}));
@@ -1394,6 +1732,230 @@ function refreshCharts() {
     charts['rev']=new Chart(document.getElementById('chartRev'),{type:'doughnut',data:{labels:data.revenus.map(x=>x.name),datasets:[{data:data.revenus.map(x=>x.amount),backgroundColor:gc(data.revenus.length,140),borderWidth:0}]},options:{cutout:'55%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
   }
 }
+
+/* ══ RECHERCHE CATÉGORIE CHARGES ══ */
+
+window.filterCatSearch = function(val) {
+  const res = document.getElementById('cat-results');
+  if (!val.trim()) { res.classList.remove('show'); return; }
+  const q = val.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const matches = data.charges.filter(c =>
+    c.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q)
+  );
+  if (!matches.length) {
+    res.innerHTML = '<div class="cat-search-no">Aucune categorie trouvee</div>';
+    res.classList.add('show'); return;
+  }
+  res.innerHTML = matches.map(c => {
+    const total = data.chargeEntries.filter(e=>e.catId===c.id).reduce((s,e)=>s+e.amount,0);
+    return `<div class="cat-result-item" data-id="${c.id}" onclick="jumpToCat(this.dataset.id)">`
+      +`<div class="cat-result-ico">${gi(c.name,IC_CHARGE)}</div>`
+      +`<div class="cat-result-name">${esc(c.name)}</div>`
+      +`<div class="cat-result-total">${fmt(total)}</div>`
+      +`</div>`;
+  }).join('');
+  res.classList.add('show');
+};
+
+window.jumpToCat = function(catId) {
+  // Fermer la recherche
+  document.getElementById('cat-search').value = '';
+  document.getElementById('cat-results').classList.remove('show');
+  // Ouvrir le groupe et scroller
+  const body = document.getElementById('cgb-'+catId);
+  const chev  = document.getElementById('cgc-'+catId);
+  if (body && !body.classList.contains('open')) {
+    body.classList.add('open');
+    if (chev) chev.classList.add('open');
+  }
+  setTimeout(()=>{
+    const el = document.getElementById('cgb-'+catId);
+    if (el) el.closest('.cg').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 100);
+};
+
+// Fermer dropdown si clic ailleurs
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('cat-results');
+  if (wrap && !e.target.closest('.cat-search-wrap')) wrap.classList.remove('show');
+});
+
+/* ══ ANALYSE ══ */
+
+let anaSelectedCat = null;
+let anaSelectedType = 'charge';
+let chartAnalyse = null;
+
+// Init sélecteur année analyse
+(function(){
+  const sel = document.getElementById('ana-year');
+  if(!sel) return;
+  for(let y=nowY-2;y<=nowY+1;y++){
+    const o=document.createElement('option');
+    o.value=y; o.textContent=y; if(y===nowY) o.selected=true;
+    sel.appendChild(o);
+  }
+})();
+
+window.updateAnaCategories = function() {
+  anaSelectedType = document.getElementById('ana-type').value;
+  anaSelectedCat = null;
+  document.getElementById('ana-result').style.display = 'none';
+  document.getElementById('ana-empty').style.display = 'block';
+  renderAnaCatBtns();
+};
+
+function renderAnaCatBtns() {
+  const cont = document.getElementById('ana-cat-btns');
+  if (!cont) return;
+  const cats = anaSelectedType === 'charge'
+    ? data.charges
+    : [...new Set(data.suivi.map(x=>x.name))].map(n=>({id:n,name:n}));
+  if (!cats.length) {
+    cont.innerHTML = '<span style="font-size:.85rem;color:var(--text-muted);font-style:italic;">Aucune categorie disponible</span>';
+    return;
+  }
+  cont.innerHTML = cats.map(c=>`
+    <button class="cat-sel-btn ${anaSelectedCat===c.id?'active':''}" onclick="selectAnaCat('${c.id}')">
+      ${anaSelectedType==='charge'?gi(c.name,IC_CHARGE):gi(c.name,IC_SUIVI)} ${esc(c.name)}
+    </button>`).join('');
+}
+
+window.selectAnaCat = function(id) {
+  anaSelectedCat = id;
+  renderAnaCatBtns();
+  runAnalyse();
+};
+
+window.runAnalyse = function() {
+  if (!anaSelectedCat) return;
+  const year = parseInt(document.getElementById('ana-year').value);
+  const type = anaSelectedType;
+
+  // Données par mois
+  const monthData = MONTHS.map(m => {
+    let amt = 0, entries = 0;
+    if (type === 'charge') {
+      const YM = year + '-' + String(MONTHS.indexOf(m)+1).padStart(2,'0');
+      const es = data.chargeEntries.filter(e=>e.catId===anaSelectedCat&&e.date&&e.date.startsWith(YM));
+      amt = es.reduce((s,e)=>s+e.amount,0);
+      entries = es.length;
+    } else {
+      const e = data.suivi.find(x=>x.name===anaSelectedCat&&x.month===m&&x.year===year);
+      amt = e?e.amount:0;
+      entries = e?1:0;
+    }
+    return {month:m, amt, entries};
+  });
+
+  // KPIs
+  const nonZero = monthData.filter(d=>d.amt>0);
+  const total   = monthData.reduce((s,d)=>s+d.amt,0);
+  const avg     = nonZero.length ? total/nonZero.length : 0;
+  const maxD    = nonZero.length ? nonZero.reduce((a,b)=>a.amt>b.amt?a:b) : null;
+  const minD    = nonZero.length ? nonZero.reduce((a,b)=>a.amt<b.amt?a:b) : null;
+
+  // Tendance : compare 1ere moitie vs 2e moitie des mois renseignes
+  let trendCls='eq', trendLabel='Stable', trendPct=0;
+  if (nonZero.length >= 2) {
+    const first = nonZero.slice(0, Math.ceil(nonZero.length/2));
+    const last  = nonZero.slice(Math.ceil(nonZero.length/2));
+    const avgFirst = first.reduce((s,d)=>s+d.amt,0)/first.length;
+    const avgLast  = last.reduce((s,d)=>s+d.amt,0)/last.length;
+    trendPct = avgFirst>0?((avgLast-avgFirst)/avgFirst)*100:0;
+    if      (trendPct > 5)  { trendCls='up'; trendLabel='En hausse'; }
+    else if (trendPct < -5) { trendCls='dn'; trendLabel='En baisse'; }
+    else                    { trendCls='eq'; trendLabel='Stable'; }
+  }
+
+  // Nom de la catégorie
+  let catName = anaSelectedCat;
+  if (type==='charge') { const c=data.charges.find(x=>x.id===anaSelectedCat); if(c) catName=c.name; }
+
+  // ─── Affichage ───
+  document.getElementById('ana-result-title').textContent = catName + ' — ' + year;
+  document.getElementById('ana-result').style.display = 'block';
+  document.getElementById('ana-empty').style.display  = 'none';
+
+  document.getElementById('ana-kpis').innerHTML =
+    '<div class="a-kpi"><div class="a-kpi-lbl">Total '+year+'</div><div class="a-kpi-val" style="color:#5b21b6">'+fmt(total)+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Moy. mensuelle</div><div class="a-kpi-val" style="color:var(--accent)">'+fmt(avg)+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois max</div><div class="a-kpi-val" style="color:var(--danger)">'+(maxD?maxD.month+' '+fmt(maxD.amt):'-')+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois min</div><div class="a-kpi-val" style="color:var(--success)">'+(minD?minD.month+' '+fmt(minD.amt):'-')+'</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Mois actifs</div><div class="a-kpi-val" style="color:var(--text)">'+nonZero.length+'/12</div></div>'+
+    '<div class="a-kpi"><div class="a-kpi-lbl">Tendance</div><div class="a-kpi-val"><span class="trend-badge '+trendCls+'">'+(trendCls==='up'?'▲':trendCls==='dn'?'▼':'➡')+' '+Math.abs(trendPct).toFixed(0)+'%</span></div></div>';
+
+  document.getElementById('ana-trend-badge').innerHTML = '<span class="trend-badge '+trendCls+'">'+(trendCls==='up'?'📈 En hausse':trendCls==='dn'?'📉 En baisse':'➡ Stable')+'</span>';
+  document.getElementById('ana-trend-text').textContent = trendCls==='up'
+    ? 'Les depenses augmentent vs debut annee ('+trendPct.toFixed(0)+'%)'
+    : trendCls==='dn'
+    ? 'Les depenses diminuent vs debut annee ('+Math.abs(trendPct).toFixed(0)+'% de moins)'
+    : 'Les depenses sont stables sur l’annee';
+
+  // ─── Graphique ───
+  if (chartAnalyse) { chartAnalyse.destroy(); chartAnalyse=null; }
+  const maxAmt = Math.max(...monthData.map(d=>d.amt), 1);
+  const barColors = monthData.map(d => {
+    if (d.amt===0) return 'rgba(196,215,240,.4)';
+    if (maxD && d.month===maxD.month) return 'rgba(220,38,38,.8)';
+    if (minD && d.month===minD.month) return 'rgba(5,150,105,.8)';
+    return 'rgba(124,58,237,.7)';
+  });
+  chartAnalyse = new Chart(document.getElementById('chartAnalyse'),{
+    type:'bar',
+    data:{
+      labels:MONTHS,
+      datasets:[
+        {type:'bar',label:'Montant',data:monthData.map(d=>d.amt),backgroundColor:barColors,borderRadius:8,borderSkipped:false,order:2},
+        {type:'line',label:'Moyenne',data:MONTHS.map(()=>avg),borderColor:'rgba(37,99,235,.6)',borderDash:[6,4],borderWidth:2,pointRadius:0,fill:false,order:1}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#6480a8',font:{family:'DM Sans'},boxWidth:12}},
+        tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}
+      },
+      scales:{
+        x:{ticks:{color:'#6480a8'},grid:{color:'#c4d7f0'}},
+        y:{ticks:{color:'#6480a8',callback:v=>v===0?'0':fmt(v)},grid:{color:'#c4d7f0'},beginAtZero:true}
+      }
+    }
+  });
+
+  // ─── Détail mois par mois ───
+  const maxForBar = maxAmt || 1;
+  document.getElementById('ana-months').innerHTML = monthData.map((d,i)=>{
+    if (d.amt===0) return `
+      <div class="month-detail-row" style="opacity:.45;">
+        <div class="mdr-month">${d.month}</div>
+        <div class="mdr-bar-wrap"><div class="mdr-bar eq" style="width:0%"></div></div>
+        <div class="mdr-amt" style="color:var(--text-muted)">—</div>
+        <div class="mdr-delta eq">—</div>
+        <div class="mdr-entries">${d.entries} entrée</div>
+      </div>`;
+    const prev = monthData.slice(0,i).reverse().find(p=>p.amt>0);
+    let deltaHtml='—', deltaCls='eq';
+    if (prev && prev.amt>0) {
+      const pct=((d.amt-prev.amt)/prev.amt)*100;
+      deltaCls = pct>5?'up':pct<-5?'dn':'eq';
+      deltaHtml = (pct>0?'+':'')+pct.toFixed(0)+'%';
+    }
+    const barW = Math.round((d.amt/maxForBar)*100);
+    const barCls = d.month===maxD?.month?'up':d.month===minD?.month?'dn':'eq';
+    return `
+      <div class="month-detail-row">
+        <div class="mdr-month">${d.month}</div>
+        <div class="mdr-bar-wrap"><div class="mdr-bar ${barCls}" style="width:${barW}%"></div></div>
+        <div class="mdr-amt">${fmt(d.amt)}</div>
+        <div class="mdr-delta ${deltaCls}">${deltaHtml}</div>
+        <div class="mdr-entries">${d.entries} entr.</div>
+      </div>`;
+  }).join('');
+};
+
+// Initialiser les catégories quand les données chargent (hook sur renderCharges)
+const _origRenderCharges = renderCharges ? undefined : undefined;
+function postRenderAnalyse() { if(document.getElementById('ana-cat-btns')) renderAnaCatBtns(); }
 
 /* ══ EXPORT PDF ══ */
 
