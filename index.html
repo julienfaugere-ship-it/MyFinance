@@ -287,6 +287,26 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;}
 .cat-result-name{font-weight:600;color:var(--text);}
 .cat-result-total{font-size:.78rem;color:var(--text-muted);margin-left:auto;}
 .cat-search-no{padding:12px 14px;font-size:.85rem;color:var(--text-muted);font-style:italic;}
+/* SÉLECTEURS CATÉGORIE/SOUS-CAT */
+.cat-family-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.cat-family-btn{border:1.5px solid var(--border);background:var(--surface2);border-radius:10px;padding:6px 12px;font-size:.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:var(--fb);display:flex;align-items:center;gap:5px;}
+.cat-family-btn:hover{background:var(--surface3);color:var(--text);}
+.cat-family-btn.sel{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.subcat-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;border:1.5px solid var(--border);}
+.subcat-btn{border:1.5px solid var(--border);background:var(--surface);border-radius:8px;padding:5px 12px;font-size:.8rem;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:var(--fb);}
+.subcat-btn:hover{background:var(--surface3);color:var(--text);}
+.subcat-btn.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cat-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;}
+.cat-tag-Alimentation{background:#fef9c3;color:#854d0e;}
+.cat-tag-Transport{background:#dbeafe;color:#1e3a8a;}
+.cat-tag-Sante{background:#fce7f3;color:#9d174d;}
+.cat-tag-Famille{background:#dcfce7;color:#14532d;}
+.cat-tag-Loisirs{background:#ede9fe;color:#4c1d95;}
+.cat-tag-Shopping{background:#ffedd5;color:#9a3412;}
+.cat-tag-Voyage{background:#e0f2fe;color:#0c4a6e;}
+.cat-tag-Animaux{background:#d1fae5;color:#064e3b;}
+.cat-tag-Maison{background:#f1f5f9;color:#334155;}
+.cat-tag-Divers{background:#f3f4f6;color:#374151;}
 
 /* ONGLET ANALYSE */
 .analyse-hero{background:linear-gradient(135deg,#1e3a8a,#4c1d95);border-radius:var(--r);padding:22px 20px;margin-bottom:20px;box-shadow:var(--s3);}
@@ -397,7 +417,7 @@ window.filterCatSearch = function(val) {
     const total = data.chargeEntries.filter(e=>e.catId===c.id).reduce((s,e)=>s+e.amount,0);
     return `<div class="cat-result-item" data-id="${c.id}" onclick="jumpToCat(this.dataset.id)">`
       +`<div class="cat-result-ico">${gi(c.name,IC_CHARGE)}</div>`
-      +`<div class="cat-result-name">${esc(c.name)}</div>`
+      +`<div style="flex:1"><div class="cat-result-name">${esc(c.name)}</div>${c.family?`<span class="cat-tag cat-tag-${c.family.replace(/[^a-zA-Z]/g,'')}">${c.family}${c.subcat?' › '+c.subcat:''}</span>`:''}</div>`
       +`<div class="cat-result-total">${fmt(total)}</div>`
       +`</div>`;
   }).join('');
@@ -778,16 +798,21 @@ function postRenderAnalyse() { if(document.getElementById('ana-cat-btns')) rende
   <div class="sum-card orange"><div class="sum-lbl">Total charges</div><div class="sum-amt" id="total-charges">0,00 €</div><div class="sum-sub" id="count-charges">0 catégorie(s)</div></div>
 
   <div class="fc">
-    <h3>⚡ Nouvelle catégorie</h3>
-    <div style="margin-bottom:12px;">
-      <div class="auth-lbl" style="margin-bottom:6px;">Catégories existantes</div>
-      <div class="cat-pills" id="cat-pills"><span style="font-size:.8rem;color:var(--text-muted);font-style:italic;">Aucune</span></div>
+    <h3>⚡ Nouvelle catégorie de charge</h3>
+    <div style="margin-bottom:10px;"><label class="fl">Nom de la dépense</label>
+      <input type="text" id="charge-cat-name" placeholder="Ex: Essence Peugeot, Intermarché…" oninput="autoDetectFamily(this.value)">
     </div>
-    <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;gap:10px;align-items:flex-end;">
-      <div style="flex:1;">
-        <input type="text" id="charge-cat-name" placeholder="Ex: Essence, EDF, Eau…">
-      </div>
-      <button class="btn btn-add orange" onclick="addChargeCat()">＋ Créer</button>
+    <div style="margin-bottom:8px;"><label class="fl">Famille <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--accent)">(auto-détectée)</span></label>
+      <div class="cat-family-grid" id="family-btns"></div>
+    </div>
+    <div id="subcat-wrap-outer" style="display:none;margin-bottom:10px;"><label class="fl">Sous-catégorie</label>
+      <div class="subcat-wrap" id="subcat-btns"></div>
+    </div>
+    <div id="cat-sel-summary" style="display:none;padding:8px 12px;background:var(--surface2);border-radius:10px;font-size:.83rem;color:var(--text-soft);margin-bottom:10px;"></div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-add orange" style="flex:1" onclick="addChargeCat()">＋ Créer la catégorie</button></div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px;">
+      <div class="auth-lbl" style="margin-bottom:6px;">Catégories déjà créées</div>
+      <div class="cat-pills" id="cat-pills"><span style="font-size:.8rem;color:var(--text-muted);font-style:italic;">Aucune</span></div>
     </div>
   </div>
 
@@ -1233,15 +1258,87 @@ function renderPrel() {
 }
 
 /* ── CHARGES ── */
+/* TAXONOMIE */
+const CAT_FAMILIES = {
+  'Alimentation':{ icon:'🛒', subs:['Courses','Restaurants','Boulangerie'] },
+  'Transport':   { icon:'🚗', subs:['Carburant','Péages','Parking','Entretien voiture','Contrôle technique'] },
+  'Santé':       { icon:'🏥', subs:['Pharmacie','Dentiste','Optique'] },
+  'Famille':     { icon:'👨‍👩‍👧', subs:['École','Activités','Coiffeur','Cosmétique'] },
+  'Loisirs':     { icon:'🎮', subs:['Sorties','Cinéma','Jeux vidéo','Livres','Sports'] },
+  'Shopping':    { icon:'🛍️', subs:['Vêtements','Chaussures','Accessoires','Électronique','Jouets','Activités'] },
+  'Voyage':      { icon:'✈️', subs:['Billets de transport','Hébergement','Activités'] },
+  'Animaux':     { icon:'🐾', subs:['Vétérinaire'] },
+  'Maison':      { icon:'🏠', subs:['Entretien'] },
+  'Divers':      { icon:'📌', subs:['Autres dépenses'] }
+};
+const AUTO_RULES = [
+  {k:['garage','haillard'],f:'Transport',s:'Entretien voiture'},
+  {k:['controle tech','ct juke','technique'],f:'Transport',s:'Contrôle technique'},
+  {k:['essence','carburant'],f:'Transport',s:'Carburant'},
+  {k:['peage','autoroute'],f:'Transport',s:'Péages'},
+  {k:['parking'],f:'Transport',s:'Parking'},
+  {k:['intermarche','auchan','lidl','leclerc','carrefour','super u','domaines','arbres blanc','spar','casino'],f:'Alimentation',s:'Courses'},
+  {k:['restaurant','resto','brasserie','pizz','kebab','mcdo','burger','royal kid'],f:'Alimentation',s:'Restaurants'},
+  {k:['boulangerie','boulanger','patisserie'],f:'Alimentation',s:'Boulangerie'},
+  {k:['amazon','paypal','ebay'],f:'Shopping',s:'Accessoires'},
+  {k:['zara','h&m','kiabi','jules'],f:'Shopping',s:'Vêtements'},
+  {k:['king jouet','smith toys','jouet','toy'],f:'Shopping',s:'Jouets'},
+  {k:['10 doigt','10doigt'],f:'Shopping',s:'Activités'},
+  {k:['ecole','commune bages','cantine'],f:'Famille',s:'École'},
+  {k:['coiffeur','charlotte'],f:'Famille',s:'Coiffeur'},
+  {k:['cosmetique','yves rocher'],f:'Famille',s:'Cosmétique'},
+  {k:['pharmacie','medecin','docteur'],f:'Santé',s:'Pharmacie'},
+  {k:['dentiste'],f:'Santé',s:'Dentiste'},
+  {k:['optique','opticien'],f:'Santé',s:'Optique'},
+  {k:['alpha 66','cash piscine','piscine','gaz','plombier','electricien','entretien'],f:'Maison',s:'Entretien'},
+  {k:['cinema'],f:'Loisirs',s:'Cinéma'},
+  {k:['pressing','autre','divers'],f:'Divers',s:'Autres dépenses'},
+];
+function normStr(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+function detectFamily(name){
+  const n=normStr(name);
+  for(const r of AUTO_RULES){if(r.k.some(k=>n.includes(normStr(k))))return{family:r.f,subcat:r.s};}
+  return{family:'',subcat:''};
+}
+let selFamily='', selSubcat='';
+window.autoDetectFamily = function(val){
+  if(!val.trim()){selFamily='';selSubcat='';renderFamilyBtns();return;}
+  const d=detectFamily(val);selFamily=d.family;selSubcat=d.subcat;renderFamilyBtns();updateSelSummary();
+};
+function renderFamilyBtns(){
+  const cont=document.getElementById('family-btns');if(!cont)return;
+  cont.innerHTML=Object.entries(CAT_FAMILIES).map(([f,v])=>`<button class="cat-family-btn ${selFamily===f?'sel':''}" onclick="pickFamily('${f}')">${v.icon} ${f}</button>`).join('');
+  renderSubcatBtns();
+}
+window.pickFamily=function(f){selFamily=f;selSubcat='';renderFamilyBtns();updateSelSummary();};
+function renderSubcatBtns(){
+  const outer=document.getElementById('subcat-wrap-outer'),cont=document.getElementById('subcat-btns');if(!outer||!cont)return;
+  if(!selFamily||!CAT_FAMILIES[selFamily]){outer.style.display='none';return;}
+  outer.style.display='block';
+  cont.innerHTML=CAT_FAMILIES[selFamily].subs.map(s=>`<button class="subcat-btn ${selSubcat===s?'sel':''}" data-s="${s}" onclick="pickSubcat(this.dataset.s)">${s}</button>`).join('');
+}
+window.pickSubcat=function(s){selSubcat=s;renderSubcatBtns();updateSelSummary();};
+function updateSelSummary(){
+  const el=document.getElementById('cat-sel-summary');if(!el)return;
+  if(selFamily){el.style.display='block';el.innerHTML=CAT_FAMILIES[selFamily].icon+' <strong>'+selFamily+'</strong>'+(selSubcat?' › '+selSubcat:'<em style="color:var(--text-muted);font-size:.8rem"> — choisir sous-catégorie</em>');}
+  else{el.style.display='none';}
+}
 window.addChargeCat = async function() {
   const u=auth.currentUser; if(!u) return;
   const name=document.getElementById('charge-cat-name').value.trim();
-  if(!name){toast('Saisis un nom');return;}
-  if(data.charges.find(c=>c.name.toLowerCase()===name.toLowerCase())){toast('Cette categorie existe deja');return;}
+  if(!name){toast('Saisis un nom de dépense');return;}
+  if(data.charges.find(c=>c.name.toLowerCase()===name.toLowerCase())){toast('Cette catégorie existe déjà');return;}
   document.getElementById('charge-cat-name').value='';
-  await fsAdd(u.uid,'charges',{name});
-  toast('Categorie creee !');
+  const payload={name};
+  if(selFamily) payload.family=selFamily;
+  if(selSubcat) payload.subcat=selSubcat;
+  selFamily='';selSubcat='';renderFamilyBtns();
+  document.getElementById('cat-sel-summary').style.display='none';
+  document.getElementById('subcat-wrap-outer').style.display='none';
+  await fsAdd(u.uid,'charges',payload);
+  toast('Catégorie créée !');
 };
+setTimeout(()=>renderFamilyBtns(),600);
 window.delChargeCat = async function(catId) {
   const u=auth.currentUser; if(!u) return;
   if(!confirm('Supprimer cette categorie et toutes ses entrees ?')) return;
@@ -1321,7 +1418,7 @@ function renderCharges() {
   const pillsEl=document.getElementById('cat-pills');
   if(pillsEl) {
     pillsEl.innerHTML = cats.length
-      ? cats.map(c=>`<span class="cat-pill">${gi(c.name,IC_CHARGE)} ${esc(c.name)}</span>`).join('')
+      ? cats.map(c=>`<span class="cat-pill">${gi(c.name,IC_CHARGE)} ${esc(c.name)}${c.family?` <span class="cat-tag cat-tag-${c.family.replace(/[^a-zA-Z]/g,'')}">${c.family}</span>`:''}</span>`).join('')
       : '<span style="font-size:.8rem;color:var(--text-muted);font-style:italic;">Aucune</span>';
   }
 
@@ -1370,7 +1467,7 @@ function renderCharges() {
         '<div class="cg-hdr" onclick="toggleCG(\''+cat.id+'\')">'+
           '<div class="cg-left">'+
             '<div class="cg-ico">'+gi(cat.name,IC_CHARGE)+'</div>'+
-            '<div><div class="cg-name">'+esc(cat.name)+'</div><div class="cg-sub">'+sub+'</div></div>'+
+            '<div><div class="cg-name">'+esc(cat.name)+'</div><div class="cg-sub">'+sub+'</div>'+(cat.family?'<span class="cat-tag cat-tag-'+cat.family.replace(/[^a-zA-Z]/g,'')+'">'+cat.family+(cat.subcat?' › '+cat.subcat:'')+'</span>':'')+'</div>'+
           '</div>'+
           '<div class="cg-right">'+
             '<div class="cg-total">'+fmt(isAll?totAll:totMois)+'</div>'+
@@ -1761,7 +1858,7 @@ window.filterCatSearch = function(val) {
     const total = data.chargeEntries.filter(e=>e.catId===c.id).reduce((s,e)=>s+e.amount,0);
     return `<div class="cat-result-item" data-id="${c.id}" onclick="jumpToCat(this.dataset.id)">`
       +`<div class="cat-result-ico">${gi(c.name,IC_CHARGE)}</div>`
-      +`<div class="cat-result-name">${esc(c.name)}</div>`
+      +`<div style="flex:1"><div class="cat-result-name">${esc(c.name)}</div>${c.family?`<span class="cat-tag cat-tag-${c.family.replace(/[^a-zA-Z]/g,'')}">${c.family}${c.subcat?' › '+c.subcat:''}</span>`:''}</div>`
       +`<div class="cat-result-total">${fmt(total)}</div>`
       +`</div>`;
   }).join('');
