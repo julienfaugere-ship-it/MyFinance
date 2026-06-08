@@ -338,31 +338,38 @@ a { color: inherit; text-decoration: none; }
 .bottom-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--glass);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
   z-index: 200;
-  padding: 8px 0 env(safe-area-inset-bottom);
+  padding: 6px 4px env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
 }
-.bottom-nav-inner { display: flex; justify-content: space-around; }
+.bottom-nav-inner { display: flex; justify-content: space-around; align-items: stretch; }
 .bnav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   background: none; border: none; cursor: pointer;
-  padding: 6px 8px; color: var(--text-m);
+  padding: 6px 4px; color: var(--text-m);
   font-size: 0.58rem; font-weight: 600;
   letter-spacing: 0.04em; text-transform: uppercase;
   transition: color var(--transition);
-  min-width: 44px;
+  flex: 1; min-width: 0; min-height: 48px;
+  border-radius: 10px; margin: 0 2px;
 }
 .bnav-btn .bi { font-size: 1.3rem; }
-.bnav-btn.active { color: var(--indigo); }
+.bnav-btn.active {
+  color: var(--indigo);
+  background: var(--indigo-l);
+}
 .bnav-more {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   background: none; border: none; cursor: pointer;
-  padding: 6px 8px; color: var(--text-m);
+  padding: 6px 4px; color: var(--text-m);
   font-size: 0.58rem; font-weight: 600;
   letter-spacing: 0.04em; text-transform: uppercase;
-  min-width: 44px;
+  flex: 1; min-width: 0; min-height: 48px;
+  border-radius: 10px; margin: 0 2px;
 }
 .bnav-more .bi { font-size: 1.3rem; }
 
@@ -1184,36 +1191,160 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
 ═══════════════════════════════════════ */
 @media (max-width: 1024px) {
   :root { --sidebar-w: 220px; }
+  .content-area { padding: 22px 24px 48px; }
 }
+
+/* ── TABLET ── */
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .main-content { margin-left: 0; }
-  .page-header { padding: 16px 18px; }
-  .content-area { padding: 18px 16px 90px; }
+  .page-header { padding: 14px 16px; }
+  .page-title { font-size: 1.2rem; }
+  .page-subtitle { font-size: 0.75rem; }
+  .content-area { padding: 16px 14px 96px; }
   .bottom-nav { display: block; }
-  .hero-amount { font-size: 2.3rem; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Hero */
+  .hero-card { padding: 22px 20px; border-radius: 18px; margin-bottom: 16px; }
+  .hero-amount { font-size: 2.2rem; }
+  .hero-card::after { font-size: 3rem; }
+
+  /* KPI grids */
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .kpi-grid.four { grid-template-columns: 1fr 1fr; }
+  .kpi-card { padding: 14px 13px; }
+  .kpi-value { font-size: 1.15rem; }
+
+  /* Dashboard charts side by side → stacked */
+  #section-dashboard > div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Forms */
   .fgrid3, .fgrid4 { grid-template-columns: 1fr 1fr; }
-  .stats-mini { grid-template-columns: 1fr 1fr; }
-  .notes-kpi { grid-template-columns: 1fr 1fr 1fr; }
+  .form-card { padding: 18px 16px; }
+  .chart-card { padding: 16px; }
+
+  /* Accordion */
+  .acc-header { padding: 14px 14px; }
+  .acc-name { font-size: 0.88rem; }
+  .acc-total { font-size: 0.97rem; }
+
+  /* Suivi */
+  .stats-mini { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .notes-kpi { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  /* Analyse month rows */
   .month-row { gap: 6px; }
   .mdr-amt { width: 80px; font-size: 0.82rem; }
   .mdr-delta { width: 48px; }
   .mdr-entries { display: none; }
+
+  /* Bottom nav refinements */
+  .bnav-btn { font-size: 0.55rem; padding: 5px 6px; min-width: 0; }
+  .bnav-btn .bi { font-size: 1.2rem; }
+  .bnav-more { font-size: 0.55rem; padding: 5px 6px; }
+  .bnav-more .bi { font-size: 1.2rem; }
 }
+
+/* ── MOBILE ── */
 @media (max-width: 480px) {
-  .hero-amount { font-size: 2rem; }
-  .fgrid2, .fgrid3, .fgrid4 { grid-template-columns: 1fr; }
-  .frow { flex-direction: column; }
+  .page-header { padding: 12px 14px; }
+  .page-title { font-size: 1.05rem; }
+  .page-subtitle { display: none; }
+  .content-area { padding: 14px 12px 96px; }
+
+  /* Hero compact */
+  .hero-card { padding: 20px 18px; border-radius: 16px; margin-bottom: 14px; }
+  .hero-amount { font-size: 1.9rem; letter-spacing: -1px; }
+  .hero-foyer { font-size: 0.7rem; }
+  .hero-label { font-size: 0.75rem; margin-bottom: 6px; }
+  .hero-detail { font-size: 0.72rem; }
+  .hero-card::after { display: none; }
+
+  /* KPI en 2 colonnes serrées */
+  .kpi-grid { gap: 8px; margin-bottom: 14px; }
+  .kpi-card { padding: 12px 11px; border-radius: 12px; }
+  .kpi-label { font-size: 0.65rem; margin-bottom: 5px; }
+  .kpi-value { font-size: 1rem; }
+  .kpi-sub { font-size: 0.67rem; }
+
+  /* Grilles formulaires → 1 col */
+  .fgrid2, .fgrid3, .fgrid4 { grid-template-columns: 1fr; gap: 10px; }
+  .frow { flex-direction: column; gap: 10px; }
   .fg.w100, .fg.w120 { width: 100%; }
-  .entry-form-inner { flex-direction: column; }
+
+  /* Accordion entries */
+  .entry-form-inner { flex-direction: column; padding: 12px 14px; gap: 10px; }
   .entry-form-inner .fg { min-width: 0; width: 100%; }
-  .btn-entry-add { width: 100%; justify-content: center; height: 42px; }
-  .analyse-kpi { grid-template-columns: 1fr 1fr; }
-  .preview-kpi-row { grid-template-columns: 1fr 1fr; }
-  .modal-box { padding: 22px 18px; }
-  .notes-kpi { grid-template-columns: 1fr 1fr 1fr; }
+  .btn-entry-add { width: 100%; justify-content: center; height: 42px; font-size: 0.88rem; }
+  .acc-header { padding: 12px 14px; gap: 8px; }
+  .acc-icon { width: 36px; height: 36px; font-size: 1rem; }
+  .entry-list-inner { padding: 2px 14px 10px; }
+
+  /* Revenus accordion */
+  .acc-right { gap: 5px; }
+
+  /* Form cards */
+  .form-card { padding: 16px 14px; border-radius: 14px; margin-bottom: 14px; }
+  .form-card h3 { font-size: 0.88rem; margin-bottom: 12px; }
+  .chart-card { padding: 14px; border-radius: 14px; }
+  .chart-card h3 { font-size: 0.82rem; margin-bottom: 12px; }
+  .chart-wrap { height: 200px; }
+
+  /* Suivi */
+  .suivi-icon { width: 36px; height: 36px; font-size: 1rem; }
+  .suivi-header { padding: 12px 14px; }
+  .suivi-body { padding: 0 14px 12px; }
+  .stats-mini { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .stat-box { padding: 8px 8px; }
+  .stat-lbl { font-size: 0.6rem; }
+  .stat-val { font-size: 0.82rem; }
+
+  /* Notes */
+  .notes-kpi { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .n-kpi { padding: 12px 8px; border-radius: 12px; }
+  .n-kpi-val { font-size: 1.5rem; }
+  .n-kpi-lbl { font-size: 0.62rem; }
+  .note-card { padding: 14px; border-radius: 12px; }
+  .prio-btns { gap: 5px; }
+  .prio-btn { padding: 5px 10px; font-size: 0.76rem; }
+  .filter-chips { gap: 5px; }
+  .filter-chip { padding: 4px 11px; font-size: 0.74rem; }
+
+  /* Chips mois */
+  .chips { gap: 5px; }
+  .chip { padding: 5px 12px; font-size: 0.76rem; }
+
+  /* Analyse */
+  .analyse-hero { padding: 18px 16px; border-radius: 14px; }
+  .analyse-hero h2 { font-size: 1.1rem; }
+  .cat-sel-btn { font-size: 0.78rem; padding: 6px 12px; }
+  .month-row { gap: 5px; padding: 8px 10px; }
+  .mdr-month { width: 36px; font-size: 0.78rem; }
+  .mdr-amt { width: 72px; font-size: 0.78rem; }
+  .mdr-delta { width: 42px; font-size: 0.7rem; }
+
+  /* Export */
+  .export-hero { padding: 18px 16px; border-radius: 14px; }
+  .preview-kpi-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .export-opt { padding: 10px 12px; }
+  .export-opt-label { font-size: 0.84rem; }
+
+  /* Modal */
+  .modal-ov { padding: 12px; align-items: flex-end; }
+  .modal-box { padding: 22px 18px; border-radius: 20px 20px 16px 16px; max-width: 100%; }
+
+  /* Boutons généraux */
+  .btn { padding: 9px 14px; font-size: 0.84rem; }
+  .btn-full { padding: 11px; }
+  .btn-export { padding: 12px; font-size: 0.88rem; }
+
+  /* Items list */
+  .item-row { padding: 12px 13px; }
+  .item-icon { width: 36px; height: 36px; font-size: 1rem; border-radius: 10px; }
+  .item-name { font-size: 0.86rem; }
+  .item-amount { font-size: 0.88rem; }
 }
 </style>
 </head>
@@ -1287,9 +1418,9 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
       <div class="nav-section-label">Vue générale</div>
       <button class="nav-item active" onclick="showTab('dashboard')" id="nav-dashboard"><span class="ni">🏠</span> Bilan</button>
       <div class="nav-section-label">Finances</div>
+      <button class="nav-item" onclick="showTab('charges')" id="nav-charges"><span class="ni">⚡</span> Charges</button>
       <button class="nav-item" onclick="showTab('revenus')" id="nav-revenus"><span class="ni">💶</span> Revenus</button>
       <button class="nav-item" onclick="showTab('prelevements')" id="nav-prelevements"><span class="ni">📅</span> Prélèvements</button>
-      <button class="nav-item" onclick="showTab('charges')" id="nav-charges"><span class="ni">⚡</span> Charges</button>
       <div class="nav-section-label">Suivi & Notes</div>
       <button class="nav-item" onclick="showTab('suivi')" id="nav-suivi"><span class="ni">🎯</span> Suivi dépenses</button>
       <button class="nav-item" onclick="showTab('notes')" id="nav-notes"><span class="ni">📝</span> Notes</button>
@@ -1629,8 +1760,8 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
 <nav class="bottom-nav" id="bottomNav">
   <div class="bottom-nav-inner">
     <button class="bnav-btn active" onclick="showTab('dashboard')" id="bnav-dashboard"><span class="bi">🏠</span>Bilan</button>
-    <button class="bnav-btn" onclick="showTab('revenus')" id="bnav-revenus"><span class="bi">💶</span>Revenus</button>
     <button class="bnav-btn" onclick="showTab('charges')" id="bnav-charges"><span class="bi">⚡</span>Charges</button>
+    <button class="bnav-btn" onclick="showTab('revenus')" id="bnav-revenus"><span class="bi">💶</span>Revenus</button>
     <button class="bnav-btn" onclick="showTab('prelevements')" id="bnav-prelevements"><span class="bi">📅</span>Prélèv.</button>
     <button class="bnav-more" onclick="openDrawer()"><span class="bi">⋯</span>Plus</button>
   </div>
