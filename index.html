@@ -485,6 +485,15 @@ a { color: inherit; text-decoration: none; }
 .kpi-value.crimson { color: var(--crimson); }
 .kpi-value.violet { color: var(--violet); }
 .kpi-sub { font-size: 0.72rem; color: var(--text-l); margin-top: 4px; }
+.delta-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.01em;
+}
+.delta-badge.up   { background: var(--crimson-l); color: var(--crimson); }
+.delta-badge.dn   { background: var(--jade-l);    color: var(--jade);    }
+.delta-badge.eq   { background: var(--indigo-l);  color: var(--indigo);  }
+.delta-badge.none { background: var(--surface3);  color: var(--text-l);  }
 
 /* Section header */
 .section-head {
@@ -1519,6 +1528,14 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
             <div class="kpi-value amber" id="total-charges">0,00 €</div>
             <div class="kpi-sub" id="count-charges">—</div>
           </div>
+          <div class="kpi-card" id="kpi-prev-month">
+            <div class="kpi-label" id="prev-month-label">📅 Mois précédent</div>
+            <div class="kpi-value" id="prev-month-amount" style="color:var(--text-m)">—</div>
+            <div id="prev-month-delta" style="margin-top:6px;display:none">
+              <span id="prev-month-badge" class="delta-badge"></span>
+              <span id="prev-month-detail" style="font-size:0.7rem;color:var(--text-m);margin-left:6px"></span>
+            </div>
+          </div>
         </div>
         <div class="form-card">
           <h3>➕ Nouvelle catégorie de charge</h3>
@@ -2151,6 +2168,64 @@ function renderCharges(){
   const grandTotal=visEntries.reduce((s,e)=>s+e.amount,0);
   document.getElementById('total-charges').textContent=fmt(grandTotal);
   document.getElementById('count-charges').textContent=cats.length+' catégorie(s) — '+(isAll?'cumul total':'ce mois');
+
+  // ── KPI mois précédent ──
+  const prevEl=document.getElementById('prev-month-amount');
+  const prevLbl=document.getElementById('prev-month-label');
+  const prevDelta=document.getElementById('prev-month-delta');
+  const prevBadge=document.getElementById('prev-month-badge');
+  const prevDetail=document.getElementById('prev-month-detail');
+  if(prevEl){
+    if(isAll){
+      // En mode "Tout" : afficher la moyenne mensuelle
+      const months=new Set(entries.filter(e=>e.date&&e.date.length>=7).map(e=>e.date.substring(0,7)));
+      const avg=months.size>0?grandTotal/months.size:0;
+      prevLbl.textContent='📊 Moy. mensuelle';
+      prevEl.textContent=avg>0?fmt(avg):'—';
+      prevEl.style.color='var(--violet)';
+      prevDelta.style.display='none';
+    } else {
+      // Calculer le YM précédent
+      const [py,pm]=activeChargeMonthFilter.split('-').map(Number);
+      const prevDate=new Date(py,pm-2,1); // mois-1 → js Date gère le rollover
+      const prevYM=prevDate.getFullYear()+'-'+String(prevDate.getMonth()+1).padStart(2,'0');
+      const prevTotal=entries.filter(e=>e.date&&e.date.startsWith(prevYM)).reduce((s,e)=>s+e.amount,0);
+      const prevMonthName=prevDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+      prevLbl.textContent='📅 '+prevMonthName.charAt(0).toUpperCase()+prevMonthName.slice(1);
+      prevEl.style.color='var(--text-s)';
+      if(prevTotal===0){
+        prevEl.textContent='Aucune donnée';
+        prevEl.style.color='var(--text-l)';
+        prevDelta.style.display='none';
+      } else {
+        prevEl.textContent=fmt(prevTotal);
+        prevDelta.style.display='block';
+        if(grandTotal===0){
+          prevBadge.textContent='— Pas de données';
+          prevBadge.className='delta-badge none';
+          prevDetail.textContent='';
+        } else {
+          const diff=grandTotal-prevTotal;
+          const pct=prevTotal>0?((diff/prevTotal)*100):0;
+          const absPct=Math.abs(pct).toFixed(0);
+          const absDiff=fmt(Math.abs(diff));
+          if(Math.abs(pct)<2){
+            prevBadge.textContent='➡ Stable';
+            prevBadge.className='delta-badge eq';
+            prevDetail.textContent='quasiment identique';
+          } else if(diff>0){
+            prevBadge.textContent='▲ +'+absPct+'%';
+            prevBadge.className='delta-badge up';
+            prevDetail.textContent='+'+absDiff+' vs mois préc.';
+          } else {
+            prevBadge.textContent='▼ −'+absPct+'%';
+            prevBadge.className='delta-badge dn';
+            prevDetail.textContent='−'+absDiff+' vs mois préc.';
+          }
+        }
+      }
+    }
+  }
 
   // Montant par catégorie pour tri
   const catAmounts={};
