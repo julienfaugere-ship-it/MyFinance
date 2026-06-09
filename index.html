@@ -2776,9 +2776,116 @@ function refreshCharts(){
   const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
   const tC=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM)).reduce((s,e)=>s+e.amount,0);
   dc('doughnut');
-  if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges du mois'],datasets:[{data:[tP,tC],backgroundColor:['#4f46e5','#d97706'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
+  if(tP+tC>0){
+    const totalSorties=tP+tC;
+    const pctP=totalSorties>0?((tP/totalSorties)*100).toFixed(0):0;
+    const pctC=totalSorties>0?((tC/totalSorties)*100).toFixed(0):0;
+    charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{
+      type:'doughnut',
+      data:{
+        labels:[`Prélèvements (${pctP}%)`,`Charges du mois (${pctC}%)`],
+        datasets:[{data:[tP,tC],backgroundColor:['#4f46e5','#d97706'],borderWidth:0,hoverOffset:8}]
+      },
+      options:{
+        cutout:'62%',responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{labels:{color:'#6b7280',font:{family:'Plus Jakarta Sans',size:12},boxWidth:14,padding:14}},
+          tooltip:{callbacks:{
+            label:ctx=>{
+              const val=ctx.raw;
+              const pct=totalSorties>0?((val/totalSorties)*100).toFixed(1):0;
+              return ' '+fmt(val)+' — '+pct+'% des sorties';
+            }
+          }},
+          // Plugin texte centre
+          beforeDraw(chart){
+            const {ctx,chartArea}=chart;
+            if(!chartArea)return;
+            const cx=(chartArea.left+chartArea.right)/2;
+            const cy=(chartArea.top+chartArea.bottom)/2;
+            ctx.save();
+            ctx.textAlign='center';
+            ctx.textBaseline='middle';
+            ctx.fillStyle='#6b7280';
+            ctx.font='11px Plus Jakarta Sans';
+            ctx.fillText('Total sorties',cx,cy-10);
+            ctx.fillStyle='#1a1a2e';
+            ctx.font='bold 14px Playfair Display,Georgia,serif';
+            ctx.fillText(fmt(totalSorties),cx,cy+8);
+            ctx.restore();
+          }
+        }
+      }
+    });
+  }
   dc('bar');
-  charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges mois'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(5,150,105,.75)','rgba(79,70,229,.75)','rgba(217,119,6,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TK},grid:{color:GR}},y:{ticks:{color:TK,callback:v=>v+' €'},grid:{color:GR}}}}});
+  {
+    const pctPofR = tR>0 ? ((tP/tR)*100).toFixed(0) : 0;
+    const pctCofR = tR>0 ? ((tC/tR)*100).toFixed(0) : 0;
+    const pctSofR = tR>0 ? (((tP+tC)/tR)*100).toFixed(0) : 0;
+    // Plugin custom : affiche le % au-dessus de chaque barre
+    const pctLabels = [null, `${pctPofR}% rev.`, `${pctCofR}% rev.`];
+    const barPctPlugin = {
+      id:'barPct',
+      afterDatasetsDraw(chart){
+        const {ctx,data,scales:{x,y}}=chart;
+        const meta=chart.getDatasetMeta(0);
+        meta.data.forEach((bar,i)=>{
+          const lbl=pctLabels[i];
+          if(!lbl)return;
+          const val=data.datasets[0].data[i];
+          if(!val)return;
+          ctx.save();
+          ctx.textAlign='center';
+          ctx.textBaseline='bottom';
+          ctx.font='bold 11px Plus Jakarta Sans,system-ui,sans-serif';
+          ctx.fillStyle= i===1?'#4f46e5':'#d97706';
+          ctx.fillText(lbl, bar.x, bar.y-4);
+          ctx.restore();
+        });
+      }
+    };
+    charts['bar']=new Chart(document.getElementById('chartBar'),{
+      type:'bar',
+      data:{
+        labels:['Revenus','Prélèvements','Charges mois'],
+        datasets:[{
+          data:[tR,tP,tC],
+          backgroundColor:['rgba(5,150,105,.75)','rgba(79,70,229,.75)','rgba(217,119,6,.75)'],
+          borderRadius:8,borderSkipped:false
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        layout:{padding:{top:24}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{
+            label:ctx=>{
+              const val=ctx.raw;
+              const idx=ctx.dataIndex;
+              let extra='';
+              if(idx===1&&tR>0)extra=' — '+pctPofR+'% des revenus';
+              if(idx===2&&tR>0)extra=' — '+pctCofR+'% des revenus';
+              if(idx===0&&tR>0)extra=' (base 100%)';
+              return ' '+fmt(val)+extra;
+            },
+            afterBody:ctx=>{
+              if(ctx[0]&&(ctx[0].dataIndex===1||ctx[0].dataIndex===2)&&tR>0){
+                return ['Total sorties : '+pctSofR+'% des revenus'];
+              }
+              return [];
+            }
+          }}
+        },
+        scales:{
+          x:{ticks:{color:TK},grid:{color:GR}},
+          y:{ticks:{color:TK,callback:v=>v===0?'0':fmt(v)},grid:{color:GR},beginAtZero:true}
+        }
+      },
+      plugins:[barPctPlugin]
+    });
+  }
   dc('prel');
   if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:gc(data.prel.length,220),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
   dc('charges');
