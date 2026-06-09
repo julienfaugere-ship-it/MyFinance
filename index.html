@@ -2340,29 +2340,52 @@ window.filterCatSearch=function(val){
   res.classList.add('show');
 };
 window.jumpToCat=function(catId){
-  // Fermer la recherche
+  // 1. Fermer la recherche
   const si=document.getElementById('cat-search');
   const sr=document.getElementById('cat-results');
   if(si)si.value='';
   if(sr)sr.classList.remove('show');
-  // S'assurer qu'on est sur l'onglet Charges
-  const section=document.getElementById('section-charges');
-  if(section&&!section.classList.contains('active'))showTab('charges');
-  // Ouvrir l'accordéon
-  const body=document.getElementById('cgb-'+catId),chev=document.getElementById('cgc-'+catId);
-  if(body&&!body.classList.contains('open')){body.classList.add('open');if(chev)chev.classList.add('open');}
-  // Scroll + focus sur le champ montant
-  setTimeout(()=>{
-    const group=document.getElementById('cgb-'+catId);
-    if(group){
-      group.closest('.acc-group').scrollIntoView({behavior:'smooth',block:'start'});
-      // Focus champ montant avec léger délai pour laisser le scroll se faire
-      setTimeout(()=>{
-        const inp=document.getElementById('ea-'+catId);
-        if(inp){inp.focus();inp.select();}
-      },200);
+
+  // Fonction qui ouvre l'accordéon et scrolle/focus
+  function _openAndScroll(){
+    // Si la catégorie n'est pas visible dans le filtre mois courant → passer en mode ALL
+    const body=document.getElementById('cgb-'+catId);
+    if(!body){
+      // La catégorie est filtrée (0€ ce mois) → basculer en "Tout" pour la faire apparaître
+      activeChargeMonthFilter='ALL';
+      renderCharges();
+      // Après re-render, rappeler
+      setTimeout(()=>_openAndScroll(),80);
+      return;
     }
-  },100);
+    // Ouvrir l'accordéon
+    const chev=document.getElementById('cgc-'+catId);
+    if(!body.classList.contains('open')){
+      body.classList.add('open');
+      if(chev)chev.classList.add('open');
+    }
+    // Scroll vers le groupe puis focus montant
+    setTimeout(()=>{
+      const group=body.closest('.acc-group');
+      if(group){
+        group.scrollIntoView({behavior:'smooth',block:'start'});
+        setTimeout(()=>{
+          const inp=document.getElementById('ea-'+catId);
+          if(inp){inp.focus();inp.select();}
+        },250);
+      }
+    },60);
+  }
+
+  // 2. S'assurer qu'on est sur l'onglet Charges
+  const section=document.getElementById('section-charges');
+  if(section&&!section.classList.contains('active')){
+    showTab('charges');
+    // Attendre que la section soit active et le DOM prêt
+    setTimeout(()=>_openAndScroll(),80);
+  } else {
+    _openAndScroll();
+  }
 };
 document.addEventListener('click',e=>{
   const wrap=document.getElementById('cat-results');
