@@ -951,6 +951,56 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
 .suivi-entry-right { display: flex; align-items: center; gap: 8px; }
 .suivi-entry-amt { font-size: 0.95rem; font-weight: 700; color: var(--violet); }
 
+/* ── Comparaison N-1 ── */
+.nm1-block {
+  background: var(--surface2);
+  border: 1.5px solid var(--border-s);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin: 12px 0 8px;
+}
+.nm1-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.nm1-label {
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--text-m); text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.nm1-total {
+  font-size: 0.88rem; font-weight: 800; color: var(--text-s);
+  white-space: nowrap;
+}
+.nm1-compare {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px; flex-wrap: wrap;
+}
+.nm1-pct {
+  font-size: 0.78rem; font-weight: 700;
+}
+.nm1-bar-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 5px;
+}
+.nm1-bar-row:last-child { margin-bottom: 0; }
+.nm1-year-lbl {
+  font-size: 0.72rem; font-weight: 700; color: var(--text-m);
+  width: 32px; flex-shrink: 0; text-align: right;
+}
+.nm1-bar-wrap {
+  flex: 1; height: 10px; background: var(--surface3);
+  border-radius: 20px; overflow: hidden;
+}
+.nm1-bar {
+  height: 100%; border-radius: 20px; transition: width 0.6s ease;
+}
+.nm1-bar-n   { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+.nm1-bar-nm1 { background: linear-gradient(90deg, var(--text-l), #d1d5db); }
+.nm1-amt {
+  font-size: 0.78rem; font-weight: 700; color: var(--text-s);
+  white-space: nowrap; min-width: 76px; text-align: right;
+}
+
 /* ═══════════════════════════════════════
    NOTES
 ═══════════════════════════════════════ */
@@ -2988,6 +3038,8 @@ function renderSuivi(){
   const years=[...new Set(data.suivi.map(x=>String(x.year)))].sort();
   if(!years.includes(String(nowY)))years.push(String(nowY));
   document.getElementById('suivi-year-filter').innerHTML=years.map(y=>'<span class="chip '+(activeSuiviYear===y?'active':'')+'" onclick="setSuiviYear(\''+y+'\')">'+y+'</span>').join('');
+  const yearN=parseInt(activeSuiviYear);
+  const yearNm1=yearN-1; // N-1
   const filt=data.suivi.filter(x=>String(x.year)===activeSuiviYear);
   const groups={};
   filt.forEach(x=>{if(!groups[x.name])groups[x.name]={entries:[],budget:0};groups[x.name].entries.push(x);if(x.budget>groups[x.name].budget)groups[x.name].budget=x.budget;});
@@ -2999,14 +3051,77 @@ function renderSuivi(){
     const pct=hb?Math.min((total/budget)*100,100):0,over=hb&&total>budget,gain=hb?budget-total:0;
     const bc=pct<60?'ok':pct<90?'warn':'danger';
     const bym={};MONTHS.forEach(m=>bym[m]=0);ents.forEach(x=>bym[x.month]=(bym[x.month]||0)+x.amount);
-    const fms=MONTHS.filter(m=>bym[m]>0);
+    const fms=MONTHS.filter(m=>bym[m]>0); // mois renseignés en année N
+
+    // ── Calcul N-1 à mois équivalents ──
+    // On cherche les mêmes mois (fms) pour l'année N-1
+    const nm1Ents=data.suivi.filter(x=>x.name===name&&String(x.year)===String(yearNm1));
+    const nm1Total=fms.reduce((s,m)=>{
+      const e=nm1Ents.find(x=>x.month===m);
+      return s+(e?e.amount:0);
+    },0);
+    const nm1HasData=nm1Ents.length>0;
+    const nm1MoisCouverts=fms.filter(m=>nm1Ents.find(x=>x.month===m)).length;
+
+    // Écart N vs N-1
+    let nm1Badge='';
+    if(nm1HasData&&nm1Total>0&&total>0){
+      const diff=total-nm1Total;
+      const pctDiff=((diff/nm1Total)*100);
+      const cls=diff>0?'up':diff<0?'dn':'ne';
+      const icon=diff>0?'▲':'▼';
+      nm1Badge=`<span class="badge-trend ${cls}" title="vs ${yearNm1} même période">${icon} ${Math.abs(pctDiff).toFixed(0)}% vs N-1</span>`;
+    }
+
     let vbadge='';
     if(fms.length>=2){const last=bym[fms[fms.length-1]],prev=bym[fms[fms.length-2]],pv=prev>0?((last-prev)/prev)*100:0,cls=pv>0?'up':pv<0?'dn':'ne';vbadge=`<span class="badge-trend ${cls}">${pv>0?'▲':'▼'} ${Math.abs(pv).toFixed(0)}%</span>`;}
     const avg=fms.length>0?(total/fms.length):0;
+
+    // ── Bloc comparaison N-1 ──
+    let nm1Block='';
+    if(nm1HasData){
+      const diff=total-nm1Total;
+      const absDiff=Math.abs(diff);
+      const isUp=diff>0,isEq=Math.abs(diff)<0.01;
+      const diffColor=isUp?'var(--crimson)':isEq?'var(--indigo)':'var(--jade)';
+      const diffIcon=isUp?'▲':isEq?'➡':'▼';
+      const diffLabel=isUp?'de plus':'de moins';
+      nm1Block=`
+        <div class="nm1-block">
+          <div class="nm1-header">
+            <span class="nm1-label">📅 ${yearNm1} — mêmes mois (${nm1MoisCouverts}/${fms.length} renseignés)</span>
+            <span class="nm1-total">${nm1Total>0?fmt(nm1Total):'Non renseigné'}</span>
+          </div>
+          ${nm1Total>0&&total>0?`
+          <div class="nm1-compare">
+            <span style="color:${diffColor};font-weight:700;font-size:0.85rem">${diffIcon} ${fmt(absDiff)} ${diffLabel} qu'en ${yearNm1}</span>
+            <span class="nm1-pct" style="color:${diffColor}">(${isEq?'=':((diff/nm1Total)*100)>0?'+':'-'}${isEq?'0':Math.abs((diff/nm1Total)*100).toFixed(0)}%)</span>
+          </div>
+          <div class="nm1-bar-row">
+            <span class="nm1-year-lbl">${yearN}</span>
+            <div class="nm1-bar-wrap">
+              <div class="nm1-bar nm1-bar-n" style="width:${total>nm1Total?100:Math.round((total/Math.max(total,nm1Total))*100)}%"></div>
+            </div>
+            <span class="nm1-amt">${fmt(total)}</span>
+          </div>
+          <div class="nm1-bar-row">
+            <span class="nm1-year-lbl">${yearNm1}</span>
+            <div class="nm1-bar-wrap">
+              <div class="nm1-bar nm1-bar-nm1" style="width:${nm1Total>total?100:Math.round((nm1Total/Math.max(total,nm1Total))*100)}%"></div>
+            </div>
+            <span class="nm1-amt">${fmt(nm1Total)}</span>
+          </div>`:
+          `<div style="font-size:0.75rem;color:var(--text-l);font-style:italic;padding:4px 0">Aucune donnée ${yearNm1} pour ces mois</div>`}
+        </div>`;
+    }
+
     const eHtml=ents.map(e=>{
       const mI=MONTHS.indexOf(e.month),pM=mI>0?MONTHS[mI-1]:null,pE=pM?ents.find(x=>x.month===pM):null;
       let b='';if(pE){const pv=((e.amount-pE.amount)/pE.amount)*100,cls=pv>0?'up':pv<0?'dn':'ne';b=`<span class="badge-trend ${cls}">${pv>0?'▲':'▼'} ${Math.abs(pv).toFixed(0)}%</span>`;}
-      return`<div class="suivi-entry"><div class="suivi-entry-left"><div class="item-name">${e.month} ${e.year}</div><div class="suivi-entry-dt">${e.budget>0?'Budget : '+fmt(e.budget):''}</div></div><div class="suivi-entry-right">${b}<div class="suivi-entry-amt">${fmt(e.amount)}</div><button class="btn-danger-ghost" onclick="delSuivi('${e.id}')">🗑</button></div></div>`;
+      // Trouver l'entrée N-1 pour ce mois
+      const nm1E=nm1Ents.find(x=>x.month===e.month);
+      const nm1Hint=nm1E?`<span style="font-size:.7rem;color:var(--text-l);margin-left:4px" title="${yearNm1} : ${fmt(nm1E.amount)}">${yearNm1} : ${fmt(nm1E.amount)}</span>`:'';
+      return`<div class="suivi-entry"><div class="suivi-entry-left"><div class="item-name">${e.month} ${e.year}</div><div class="suivi-entry-dt">${nm1Hint}${e.budget>0?' · Budget : '+fmt(e.budget):''}</div></div><div class="suivi-entry-right">${b}<div class="suivi-entry-amt">${fmt(e.amount)}</div><button class="btn-danger-ghost" onclick="delSuivi('${e.id}')">🗑</button></div></div>`;
     }).join('');
     const sk=name.replace(/[^a-zA-Z0-9]/g,'_');
     return`<div class="suivi-group">
@@ -3015,7 +3130,7 @@ function renderSuivi(){
           <div class="suivi-icon">${gi(name,IC_SUIVI)}</div>
           <div><div class="suivi-name">${esc(name)}</div><div class="suivi-sub-meta">${ents.length} entrée(s) — moy. ${fmt(avg)}/mois</div></div>
         </div>
-        <div class="suivi-right">${vbadge}<div class="suivi-total">${fmt(total)}</div><div class="acc-chevron" id="sgc-${sk}">▼</div></div>
+        <div class="suivi-right">${nm1Badge}${vbadge}<div class="suivi-total">${fmt(total)}</div><div class="acc-chevron" id="sgc-${sk}">▼</div></div>
       </div>
       <div class="suivi-body" id="sgb-${sk}">
         ${hb?`<div style="padding:12px 0 0"><div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-m);margin-bottom:6px"><span>Budget : ${fmt(budget)}</span><span>${over?'Dépassé de '+fmt(total-budget):'Reste : '+fmt(gain)} — ${Math.round((total/budget)*100)}%</span></div><div class="progress-wrap"><div class="progress-bar ${bc}" style="width:${Math.min((total/budget)*100,100)}%"></div></div></div>`:''}
@@ -3024,6 +3139,7 @@ function renderSuivi(){
           <div class="stat-box"><div class="stat-lbl">Moy. mensuelle</div><div class="stat-val ne">${fmt(avg)}</div></div>
           <div class="stat-box"><div class="stat-lbl">${hb?(over?'Dépassement':'Économie'):'Entrées'}</div><div class="stat-val ${hb?(over?'up':'dn'):'ne'}">${hb?fmt(Math.abs(gain)):ents.length+' mois'}</div></div>
         </div>
+        ${nm1Block}
         <div style="margin-top:12px">${eHtml}</div>
       </div>
     </div>`;
