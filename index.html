@@ -956,6 +956,17 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
 .cat-tag-Divers       { background:#f3f4f6; color:#374151; }
 
 /* Chips catégories créées */
+.prel-bar-wrap {
+  height: 5px; background: var(--surface3); border-radius: 20px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.prel-bar-fill {
+  height: 100%; border-radius: 20px;
+  background: linear-gradient(90deg, var(--indigo-d), var(--indigo));
+  transition: width 0.6s ease;
+}
+.prel-row { align-items: flex-start !important; }
+
 .cat-chips-wrap {
   display: flex; flex-wrap: wrap; gap: 6px;
   padding: 10px 0;
@@ -1548,7 +1559,7 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
         <div class="form-card" style="padding:16px 20px">
           <ul class="item-list" id="list-prel"><li><div class="empty"><span class="emoji">⏳</span>Chargement…</div></li></ul>
         </div>
-        <div class="chart-card"><h3>📊 Répartition des prélèvements</h3><div class="chart-wrap"><canvas id="chartPrel"></canvas></div></div>
+        <div class="chart-card"><h3>📊 Répartition des prélèvements</h3><div class="chart-wrap" style="height:auto;min-height:200px" id="chartPrelWrap"><canvas id="chartPrel"></canvas></div></div>
       </div>
 
       <!-- ════════════════ CHARGES ════════════════ -->
@@ -1811,6 +1822,21 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
   </div>
 </div>
 
+<div class="modal-ov" id="modalPrel">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Modifier le prélèvement</div>
+    <input type="hidden" id="edit-prel-id">
+    <div class="modal-fields">
+      <div><label class="field-label">Nom</label><input type="text" id="edit-prel-name" placeholder="Ex: Netflix…"></div>
+      <div><label class="field-label">Montant mensuel (€)</label><input type="number" id="edit-prel-amount" placeholder="0,00" step="0.01" min="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-mcancel" onclick="closeMPrel()">Annuler</button>
+      <button class="btn-msave" style="background:linear-gradient(135deg,var(--indigo-d),var(--indigo))" onclick="savePrelEdit()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="modalEntry">
   <div class="modal-box">
     <div class="modal-title">✏️ Modifier l'entrée</div>
@@ -2047,18 +2073,54 @@ function renderPrel(){
   document.getElementById('count-prel').textContent=data.prel.length+' prélèvement(s)';
   const ul=document.getElementById('list-prel');
   if(!data.prel.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}
-  ul.innerHTML=data.prel.map(x=>`
-    <li class="item-row">
-      <div class="item-left">
-        <div class="item-icon indigo">${gi(x.name,IC_PREL)}</div>
-        <div><div class="item-name">${esc(x.name)}</div><div class="item-meta">Mensuel fixe</div></div>
+  // Tri par montant décroissant
+  const sorted=[...data.prel].sort((a,b)=>b.amount-a.amount);
+  const max=sorted[0].amount;
+  ul.innerHTML=sorted.map(x=>{
+    const pct=total>0?((x.amount/total)*100).toFixed(1):0;
+    const barW=max>0?Math.round((x.amount/max)*100):0;
+    return `<li class="item-row prel-row">
+      <div class="item-left" style="flex-direction:column;align-items:flex-start;gap:6px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div class="item-icon indigo" style="flex-shrink:0">${gi(x.name,IC_PREL)}</div>
+          <div style="flex:1;min-width:0">
+            <div class="item-name">${esc(x.name)}</div>
+            <div class="item-meta">Mensuel fixe · ${pct}% du total</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <div class="item-amount indigo">${fmt(x.amount)}</div>
+            <button class="btn-edit-ghost" onclick="openMPrel('${x.id}')" title="Modifier">✏️</button>
+            <button class="btn-danger-ghost" onclick="delPrel('${x.id}')">🗑</button>
+          </div>
+        </div>
+        <div style="width:100%;padding-left:50px">
+          <div class="prel-bar-wrap">
+            <div class="prel-bar-fill" style="width:${barW}%"></div>
+          </div>
+        </div>
       </div>
-      <div class="item-right">
-        <div class="item-amount indigo">${fmt(x.amount)}</div>
-        <button class="btn-danger-ghost" onclick="delPrel('${x.id}')">🗑</button>
-      </div>
-    </li>`).join('');
+    </li>`;
+  }).join('');
 }
+
+window.openMPrel=function(id){
+  const x=data.prel.find(p=>p.id===id);if(!x)return;
+  document.getElementById('edit-prel-id').value=id;
+  document.getElementById('edit-prel-name').value=x.name;
+  document.getElementById('edit-prel-amount').value=x.amount;
+  document.getElementById('modalPrel').classList.add('open');
+};
+window.closeMPrel=function(){document.getElementById('modalPrel').classList.remove('open');};
+window.savePrelEdit=async function(){
+  const u=auth.currentUser;if(!u)return;
+  const id=document.getElementById('edit-prel-id').value;
+  const name=document.getElementById('edit-prel-name').value.trim();
+  const amount=parseFloat(document.getElementById('edit-prel-amount').value);
+  if(!name||isNaN(amount)||amount<=0){toast('Remplis le nom et le montant');return;}
+  await fsUpd(u.uid,'prelevements',id,{name,amount});
+  window.closeMPrel();toast('Prélèvement modifié !');
+};
+document.getElementById('modalPrel').addEventListener('click',function(e){if(e.target===this)window.closeMPrel();});
 
 /* ── CHARGES TAXONOMIE ── */
 const CAT_FAMILIES={
@@ -2887,7 +2949,73 @@ function refreshCharts(){
     });
   }
   dc('prel');
-  if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:gc(data.prel.length,220),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
+  if(data.prel.length){
+    const prelSorted=[...data.prel].sort((a,b)=>b.amount-a.amount);
+    const prelTotal=prelSorted.reduce((s,x)=>s+x.amount,0);
+    const prelColors=prelSorted.map((_,i)=>`hsl(${(230+i*(130/Math.max(prelSorted.length,1)))%360},60%,52%)`);
+    // Adjust chart height based on number of items
+    const chartWrap=document.getElementById('chartPrelWrap');
+    if(chartWrap){
+      const h=Math.max(200, prelSorted.length*48+40);
+      chartWrap.style.height=h+'px';
+    }
+    charts['prel']=new Chart(document.getElementById('chartPrel'),{
+      type:'bar',
+      data:{
+        labels:prelSorted.map(x=>x.name),
+        datasets:[{
+          data:prelSorted.map(x=>x.amount),
+          backgroundColor:prelColors,
+          borderRadius:6,
+          borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y',
+        responsive:true,maintainAspectRatio:false,
+        layout:{padding:{right:60}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{
+            label:ctx=>{
+              const val=ctx.raw;
+              const pct=prelTotal>0?((val/prelTotal)*100).toFixed(1):0;
+              return ' '+fmt(val)+' — '+pct+'% du total';
+            }
+          }}
+        },
+        scales:{
+          x:{
+            ticks:{color:TK,callback:v=>fmt(v)},
+            grid:{color:GR},
+            beginAtZero:true
+          },
+          y:{
+            ticks:{color:TK,font:{family:'Plus Jakarta Sans',size:12},padding:4},
+            grid:{display:false}
+          }
+        }
+      },
+      plugins:[{
+        id:'pctLabel',
+        afterDatasetsDraw(chart){
+          const {ctx,scales:{x,y}}=chart;
+          const meta=chart.getDatasetMeta(0);
+          meta.data.forEach((bar,i)=>{
+            const val=prelSorted[i].amount;
+            const pct=prelTotal>0?((val/prelTotal)*100).toFixed(0):0;
+            ctx.save();
+            ctx.textAlign='left';
+            ctx.textBaseline='middle';
+            ctx.font='bold 11px Plus Jakarta Sans,system-ui,sans-serif';
+            ctx.fillStyle=prelColors[i];
+            ctx.fillText(pct+'%', bar.x+6, bar.y);
+            ctx.restore();
+          });
+        }
+      }]
+    });
+  }
   dc('charges');
   const cbm={};MONTHS.forEach(m=>cbm[m]=0);
   data.chargeEntries.forEach(x=>{if(x.date){const m=MONTHS[new Date(x.date+'T12:00:00').getMonth()];if(cbm[m]!==undefined)cbm[m]+=x.amount;}});
