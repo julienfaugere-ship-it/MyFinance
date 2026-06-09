@@ -1002,6 +1002,33 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
   align-items: center; justify-content: center; font-size: 0.8rem;
 }
 .pills-no-family .fam-ico { background: var(--surface3); }
+.cat-pill-none {
+  background: var(--surface2) !important;
+  border: 1.5px dashed var(--border-s) !important;
+  color: var(--text-m) !important;
+  cursor: pointer;
+}
+.cat-pill-none:hover {
+  background: var(--violet-l) !important;
+  border-color: var(--violet) !important;
+  color: var(--violet) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(124,58,237,0.2) !important;
+}
+.pill-assign-tag {
+  font-size: 0.65rem; font-weight: 700;
+  background: var(--violet); color: #fff;
+  padding: 1px 6px; border-radius: 10px;
+  margin-left: 3px; vertical-align: middle;
+}
+.cat-pill-none:hover .pill-assign-tag {
+  background: var(--violet);
+}
+.pill-none-hint {
+  font-size: 0.65rem; color: var(--violet);
+  font-weight: 500; font-style: italic;
+  margin-left: 4px;
+}
 .cat-pill {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--amber-l); border: 1px solid rgba(217,119,6,0.2);
@@ -2428,12 +2455,21 @@ function renderCatPills(cats, catAmounts){
       const famData=CAT_FAMILIES[fam];
       const famIco=isNone?'📌':famData.icon;
       const famLabel=isNone?'Sans famille':fam;
+      // Pills sans famille : bouton ✏️ pour affecter une famille via openMCat
+      const pillsFn=isNone
+        ? c=>`<span class="cat-pill cat-pill-none" onclick="openMCat('${c.id}')" title="Cliquer pour affecter une famille">${gi(c.name,IC_CHARGE)} ${esc(c.name)} <span class="pill-assign-tag">＋ famille</span></span>`
+        : pillHtml;
+      // Label enrichi pour le groupe sans famille
+      const extraLabel=isNone
+        ? `<span class="pill-none-hint">— cliquez sur une catégorie pour l'affecter</span>`
+        : '';
       return `<div class="pills-family-group${isNone?' pills-no-family':''}">
         <div class="pills-family-label">
           <span class="fam-ico">${famIco}</span>${famLabel}
           <span style="font-size:0.65rem;color:var(--text-l);font-weight:400">${arr.length} catégorie${arr.length>1?'s':''}</span>
+          ${extraLabel}
         </div>
-        <div class="pills-flat">${arr.map(pillHtml).join('')}</div>
+        <div class="pills-flat">${arr.map(pillsFn).join('')}</div>
       </div>`;
     }).join('');
   }
