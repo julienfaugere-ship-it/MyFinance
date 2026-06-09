@@ -1550,12 +1550,26 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
             <div class="kpi-value indigo" id="total-prel">0,00 €</div>
             <div class="kpi-sub" id="count-prel">0 prélèvement(s)</div>
           </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📆 Total annuel</div>
+            <div class="kpi-value violet" id="total-prel-annual">0,00 €</div>
+            <div class="kpi-sub" id="count-prel-annual">× 12 mois</div>
+          </div>
         </div>
         <div class="form-card">
           <h3>➕ Ajouter un prélèvement</h3>
           <div class="frow">
             <div class="fg flex1"><label class="field-label">Nom</label><input type="text" id="prel-name" placeholder="Ex: Netflix, Assurance…"></div>
             <div class="fg w100"><label class="field-label">Montant €</label><input type="number" id="prel-amount" placeholder="0,00" step="0.01" min="0"></div>
+            <div class="fg" style="width:130px">
+              <label class="field-label">Fréquence</label>
+              <select id="prel-freq">
+                <option value="12">Mensuel (×12)</option>
+                <option value="1">Annuel (×1)</option>
+                <option value="2">Semestriel (×2)</option>
+                <option value="4">Trimestriel (×4)</option>
+              </select>
+            </div>
             <button class="btn btn-primary" onclick="addPrel()">＋ Ajouter</button>
           </div>
         </div>
@@ -1831,7 +1845,18 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
     <input type="hidden" id="edit-prel-id">
     <div class="modal-fields">
       <div><label class="field-label">Nom</label><input type="text" id="edit-prel-name" placeholder="Ex: Netflix…"></div>
-      <div><label class="field-label">Montant mensuel (€)</label><input type="number" id="edit-prel-amount" placeholder="0,00" step="0.01" min="0"></div>
+      <div class="fgrid2">
+        <div><label class="field-label">Montant (€)</label><input type="number" id="edit-prel-amount" placeholder="0,00" step="0.01" min="0"></div>
+        <div><label class="field-label">Fréquence</label>
+          <select id="edit-prel-freq">
+            <option value="12">Mensuel (×12)</option>
+            <option value="1">Annuel (×1)</option>
+            <option value="2">Semestriel (×2)</option>
+            <option value="4">Trimestriel (×4)</option>
+          </select>
+        </div>
+      </div>
+      <div id="edit-prel-preview" style="background:var(--indigo-l);border-radius:var(--r-sm);padding:10px 14px;font-size:0.83rem;color:var(--indigo);display:none"></div>
     </div>
     <div class="modal-actions">
       <button class="btn-mcancel" onclick="closeMPrel()">Annuler</button>
@@ -2064,35 +2089,57 @@ function startListeners(uid){
 /* ── PRÉLÈVEMENTS ── */
 window.addPrel=async function(){
   const u=auth.currentUser;if(!u)return;
-  const name=document.getElementById('prel-name').value.trim(),amount=parseFloat(document.getElementById('prel-amount').value);
+  const name=document.getElementById('prel-name').value.trim();
+  const amount=parseFloat(document.getElementById('prel-amount').value);
+  const freq=parseInt(document.getElementById('prel-freq').value)||12;
   if(!name||isNaN(amount)||amount<=0){toast('Remplis le nom et le montant');return;}
-  document.getElementById('prel-name').value='';document.getElementById('prel-amount').value='';
-  await fsAdd(u.uid,'prelevements',{name,amount});
+  document.getElementById('prel-name').value='';
+  document.getElementById('prel-amount').value='';
+  document.getElementById('prel-freq').value='12';
+  await fsAdd(u.uid,'prelevements',{name,amount,freq});
 };
 window.delPrel=id=>{const u=auth.currentUser;if(u)fsDel(u.uid,'prelevements',id);};
+function prelAnnual(x){ return x.amount * (x.freq||12); }
+
 function renderPrel(){
-  const total=data.prel.reduce((s,x)=>s+x.amount,0);
-  document.getElementById('total-prel').textContent=fmt(total);
+  const totalMonthly=data.prel.reduce((s,x)=>s+x.amount,0);
+  const totalAnnual=data.prel.reduce((s,x)=>s+prelAnnual(x),0);
+  document.getElementById('total-prel').textContent=fmt(totalMonthly);
   document.getElementById('count-prel').textContent=data.prel.length+' prélèvement(s)';
+  // KPI annuel
+  const annEl=document.getElementById('total-prel-annual');
+  const annSub=document.getElementById('count-prel-annual');
+  if(annEl) annEl.textContent=fmt(totalAnnual);
+  if(annSub){
+    // Si tous mensuels → ×12, sinon indiquer fréquences mixtes
+    const allMonthly=data.prel.every(x=>!x.freq||x.freq===12);
+    annSub.textContent=allMonthly?'× 12 mois':'fréquences variées';
+  }
   const ul=document.getElementById('list-prel');
   if(!data.prel.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}
-  // Tri par montant décroissant
-  const sorted=[...data.prel].sort((a,b)=>b.amount-a.amount);
+  // Tri par montant annuel décroissant
+  const sorted=[...data.prel].sort((a,b)=>prelAnnual(b)-prelAnnual(a));
   if(!sorted.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}
-  const max=sorted[0].amount||1;
+  const max=prelAnnual(sorted[0])||1;
   ul.innerHTML=sorted.map(x=>{
-    const pct=total>0?((x.amount/total)*100).toFixed(1):0;
-    const barW=max>0?Math.round((x.amount/max)*100):0;
+    const annual=prelAnnual(x);
+    const freq=x.freq||12;
+    const freqLabel=FREQ_LABELS[String(freq)]||('×'+freq);
+    const pct=totalAnnual>0?((annual/totalAnnual)*100).toFixed(1):0;
+    const barW=max>0?Math.round((annual/max)*100):0;
     return `<li class="item-row prel-row">
       <div class="item-left" style="flex-direction:column;align-items:flex-start;gap:6px;flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div class="item-icon indigo" style="flex-shrink:0">${gi(x.name,IC_PREL)}</div>
           <div style="flex:1;min-width:0">
             <div class="item-name">${esc(x.name)}</div>
-            <div class="item-meta">Mensuel fixe · ${pct}% du total</div>
+            <div class="item-meta">${freqLabel} · ${pct}% du budget annuel</div>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-            <div class="item-amount indigo">${fmt(x.amount)}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+            <div style="text-align:right">
+              <div class="item-amount indigo">${fmt(x.amount)}/mois</div>
+              <div style="font-size:0.72rem;color:var(--text-m);font-weight:600">${fmt(annual)}/an</div>
+            </div>
             <button class="btn-edit-ghost" onclick="openMPrel('${x.id}')" title="Modifier">✏️</button>
             <button class="btn-danger-ghost" onclick="delPrel('${x.id}')">🗑</button>
           </div>
@@ -2107,11 +2154,27 @@ function renderPrel(){
   }).join('');
 }
 
+const FREQ_LABELS={'12':'Mensuel ×12','1':'Annuel ×1','2':'Semestriel ×2','4':'Trimestriel ×4'};
+
+function updatePrelPreview(){
+  const amt=parseFloat(document.getElementById('edit-prel-amount').value)||0;
+  const freq=parseInt(document.getElementById('edit-prel-freq').value)||12;
+  const annual=amt*freq;
+  const prev=document.getElementById('edit-prel-preview');
+  if(prev&&amt>0){
+    prev.style.display='block';
+    const fl=FREQ_LABELS[String(freq)]||('×'+freq);
+    prev.innerHTML='📆 Coût annuel : <strong>'+fmt(annual)+'</strong> <span style="font-weight:400;font-size:.78rem">('+fmt(amt)+' '+fl+')</span>';
+  } else if(prev){prev.style.display='none';}
+}
+
 window.openMPrel=function(id){
   const x=data.prel.find(p=>p.id===id);if(!x)return;
   document.getElementById('edit-prel-id').value=id;
   document.getElementById('edit-prel-name').value=x.name;
   document.getElementById('edit-prel-amount').value=x.amount;
+  document.getElementById('edit-prel-freq').value=String(x.freq||12);
+  updatePrelPreview();
   document.getElementById('modalPrel').classList.add('open');
 };
 window.closeMPrel=function(){document.getElementById('modalPrel').classList.remove('open');};
@@ -2120,11 +2183,14 @@ window.savePrelEdit=async function(){
   const id=document.getElementById('edit-prel-id').value;
   const name=document.getElementById('edit-prel-name').value.trim();
   const amount=parseFloat(document.getElementById('edit-prel-amount').value);
+  const freq=parseInt(document.getElementById('edit-prel-freq').value)||12;
   if(!name||isNaN(amount)||amount<=0){toast('Remplis le nom et le montant');return;}
-  await fsUpd(u.uid,'prelevements',id,{name,amount});
+  await fsUpd(u.uid,'prelevements',id,{name,amount,freq});
   window.closeMPrel();toast('Prélèvement modifié !');
 };
 document.getElementById('modalPrel').addEventListener('click',function(e){if(e.target===this)window.closeMPrel();});
+document.getElementById('edit-prel-amount').addEventListener('input',updatePrelPreview);
+document.getElementById('edit-prel-freq').addEventListener('change',updatePrelPreview);
 
 /* ── CHARGES TAXONOMIE ── */
 const CAT_FAMILIES={
@@ -2965,8 +3031,8 @@ function refreshCharts(){
   }
   dc('prel');
   if(data.prel.length){
-    const prelSorted=[...data.prel].sort((a,b)=>b.amount-a.amount);
-    const prelTotal=prelSorted.reduce((s,x)=>s+x.amount,0);
+    const prelSorted=[...data.prel].sort((a,b)=>prelAnnual(b)-prelAnnual(a));
+    const prelTotal=prelSorted.reduce((s,x)=>s+prelAnnual(x),0); // total annuel pour les %
     const prelColors=prelSorted.map((_,i)=>`hsl(${(230+i*(130/Math.max(prelSorted.length,1)))%360},60%,52%)`);
     // Adjust chart height based on number of items
     const chartWrap=document.getElementById('chartPrelWrap');
@@ -2977,7 +3043,7 @@ function refreshCharts(){
     charts['prel']=new Chart(document.getElementById('chartPrel'),{
       type:'bar',
       data:{
-        labels:prelSorted.map(x=>x.name),
+        labels:prelSorted.map(x=>x.name+' ('+fmt(prelAnnual(x))+'/an)'),
         datasets:[{
           data:prelSorted.map(x=>x.amount),
           backgroundColor:prelColors,
@@ -2993,9 +3059,11 @@ function refreshCharts(){
           legend:{display:false},
           tooltip:{callbacks:{
             label:ctx=>{
-              const val=ctx.raw;
-              const pct=prelTotal>0?((val/prelTotal)*100).toFixed(1):0;
-              return ' '+fmt(val)+' — '+pct+'% du total';
+              const prl=prelSorted[ctx.dataIndex];
+              const annual=prelAnnual(prl);
+              const fl=FREQ_LABELS[String(prl.freq||12)]||('×'+(prl.freq||12));
+              const pct=prelTotal>0?((annual/prelTotal)*100).toFixed(1):0;
+              return [' '+fmt(prl.amount)+'/mois — '+fl,' 📆 '+fmt(annual)+'/an — '+pct+'% du budget'];
             }
           }}
         },
@@ -3017,7 +3085,7 @@ function refreshCharts(){
           const {ctx,scales:{x,y}}=chart;
           const meta=chart.getDatasetMeta(0);
           meta.data.forEach((bar,i)=>{
-            const val=prelSorted[i].amount;
+            const val=prelAnnual(prelSorted[i]);
             const pct=prelTotal>0?((val/prelTotal)*100).toFixed(0):0;
             ctx.save();
             ctx.textAlign='left';
