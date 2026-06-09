@@ -2075,7 +2075,8 @@ function renderPrel(){
   if(!data.prel.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}
   // Tri par montant décroissant
   const sorted=[...data.prel].sort((a,b)=>b.amount-a.amount);
-  const max=sorted[0].amount;
+  if(!sorted.length){ul.innerHTML='<li><div class="empty"><span class="emoji">📭</span>Aucun prélèvement</div></li>';return;}
+  const max=sorted[0].amount||1;
   ul.innerHTML=sorted.map(x=>{
     const pct=total>0?((x.amount/total)*100).toFixed(1):0;
     const barW=max>0?Math.round((x.amount/max)*100):0;
