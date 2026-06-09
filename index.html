@@ -1751,15 +1751,24 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
 
 <!-- MODALS -->
 <div class="modal-ov" id="modalCat">
-  <div class="modal-box">
-    <div class="modal-title">✏️ Renommer la catégorie</div>
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-title">✏️ Modifier la catégorie</div>
     <input type="hidden" id="edit-cat-id">
     <div class="modal-fields">
-      <div><label class="field-label">Nouveau nom</label><input type="text" id="edit-cat-name" placeholder="Nom…"></div>
+      <div><label class="field-label">Nom</label><input type="text" id="edit-cat-name" placeholder="Nom…"></div>
+      <div>
+        <label class="field-label">Famille</label>
+        <div class="family-grid" id="modal-family-btns"></div>
+      </div>
+      <div id="modal-subcat-wrap" style="display:none">
+        <label class="field-label">Sous-catégorie</label>
+        <div class="subcat-area" id="modal-subcat-btns"></div>
+      </div>
+      <div id="modal-cat-summary" class="cat-summary" style="display:none"></div>
     </div>
     <div class="modal-actions">
       <button class="btn-mcancel" onclick="closeMCat()">Annuler</button>
-      <button class="btn-msave" onclick="saveCatRename()">💾 Renommer</button>
+      <button class="btn-msave" onclick="saveCatRename()">💾 Enregistrer</button>
     </div>
   </div>
 </div>
@@ -2102,21 +2111,62 @@ window.delChargeCat=async function(catId){
   await deleteDoc(doc(db,'users',u.uid,'charges',catId));
   toast('Catégorie supprimée');
 };
+// Variables état famille pour la modale édition
+let mSelFamily='', mSelSubcat='';
+
 window.openMCat=function(catId){
   const c=data.charges.find(x=>x.id===catId);if(!c)return;
   document.getElementById('edit-cat-id').value=catId;
   document.getElementById('edit-cat-name').value=c.name;
+  // Pré-remplir famille/sous-cat existante
+  mSelFamily=c.family||'';
+  mSelSubcat=c.subcat||'';
+  renderModalFamilyBtns();
   document.getElementById('modalCat').classList.add('open');
 };
-window.closeMCat=function(){document.getElementById('modalCat').classList.remove('open');};
+window.closeMCat=function(){
+  document.getElementById('modalCat').classList.remove('open');
+  mSelFamily='';mSelSubcat='';
+};
 window.saveCatRename=async function(){
   const u=auth.currentUser;if(!u)return;
   const id=document.getElementById('edit-cat-id').value,name=document.getElementById('edit-cat-name').value.trim();
   if(!name){toast('Saisis un nom');return;}
-  await fsUpd(u.uid,'charges',id,{name});
-  window.closeMCat();toast('Renommé !');
+  const payload={name};
+  if(mSelFamily)payload.family=mSelFamily; else payload.family='';
+  if(mSelSubcat)payload.subcat=mSelSubcat; else payload.subcat='';
+  await fsUpd(u.uid,'charges',id,payload);
+  window.closeMCat();toast('Catégorie mise à jour !');
 };
 document.getElementById('modalCat').addEventListener('click',function(e){if(e.target===this)window.closeMCat();});
+
+// Rendu boutons famille dans la modale
+function renderModalFamilyBtns(){
+  const cont=document.getElementById('modal-family-btns');if(!cont)return;
+  cont.innerHTML=Object.entries(CAT_FAMILIES).map(([f,v])=>
+    `<button class="family-btn ${mSelFamily===f?'sel':''}" onclick="pickMFamily('${f}')">${v.icon} ${f}</button>`
+  ).join('');
+  renderModalSubcatBtns();
+  updateModalSummary();
+}
+function renderModalSubcatBtns(){
+  const wrap=document.getElementById('modal-subcat-wrap'),cont=document.getElementById('modal-subcat-btns');
+  if(!wrap||!cont)return;
+  if(!mSelFamily||!CAT_FAMILIES[mSelFamily]){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  cont.innerHTML=CAT_FAMILIES[mSelFamily].subs.map(s=>
+    `<button class="subcat-btn ${mSelSubcat===s?'sel':''}" onclick="pickMSubcat('${s.replace(/'/g,"\'")}')">${s}</button>`
+  ).join('');
+}
+function updateModalSummary(){
+  const el=document.getElementById('modal-cat-summary');if(!el)return;
+  if(mSelFamily){
+    el.style.display='block';
+    el.innerHTML=CAT_FAMILIES[mSelFamily].icon+' <strong>'+mSelFamily+'</strong>'+(mSelSubcat?' › '+mSelSubcat:'<em style="font-size:.8rem;color:var(--indigo)"> — choisir une sous-catégorie</em>');
+  }else{el.style.display='none';}
+}
+window.pickMFamily=function(f){mSelFamily=f;mSelSubcat='';renderModalFamilyBtns();};
+window.pickMSubcat=function(s){mSelSubcat=s;renderModalSubcatBtns();updateModalSummary();};
 
 window.addChargeEntry=async function(catId){
   const u=auth.currentUser;if(!u)return;
@@ -2599,12 +2649,14 @@ function gc(n,h){return Array.from({length:n},(_,i)=>'hsl('+(h+i*(300/Math.max(n
 function refreshCharts(){
   refreshDashboard();
   const tP=data.prel.reduce((s,x)=>s+x.amount,0);
-  const tC=data.chargeEntries.reduce((s,x)=>s+x.amount,0);
   const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
+  // Charges = mois courant uniquement pour les graphiques du bilan
+  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  const tC=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM)).reduce((s,e)=>s+e.amount,0);
   dc('doughnut');
-  if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges'],datasets:[{data:[tP,tC],backgroundColor:['#4f46e5','#d97706'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
+  if(tP+tC>0)charts['doughnut']=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:['Prélèvements','Charges du mois'],datasets:[{data:[tP,tC],backgroundColor:['#4f46e5','#d97706'],borderWidth:0,hoverOffset:6}]},options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
   dc('bar');
-  charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(5,150,105,.75)','rgba(79,70,229,.75)','rgba(217,119,6,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TK},grid:{color:GR}},y:{ticks:{color:TK,callback:v=>v+' €'},grid:{color:GR}}}}});
+  charts['bar']=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:['Revenus','Prélèvements','Charges mois'],datasets:[{data:[tR,tP,tC],backgroundColor:['rgba(5,150,105,.75)','rgba(79,70,229,.75)','rgba(217,119,6,.75)'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:TK},grid:{color:GR}},y:{ticks:{color:TK,callback:v=>v+' €'},grid:{color:GR}}}}});
   dc('prel');
   if(data.prel.length)charts['prel']=new Chart(document.getElementById('chartPrel'),{type:'pie',data:{labels:data.prel.map(x=>x.name),datasets:[{data:data.prel.map(x=>x.amount),backgroundColor:gc(data.prel.length,220),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEG}}});
   dc('charges');
