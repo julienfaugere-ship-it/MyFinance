@@ -485,6 +485,51 @@ a { color: inherit; text-decoration: none; }
 .kpi-value.crimson { color: var(--crimson); }
 .kpi-value.violet { color: var(--violet); }
 .kpi-sub { font-size: 0.72rem; color: var(--text-l); margin-top: 4px; }
+/* Family synthesis */
+.fsynth-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.fsynth-row:last-child { border-bottom: none; }
+.fsynth-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.fsynth-name {
+  font-size: 0.85rem; font-weight: 700; color: var(--text);
+  min-width: 90px; flex-shrink: 0;
+}
+.fsynth-bar-wrap {
+  flex: 1; height: 8px; background: var(--surface3);
+  border-radius: 20px; overflow: hidden; min-width: 0;
+}
+.fsynth-bar-fill {
+  height: 100%; border-radius: 20px;
+  transition: width 0.6s ease;
+}
+.fsynth-right {
+  display: flex; flex-direction: column; align-items: flex-end;
+  flex-shrink: 0; min-width: 80px;
+}
+.fsynth-amount {
+  font-size: 0.88rem; font-weight: 700; color: var(--text);
+  white-space: nowrap;
+}
+.fsynth-pct {
+  font-size: 0.7rem; color: var(--text-m); font-weight: 600;
+}
+.fsynth-cats {
+  font-size: 0.68rem; color: var(--text-l);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 200px; flex: 1; min-width: 0;
+}
+.fsynth-empty {
+  text-align: center; padding: 20px;
+  color: var(--text-m); font-size: 0.85rem;
+}
+
 .delta-badge {
   display: inline-flex; align-items: center; gap: 3px;
   padding: 3px 9px; border-radius: 20px;
@@ -1566,6 +1611,18 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
           <div class="chart-card" style="margin:0"><h3>📊 Répartition des dépenses</h3><div class="chart-wrap"><canvas id="chartDoughnut"></canvas></div></div>
           <div class="chart-card" style="margin:0"><h3>📈 Vue d'ensemble</h3><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
+        </div>
+        <!-- Synthèse par famille -->
+        <div class="chart-card" id="family-synthesis-card" style="margin-bottom:20px;display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+            <h3 style="margin:0">🗂️ Dépenses par famille — <span id="family-synth-period">mois en cours</span></h3>
+            <div style="display:flex;gap:6px">
+              <button class="pills-sort-btn active" id="fsynth-btn-month" onclick="setFamilySynthPeriod('month')">Ce mois</button>
+              <button class="pills-sort-btn" id="fsynth-btn-year" onclick="setFamilySynthPeriod('year')">Cette année</button>
+              <button class="pills-sort-btn" id="fsynth-btn-all" onclick="setFamilySynthPeriod('all')">Tout</button>
+            </div>
+          </div>
+          <div id="family-synthesis-list"></div>
         </div>
       </div>
 
@@ -2932,6 +2989,93 @@ function refreshDashboard(){
   }else if(pctEl){pctEl.style.display='none';}
   const sOutSub=document.getElementById('dash-out-sub');if(sOutSub)sOutSub.textContent=fmt(tP)+' prélèv. + '+fmt(tC)+' charges';
   document.getElementById('solde-detail').textContent=fmt(tR)+' revenus — '+fmt(tP)+' prélèv. — '+fmt(tC)+' charges';
+  renderFamilySynthesis();
+}
+
+// ── Synthèse par famille ──
+let activeFSynthPeriod='month';
+
+const FAM_COLORS={
+  'Alimentation':'#f59e0b',
+  'Transport':   '#3b82f6',
+  'Santé':       '#ec4899',
+  'Famille':     '#22c55e',
+  'Loisirs':     '#8b5cf6',
+  'Shopping':    '#f97316',
+  'Voyage':      '#06b6d4',
+  'Animaux':     '#10b981',
+  'Maison':      '#64748b',
+  'Divers':      '#9ca3af',
+  'Autre':       '#d1d5db',
+};
+
+window.setFamilySynthPeriod=function(p){
+  activeFSynthPeriod=p;
+  document.querySelectorAll('[id^="fsynth-btn-"]').forEach(b=>b.classList.toggle('active',b.id==='fsynth-btn-'+p));
+  renderFamilySynthesis();
+};
+
+function renderFamilySynthesis(){
+  const card=document.getElementById('family-synthesis-card');
+  const list=document.getElementById('family-synthesis-list');
+  const periodLbl=document.getElementById('family-synth-period');
+  if(!card||!list)return;
+
+  // Filtrer les entrées selon la période
+  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  let filtEntries;
+  if(activeFSynthPeriod==='month'){
+    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM));
+    if(periodLbl)periodLbl.textContent=new Date(nowD.getFullYear(),nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  }else if(activeFSynthPeriod==='year'){
+    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(nowD.getFullYear())));
+    if(periodLbl)periodLbl.textContent='Année '+nowD.getFullYear();
+  }else{
+    filtEntries=data.chargeEntries;
+    if(periodLbl)periodLbl.textContent='Cumul total';
+  }
+
+  if(!filtEntries.length){
+    card.style.display='none';
+    return;
+  }
+  card.style.display='block';
+
+  // Grouper par famille
+  const famGroups={};
+  filtEntries.forEach(e=>{
+    const cat=data.charges.find(c=>c.id===e.catId);
+    const fam=cat&&cat.family?cat.family:'Autre';
+    if(!famGroups[fam]){famGroups[fam]={total:0,cats:new Set(),ico:CAT_FAMILIES[fam]?CAT_FAMILIES[fam].icon:'📌'};}
+    famGroups[fam].total+=e.amount;
+    if(cat)famGroups[fam].cats.add(cat.name);
+  });
+
+  const grandTotal=Object.values(famGroups).reduce((s,g)=>s+g.total,0);
+  const sorted=Object.entries(famGroups).sort((a,b)=>b[1].total-a[1].total);
+  const maxVal=sorted[0]?sorted[0][1].total:1;
+
+  list.innerHTML=sorted.map(([fam,g],i)=>{
+    const pct=grandTotal>0?((g.total/grandTotal)*100):0;
+    const barW=maxVal>0?Math.round((g.total/maxVal)*100):0;
+    const color=FAM_COLORS[fam]||'#94a3b8';
+    const catsArr=[...g.cats].slice(0,4);
+    const catsStr=catsArr.join(', ')+(g.cats.size>4?' +'+( g.cats.size-4):'');
+    return `<div class="fsynth-row">
+      <div class="fsynth-icon" style="background:${color}22">${g.ico}</div>
+      <div class="fsynth-name">${fam}</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+        <div class="fsynth-bar-wrap">
+          <div class="fsynth-bar-fill" style="width:${barW}%;background:${color}"></div>
+        </div>
+        <div class="fsynth-cats">${catsStr}</div>
+      </div>
+      <div class="fsynth-right">
+        <div class="fsynth-amount" style="color:${color}">${fmt(g.total)}</div>
+        <div class="fsynth-pct">${pct.toFixed(1)}% des charges</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 let charts={};
