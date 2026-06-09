@@ -2163,7 +2163,7 @@ window.setDashboardMonth=function(){
   const isCurrentMonth=(dashMonth===nowD.getMonth()&&dashYear===nowD.getFullYear());
   const btn=document.getElementById('dash-reset-btn');
   if(btn)btn.style.display=isCurrentMonth?'none':'block';
-  refreshDashboard();
+  refreshCharts(); // refreshCharts appelle refreshDashboard + met à jour les graphiques
 };
 
 window.resetDashboardMonth=function(){
@@ -2175,7 +2175,7 @@ window.resetDashboardMonth=function(){
   if(ySel)ySel.value=dashYear;
   const btn=document.getElementById('dash-reset-btn');
   if(btn)btn.style.display='none';
-  refreshDashboard();
+  refreshCharts();
 };
 {
   const sel=document.getElementById('exp-month');
