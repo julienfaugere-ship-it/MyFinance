@@ -1665,6 +1665,28 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
           <div class="hero-label">Solde net — <span id="bilan-mois-label">mois en cours</span></div>
           <div class="hero-amount pos" id="solde-hero">0,00 €</div>
           <div class="hero-detail" id="solde-detail">Revenus − Prélèvements − Charges</div>
+          <!-- Sélecteur de mois -->
+          <div style="display:flex;align-items:center;gap:8px;margin-top:18px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:6px 10px">
+              <span style="font-size:0.8rem;color:rgba(255,255,255,0.65);white-space:nowrap">📅 Bilan de</span>
+              <select id="dash-month-sel" onchange="setDashboardMonth()" style="background:transparent;border:none;color:#fff;font-family:var(--ff-body);font-size:0.85rem;font-weight:600;outline:none;cursor:pointer;padding:0 4px">
+                <option value="0" style="background:#1e3a8a">Janvier</option>
+                <option value="1" style="background:#1e3a8a">Février</option>
+                <option value="2" style="background:#1e3a8a">Mars</option>
+                <option value="3" style="background:#1e3a8a">Avril</option>
+                <option value="4" style="background:#1e3a8a">Mai</option>
+                <option value="5" style="background:#1e3a8a">Juin</option>
+                <option value="6" style="background:#1e3a8a">Juillet</option>
+                <option value="7" style="background:#1e3a8a">Août</option>
+                <option value="8" style="background:#1e3a8a">Septembre</option>
+                <option value="9" style="background:#1e3a8a">Octobre</option>
+                <option value="10" style="background:#1e3a8a">Novembre</option>
+                <option value="11" style="background:#1e3a8a">Décembre</option>
+              </select>
+              <select id="dash-year-sel" onchange="setDashboardMonth()" style="background:transparent;border:none;color:#fff;font-family:var(--ff-body);font-size:0.85rem;font-weight:600;outline:none;cursor:pointer;padding:0 4px"></select>
+            </div>
+            <button id="dash-reset-btn" onclick="resetDashboardMonth()" style="display:none;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:6px 12px;color:rgba(255,255,255,0.85);font-size:0.78rem;font-weight:600;cursor:pointer">↩ Mois actuel</button>
+          </div>
         </div>
         <div class="kpi-grid four" id="dash-kpis">
           <div class="kpi-card">
@@ -2118,6 +2140,43 @@ document.getElementById('suivi-month').value = MONTHS[nowD.getMonth()];
     sel.appendChild(o);
   }
 });
+// Init dashboard year selector
+{
+  const dashYSel=document.getElementById('dash-year-sel');
+  if(dashYSel){
+    for(let y=nowY-2;y<=nowY+1;y++){
+      const o=document.createElement('option');
+      o.value=y;o.textContent=y;if(y===nowY)o.selected=true;
+      dashYSel.appendChild(o);
+    }
+  }
+  const dashMSel=document.getElementById('dash-month-sel');
+  if(dashMSel) dashMSel.value=nowD.getMonth();
+}
+
+window.setDashboardMonth=function(){
+  const mSel=document.getElementById('dash-month-sel');
+  const ySel=document.getElementById('dash-year-sel');
+  if(!mSel||!ySel)return;
+  dashMonth=parseInt(mSel.value);
+  dashYear=parseInt(ySel.value);
+  const isCurrentMonth=(dashMonth===nowD.getMonth()&&dashYear===nowD.getFullYear());
+  const btn=document.getElementById('dash-reset-btn');
+  if(btn)btn.style.display=isCurrentMonth?'none':'block';
+  refreshDashboard();
+};
+
+window.resetDashboardMonth=function(){
+  dashMonth=nowD.getMonth();
+  dashYear=nowD.getFullYear();
+  const mSel=document.getElementById('dash-month-sel');
+  const ySel=document.getElementById('dash-year-sel');
+  if(mSel)mSel.value=dashMonth;
+  if(ySel)ySel.value=dashYear;
+  const btn=document.getElementById('dash-reset-btn');
+  if(btn)btn.style.display='none';
+  refreshDashboard();
+};
 {
   const sel=document.getElementById('exp-month');
   if(sel) sel.value=MONTHS[nowD.getMonth()];
@@ -2150,6 +2209,8 @@ function setSync(s){
 
 let data={prel:[],charges:[],chargeEntries:[],revenus:[],revenuEntries:[],suivi:[],notes:[]};
 let activeSuiviYear=String(nowY);
+let dashMonth=nowD.getMonth();   // 0-11
+let dashYear=nowD.getFullYear(); // ex: 2025
 let activeNoteFilter='all';
 let selectedPrio='haute';
 let activeChargeMonthFilter=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
@@ -3045,9 +3106,9 @@ function renderNotes(){
 
 /* ── DASHBOARD & CHARTS ── */
 function refreshDashboard(){
-  const curM=MONTHS[nowD.getMonth()],curY=nowY;
-  const curYM=curY+'-'+String(nowD.getMonth()+1).padStart(2,'0');
-  const moisLabel=new Date(curY,nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const curM=MONTHS[dashMonth],curY=dashYear;
+  const curYM=curY+'-'+String(dashMonth+1).padStart(2,'0');
+  const moisLabel=new Date(curY,dashMonth,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   const lbl=document.getElementById('bilan-mois-label');
   if(lbl)lbl.textContent=moisLabel;
   const tR=data.revenus.reduce((s,cat)=>s+getRevAmount(cat,curM,curY).amount,0);
@@ -3095,14 +3156,15 @@ const FAM_COLORS={
 
 // ── Filtrer les entrées selon la période active ──
 function getSynthEntries(){
-  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  // 'month' → suit le mois sélectionné dans le bilan
+  const curYM=dashYear+'-'+String(dashMonth+1).padStart(2,'0');
   if(activeFSynthPeriod==='month') return data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM));
-  if(activeFSynthPeriod==='year')  return data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(nowD.getFullYear())));
+  if(activeFSynthPeriod==='year')  return data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(dashYear)));
   return data.chargeEntries;
 }
 function getSynthPeriodLabel(){
-  if(activeFSynthPeriod==='month') return new Date(nowD.getFullYear(),nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  if(activeFSynthPeriod==='year')  return 'Année '+nowD.getFullYear();
+  if(activeFSynthPeriod==='month') return new Date(dashYear,dashMonth,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  if(activeFSynthPeriod==='year')  return 'Année '+dashYear;
   return 'Cumul total';
 }
 
@@ -3259,8 +3321,8 @@ function refreshCharts(){
   refreshDashboard();
   const tP=data.prel.reduce((s,x)=>s+x.amount,0);
   const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
-  // Charges = mois courant uniquement pour les graphiques du bilan
-  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  // Charges = mois sélectionné dans le bilan
+  const curYM=dashYear+'-'+String(dashMonth+1).padStart(2,'0');
   const tC=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM)).reduce((s,e)=>s+e.amount,0);
   dc('doughnut');
   if(tP+tC>0){
