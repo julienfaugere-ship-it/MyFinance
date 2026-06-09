@@ -960,6 +960,37 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
   display: flex; flex-wrap: wrap; gap: 6px;
   padding: 10px 0;
 }
+/* Pills sort tabs */
+.pills-sort-tabs {
+  display: flex; gap: 4px;
+}
+.pills-sort-btn {
+  border: 1.5px solid var(--border-s); background: var(--surface2);
+  border-radius: var(--r-sm); padding: 4px 10px;
+  font-size: 0.72rem; font-weight: 600; color: var(--text-m);
+  cursor: pointer; transition: all var(--transition);
+  white-space: nowrap;
+}
+.pills-sort-btn:hover { background: var(--surface3); color: var(--text); }
+.pills-sort-btn.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+/* Pills container */
+#cat-pills { min-height: 32px; }
+.pills-flat { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
+/* Family group in pills */
+.pills-family-group { margin-bottom: 12px; }
+.pills-family-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.7rem; font-weight: 700; color: var(--text-m);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 7px; padding-bottom: 5px;
+  border-bottom: 1.5px solid var(--border);
+}
+.pills-family-label .fam-ico {
+  width: 20px; height: 20px; border-radius: 5px;
+  background: var(--amber-l); display: inline-flex;
+  align-items: center; justify-content: center; font-size: 0.8rem;
+}
+.pills-no-family .fam-ico { background: var(--surface3); }
 .cat-pill {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--amber-l); border: 1px solid rgba(217,119,6,0.2);
@@ -1556,8 +1587,15 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
             <button class="btn btn-amber flex1" style="flex:1;justify-content:center" onclick="addChargeCat()">＋ Créer la catégorie</button>
           </div>
           <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
-            <label class="field-label">Catégories créées</label>
-            <div class="cat-chips-wrap" id="cat-pills"><span style="font-size:0.8rem;color:var(--text-l);font-style:italic">Aucune</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+              <label class="field-label" style="margin:0">Catégories créées</label>
+              <div class="pills-sort-tabs" id="pills-sort-tabs">
+                <button class="pills-sort-btn" data-sort="amount" onclick="setPillsSort('amount')" title="Trier par montant">💰 Montant</button>
+                <button class="pills-sort-btn active" data-sort="alpha" onclick="setPillsSort('alpha')" title="Trier par ordre alphabétique">🔤 A→Z</button>
+                <button class="pills-sort-btn" data-sort="family" onclick="setPillsSort('family')" title="Grouper par famille">🗂️ Famille</button>
+              </div>
+            </div>
+            <div id="cat-pills"><span style="font-size:0.8rem;color:var(--text-l);font-style:italic">Aucune</span></div>
           </div>
         </div>
 
@@ -1895,6 +1933,7 @@ let activeSuiviYear=String(nowY);
 let activeNoteFilter='all';
 let selectedPrio='haute';
 let activeChargeMonthFilter=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+let activePillsSort='alpha'; // 'amount' | 'alpha' | 'family'
 let unsubs=[];
 
 // PAGE TITLES
@@ -2211,6 +2250,71 @@ window.saveEntryEdit=async function(){
 document.getElementById('modalEntry').addEventListener('click',function(e){if(e.target===this)window.closeMEntry();});
 window.setChargeMonth=function(ym){activeChargeMonthFilter=ym;renderCharges();};
 
+window.setPillsSort=function(mode){
+  activePillsSort=mode;
+  // Update tab buttons
+  document.querySelectorAll('.pills-sort-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.sort===mode);
+  });
+  // Re-render pills avec les mêmes catAmounts
+  const cats=data.charges,entries=data.chargeEntries;
+  const isAll=(activeChargeMonthFilter==='ALL');
+  const catAmounts={};
+  cats.forEach(cat=>{
+    const rel=isAll?entries.filter(e=>e.catId===cat.id):entries.filter(e=>e.catId===cat.id&&e.date&&e.date.startsWith(activeChargeMonthFilter));
+    catAmounts[cat.id]=rel.reduce((s,e)=>s+e.amount,0);
+  });
+  renderCatPills(cats,catAmounts);
+};
+
+function pillHtml(c){
+  return `<span class="cat-pill" style="cursor:pointer" onclick="jumpToCat('${c.id}')" title="Saisir ↗">${gi(c.name,IC_CHARGE)} ${esc(c.name)}</span>`;
+}
+
+function renderCatPills(cats, catAmounts){
+  const el=document.getElementById('cat-pills');
+  if(!el)return;
+  if(!cats.length){el.innerHTML='<span style="font-size:0.8rem;color:var(--text-l);font-style:italic">Aucune catégorie</span>';return;}
+
+  if(activePillsSort==='amount'){
+    const sorted=[...cats].sort((a,b)=>(catAmounts[b.id]||0)-(catAmounts[a.id]||0));
+    el.innerHTML='<div class="pills-flat">'+sorted.map(pillHtml).join('')+'</div>';
+
+  } else if(activePillsSort==='alpha'){
+    const sorted=[...cats].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));
+    el.innerHTML='<div class="pills-flat">'+sorted.map(pillHtml).join('')+'</div>';
+
+  } else { // family
+    // Grouper par famille, non classés en dernier
+    const familyOrder=Object.keys(CAT_FAMILIES);
+    const groups={};
+    cats.forEach(c=>{
+      const fam=c.family||'__none__';
+      if(!groups[fam])groups[fam]=[];
+      groups[fam].push(c);
+    });
+    // Trier les cats dans chaque groupe alphabétiquement
+    Object.values(groups).forEach(arr=>arr.sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'})));
+    // Ordre des groupes : familles connues dans l'ordre, puis __none__
+    const orderedFams=[...familyOrder.filter(f=>groups[f]),...(groups['__none__']?['__none__']:[])];
+
+    el.innerHTML=orderedFams.map(fam=>{
+      const arr=groups[fam];
+      const isNone=fam==='__none__';
+      const famData=CAT_FAMILIES[fam];
+      const famIco=isNone?'📌':famData.icon;
+      const famLabel=isNone?'Sans famille':fam;
+      return `<div class="pills-family-group${isNone?' pills-no-family':''}">
+        <div class="pills-family-label">
+          <span class="fam-ico">${famIco}</span>${famLabel}
+          <span style="font-size:0.65rem;color:var(--text-l);font-weight:400">${arr.length} catégorie${arr.length>1?'s':''}</span>
+        </div>
+        <div class="pills-flat">${arr.map(pillHtml).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
 function renderCharges(){
   const cats=data.charges,entries=data.chargeEntries;
   const isAll=(activeChargeMonthFilter==='ALL');
@@ -2285,13 +2389,8 @@ function renderCharges(){
   });
   const sortedCats=[...cats].sort((a,b)=>(catAmounts[b.id]||0)-(catAmounts[a.id]||0));
 
-  // Pills cliquables → ouvrir accordéon + focus montant
-  const pillsEl=document.getElementById('cat-pills');
-  if(pillsEl){
-    pillsEl.innerHTML=cats.length
-      ?sortedCats.map(c=>{const pill=document.createElement('span');return `<span class="cat-pill" style="cursor:pointer" onclick="jumpToCat('${c.id}')" title="Saisir ↗">${gi(c.name,IC_CHARGE)} ${esc(c.name)}</span>`;}).join('')
-      :'<span style="font-size:0.8rem;color:var(--text-l);font-style:italic">Aucune</span>';
-  }
+  // Pills cliquables — rendu selon mode de tri
+  renderCatPills(cats, catAmounts);
 
   const container=document.getElementById('charge-groups');
   if(!cats.length){container.innerHTML='<div class="empty"><span class="emoji">📭</span>Aucune catégorie</div>';return;}
