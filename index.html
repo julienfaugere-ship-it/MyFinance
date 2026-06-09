@@ -525,6 +525,18 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 200px; flex: 1; min-width: 0;
 }
+.fsynth-clickable {
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  border-radius: var(--r-sm);
+  margin: 0 -8px; padding-left: 8px !important; padding-right: 8px !important;
+}
+.fsynth-clickable:hover {
+  background: var(--surface2);
+  transform: translateX(2px);
+}
+.fsynth-clickable .fsynth-pct { color: var(--indigo); }
+
 .fsynth-empty {
   text-align: center; padding: 20px;
   color: var(--text-m); font-size: 0.85rem;
@@ -1684,24 +1696,23 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
           <div class="chart-card" style="margin:0"><h3>📈 Vue d'ensemble</h3><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
         </div>
         <!-- Synthèse par famille -->
-        <div class="chart-card" id="family-synthesis-card" style="margin-bottom:20px;display:none">
+        <!-- Synthèse dépenses interactive -->
+        <div class="chart-card" id="depenses-synthesis-card" style="margin-bottom:20px;display:none">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-            <h3 style="margin:0">🗂️ Dépenses par famille — <span id="family-synth-period">mois en cours</span></h3>
+            <div>
+              <h3 style="margin:0">📊 Dépenses — <span id="depenses-synth-period">mois en cours</span></h3>
+              <div id="depenses-breadcrumb" style="font-size:0.75rem;color:var(--text-m);margin-top:3px;display:none">
+                <span style="cursor:pointer;color:var(--indigo);text-decoration:underline" onclick="resetDepensesSynth()">↩ Vue globale</span>
+                <span id="depenses-breadcrumb-text"></span>
+              </div>
+            </div>
             <div style="display:flex;gap:6px">
               <button class="pills-sort-btn active" id="fsynth-btn-month" onclick="setFamilySynthPeriod('month')">Ce mois</button>
               <button class="pills-sort-btn" id="fsynth-btn-year" onclick="setFamilySynthPeriod('year')">Cette année</button>
               <button class="pills-sort-btn" id="fsynth-btn-all" onclick="setFamilySynthPeriod('all')">Tout</button>
             </div>
           </div>
-          <div id="family-synthesis-list"></div>
-        </div>
-
-        <!-- Synthèse par sous-catégorie -->
-        <div class="chart-card" id="subcat-synthesis-card" style="margin-bottom:20px;display:none">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-            <h3 style="margin:0">📂 Dépenses par sous-catégorie — <span id="subcat-synth-period">mois en cours</span></h3>
-          </div>
-          <div id="subcat-synthesis-list"></div>
+          <div id="depenses-synthesis-list"></div>
         </div>
       </div>
 
@@ -3068,173 +3079,99 @@ function refreshDashboard(){
   }else if(pctEl){pctEl.style.display='none';}
   const sOutSub=document.getElementById('dash-out-sub');if(sOutSub)sOutSub.textContent=fmt(tP)+' prélèv. + '+fmt(tC)+' charges';
   document.getElementById('solde-detail').textContent=fmt(tR)+' revenus — '+fmt(tP)+' prélèv. — '+fmt(tC)+' charges';
-  renderFamilySynthesis();
-  renderSubcatSynthesis();
+  renderDepensesSynthesis();
 }
 
 // ── Synthèse par famille ──
 let activeFSynthPeriod='month';
+let activeDepensesFam=null; // null = global, string = drill-down famille
 
 const FAM_COLORS={
-  'Alimentation':'#f59e0b',
-  'Transport':   '#3b82f6',
-  'Santé':       '#ec4899',
-  'Famille':     '#22c55e',
-  'Loisirs':     '#8b5cf6',
-  'Shopping':    '#f97316',
-  'Voyage':      '#06b6d4',
-  'Animaux':     '#10b981',
-  'Maison':      '#64748b',
-  'Divers':      '#9ca3af',
-  'Autre':       '#d1d5db',
+  'Alimentation':'#f59e0b','Transport':'#3b82f6','Santé':'#ec4899',
+  'Famille':'#22c55e','Loisirs':'#8b5cf6','Shopping':'#f97316',
+  'Voyage':'#06b6d4','Animaux':'#10b981','Maison':'#64748b',
+  'Divers':'#9ca3af','Autre':'#d1d5db',
 };
+
+// ── Filtrer les entrées selon la période active ──
+function getSynthEntries(){
+  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
+  if(activeFSynthPeriod==='month') return data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM));
+  if(activeFSynthPeriod==='year')  return data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(nowD.getFullYear())));
+  return data.chargeEntries;
+}
+function getSynthPeriodLabel(){
+  if(activeFSynthPeriod==='month') return new Date(nowD.getFullYear(),nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  if(activeFSynthPeriod==='year')  return 'Année '+nowD.getFullYear();
+  return 'Cumul total';
+}
 
 window.setFamilySynthPeriod=function(p){
   activeFSynthPeriod=p;
+  activeDepensesFam=null; // reset drill-down on period change
   document.querySelectorAll('[id^="fsynth-btn-"]').forEach(b=>b.classList.toggle('active',b.id==='fsynth-btn-'+p));
-  renderFamilySynthesis();
-  renderSubcatSynthesis();
+  renderDepensesSynthesis();
 };
 
-// ── Toggle groupe sous-cat ──
-window.toggleSsynth=function(id){
-  const body=document.getElementById('ssynth-body-'+id);
-  const chev=document.getElementById('ssynth-chev-'+id);
-  if(!body)return;
-  const open=body.style.display==='none';
-  body.style.display=open?'flex':'none';
-  if(chev)chev.classList.toggle('open',open);
+window.resetDepensesSynth=function(){
+  activeDepensesFam=null;
+  renderDepensesSynthesis();
 };
 
-function renderSubcatSynthesis(){
-  const card=document.getElementById('subcat-synthesis-card');
-  const list=document.getElementById('subcat-synthesis-list');
-  const periodLbl=document.getElementById('subcat-synth-period');
+window.drillDepensesFam=function(fam){
+  activeDepensesFam=fam;
+  renderDepensesSynthesis();
+};
+
+function renderDepensesSynthesis(){
+  const card=document.getElementById('depenses-synthesis-card');
+  const list=document.getElementById('depenses-synthesis-list');
+  const periodLbl=document.getElementById('depenses-synth-period');
+  const bc=document.getElementById('depenses-breadcrumb');
+  const bcText=document.getElementById('depenses-breadcrumb-text');
   if(!card||!list)return;
 
-  // Même filtre période que les familles
-  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
-  let filtEntries;
-  if(activeFSynthPeriod==='month'){
-    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM));
-    if(periodLbl)periodLbl.textContent=new Date(nowD.getFullYear(),nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  }else if(activeFSynthPeriod==='year'){
-    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(nowD.getFullYear())));
-    if(periodLbl)periodLbl.textContent='Année '+nowD.getFullYear();
-  }else{
-    filtEntries=data.chargeEntries;
-    if(periodLbl)periodLbl.textContent='Cumul total';
-  }
+  const filtEntries=getSynthEntries();
+  if(periodLbl)periodLbl.textContent=getSynthPeriodLabel();
 
   if(!filtEntries.length){ card.style.display='none'; return; }
   card.style.display='block';
 
-  // Construire la structure : famille → sous-cat → {total, catNames[]}
-  // famData[fam][subcat] = {total, catNames}
-  const famData={};
-  filtEntries.forEach(e=>{
-    const cat=data.charges.find(c=>c.id===e.catId);
-    const fam=cat&&cat.family?cat.family:'Autre';
-    const sub=cat&&cat.subcat?cat.subcat:'Sans sous-catégorie';
-    const catName=cat?cat.name:'?';
-    if(!famData[fam])famData[fam]={total:0,ico:CAT_FAMILIES[fam]?CAT_FAMILIES[fam].icon:'📌',subs:{}};
-    famData[fam].total+=e.amount;
-    if(!famData[fam].subs[sub])famData[fam].subs[sub]={total:0,catNames:[]};
-    famData[fam].subs[sub].total+=e.amount;
-    if(!famData[fam].subs[sub].catNames.includes(catName))
-      famData[fam].subs[sub].catNames.push(catName);
-  });
-
-  const grandTotal=Object.values(famData).reduce((s,g)=>s+g.total,0);
-  const sortedFams=Object.entries(famData).sort((a,b)=>b[1].total-a[1].total);
-
-  list.innerHTML=sortedFams.map(([fam,g],fi)=>{
-    const famColor=FAM_COLORS[fam]||'#94a3b8';
-    const famPct=grandTotal>0?((g.total/grandTotal)*100).toFixed(1):0;
-    const groupId='ssynth-'+fi;
-    // Trier les sous-cats par montant décroissant
-    const sortedSubs=Object.entries(g.subs).sort((a,b)=>b[1].total-a[1].total);
-    const maxSubVal=sortedSubs[0]?sortedSubs[0][1].total:1;
-
-    const subRows=sortedSubs.map(([sub,sd])=>{
-      const subPct=g.total>0?((sd.total/g.total)*100).toFixed(0):0;
-      const subPctGrand=grandTotal>0?((sd.total/grandTotal)*100).toFixed(1):0;
-      const barW=maxSubVal>0?Math.round((sd.total/maxSubVal)*100):0;
-      const catStr=sd.catNames.slice(0,3).join(', ')+(sd.catNames.length>3?' +'+( sd.catNames.length-3):'');
-      const isNoneSub=sub==='Sans sous-catégorie';
-      return `<div class="ssynth-row">
-        <div class="ssynth-subname" style="color:${isNoneSub?'var(--text-l)':'var(--text-s)'};font-style:${isNoneSub?'italic':'normal'}">${sub}</div>
-        <div class="ssynth-catnames">${catStr}</div>
-        <div class="ssynth-bar-wrap">
-          <div class="ssynth-bar-fill" style="width:${barW}%;background:${famColor}99"></div>
-        </div>
-        <div class="ssynth-amount" style="color:${famColor}">${fmt(sd.total)}</div>
-        <div class="ssynth-pct-badge">${subPct}%</div>
-      </div>`;
-    }).join('');
-
-    return `<div class="ssynth-group">
-      <div class="ssynth-group-hdr" onclick="toggleSsynth('${groupId}')">
-        <div class="ssynth-group-icon" style="background:${famColor}22">${g.ico}</div>
-        <div class="ssynth-group-name" style="color:${famColor}">${fam}</div>
-        <div class="ssynth-group-total" style="color:${famColor}">${fmt(g.total)}</div>
-        <div class="ssynth-group-pct">${famPct}%</div>
-        <div class="ssynth-group-chev open" id="ssynth-chev-${groupId}">▼</div>
-      </div>
-      <div class="ssynth-items" id="ssynth-body-${groupId}" style="display:flex">
-        ${subRows}
-      </div>
-    </div>`;
-  }).join('');
+  if(!activeDepensesFam){
+    // ── VUE GLOBALE : par famille ──
+    if(bc)bc.style.display='none';
+    renderGlobalView(filtEntries,list);
+  } else {
+    // ── VUE DÉTAIL : sous-catégories d'une famille ──
+    const famColor=FAM_COLORS[activeDepensesFam]||'#94a3b8';
+    const famIco=CAT_FAMILIES[activeDepensesFam]?CAT_FAMILIES[activeDepensesFam].icon:'📌';
+    if(bc)bc.style.display='block';
+    if(bcText)bcText.innerHTML=` → <span style="color:${famColor};font-weight:700">${famIco} ${activeDepensesFam}</span>`;
+    renderFamilyDetail(filtEntries,list,activeDepensesFam);
+  }
 }
 
-function renderFamilySynthesis(){
-  const card=document.getElementById('family-synthesis-card');
-  const list=document.getElementById('family-synthesis-list');
-  const periodLbl=document.getElementById('family-synth-period');
-  if(!card||!list)return;
-
-  // Filtrer les entrées selon la période
-  const curYM=nowD.getFullYear()+'-'+String(nowD.getMonth()+1).padStart(2,'0');
-  let filtEntries;
-  if(activeFSynthPeriod==='month'){
-    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(curYM));
-    if(periodLbl)periodLbl.textContent=new Date(nowD.getFullYear(),nowD.getMonth(),1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  }else if(activeFSynthPeriod==='year'){
-    filtEntries=data.chargeEntries.filter(e=>e.date&&e.date.startsWith(String(nowD.getFullYear())));
-    if(periodLbl)periodLbl.textContent='Année '+nowD.getFullYear();
-  }else{
-    filtEntries=data.chargeEntries;
-    if(periodLbl)periodLbl.textContent='Cumul total';
-  }
-
-  if(!filtEntries.length){
-    card.style.display='none';
-    return;
-  }
-  card.style.display='block';
-
-  // Grouper par famille
+// ── Vue globale : une ligne par famille, cliquable ──
+function renderGlobalView(filtEntries, list){
   const famGroups={};
   filtEntries.forEach(e=>{
     const cat=data.charges.find(c=>c.id===e.catId);
     const fam=cat&&cat.family?cat.family:'Autre';
-    if(!famGroups[fam]){famGroups[fam]={total:0,cats:new Set(),ico:CAT_FAMILIES[fam]?CAT_FAMILIES[fam].icon:'📌'};}
+    if(!famGroups[fam]){famGroups[fam]={total:0,ico:CAT_FAMILIES[fam]?CAT_FAMILIES[fam].icon:'📌',cats:new Set()};}
     famGroups[fam].total+=e.amount;
     if(cat)famGroups[fam].cats.add(cat.name);
   });
-
   const grandTotal=Object.values(famGroups).reduce((s,g)=>s+g.total,0);
   const sorted=Object.entries(famGroups).sort((a,b)=>b[1].total-a[1].total);
   const maxVal=sorted[0]?sorted[0][1].total:1;
 
-  list.innerHTML=sorted.map(([fam,g],i)=>{
-    const pct=grandTotal>0?((g.total/grandTotal)*100):0;
-    const barW=maxVal>0?Math.round((g.total/maxVal)*100):0;
+  list.innerHTML=sorted.map(([fam,g])=>{
+    const pct=grandTotal>0?((g.total/grandTotal)*100).toFixed(1):0;
+    const barW=Math.round((g.total/maxVal)*100);
     const color=FAM_COLORS[fam]||'#94a3b8';
-    const catsArr=[...g.cats].slice(0,4);
-    const catsStr=catsArr.join(', ')+(g.cats.size>4?' +'+( g.cats.size-4):'');
-    return `<div class="fsynth-row">
+    const catsStr=[...g.cats].slice(0,4).join(', ')+(g.cats.size>4?' +'+( g.cats.size-4):'');
+    const hasDetail=[...g.cats].some(n=>{const c=data.charges.find(x=>x.name===n);return c&&c.subcat;});
+    return `<div class="fsynth-row fsynth-clickable" onclick="drillDepensesFam('${fam.replace(/'/g,"\'")}')">
       <div class="fsynth-icon" style="background:${color}22">${g.ico}</div>
       <div class="fsynth-name">${fam}</div>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
@@ -3245,11 +3182,73 @@ function renderFamilySynthesis(){
       </div>
       <div class="fsynth-right">
         <div class="fsynth-amount" style="color:${color}">${fmt(g.total)}</div>
-        <div class="fsynth-pct">${pct.toFixed(1)}% des charges</div>
+        <div class="fsynth-pct">${pct}% · voir détail →</div>
       </div>
     </div>`;
   }).join('');
 }
+
+// ── Vue détail : sous-catégories d'une famille + catégories sans subcat ──
+function renderFamilyDetail(filtEntries, list, fam){
+  const color=FAM_COLORS[fam]||'#94a3b8';
+  const famEntries=filtEntries.filter(e=>{
+    const cat=data.charges.find(c=>c.id===e.catId);
+    const ef=(cat&&cat.family?cat.family:'Autre');
+    return ef===fam;
+  });
+  if(!famEntries.length){list.innerHTML='<div class="fsynth-row" style="color:var(--text-m);font-style:italic;padding:14px 0">Aucune dépense pour cette famille sur la période.</div>';return;}
+
+  // Grouper par sous-cat
+  const subGroups={};
+  famEntries.forEach(e=>{
+    const cat=data.charges.find(c=>c.id===e.catId);
+    const sub=cat&&cat.subcat?cat.subcat:'Catégories sans sous-catégorie';
+    if(!subGroups[sub]){subGroups[sub]={total:0,rows:[],catNames:[]};}
+    subGroups[sub].total+=e.amount;
+    if(cat&&!subGroups[sub].catNames.includes(cat.name))subGroups[sub].catNames.push(cat.name);
+    subGroups[sub].rows.push({date:e.date,amount:e.amount,catName:cat?cat.name:'?',note:e.note});
+  });
+
+  const famTotal=Object.values(subGroups).reduce((s,g)=>s+g.total,0);
+  const sorted=Object.entries(subGroups).sort((a,b)=>b[1].total-a[1].total);
+  const maxVal=sorted[0]?sorted[0][1].total:1;
+
+  list.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;padding:0 0 12px;border-bottom:2px solid ${color}33;margin-bottom:10px">
+      <span style="font-size:1.2rem">${CAT_FAMILIES[fam]?CAT_FAMILIES[fam].icon:'📌'}</span>
+      <span style="font-family:var(--ff-display);font-size:1rem;font-weight:700;color:${color}">${fam}</span>
+      <span style="margin-left:auto;font-family:var(--ff-display);font-size:1rem;font-weight:800;color:${color}">${fmt(famTotal)}</span>
+    </div>
+    ${sorted.map(([sub,g])=>{
+      const pct=famTotal>0?((g.total/famTotal)*100).toFixed(0):0;
+      const barW=Math.round((g.total/maxVal)*100);
+      const isNone=sub==='Catégories sans sous-catégorie';
+      const catStr=g.catNames.slice(0,5).join(', ')+(g.catNames.length>5?' +'+( g.catNames.length-5):'');
+      return `<div class="ssynth-group" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div style="font-size:0.82rem;font-weight:${isNone?'500':'700'};color:${isNone?'var(--text-m)':color};font-style:${isNone?'italic':'normal'};flex:1">${sub}</div>
+          <div style="font-size:0.88rem;font-weight:800;color:${color}">${fmt(g.total)}</div>
+          <div style="font-size:0.72rem;color:var(--text-m);min-width:32px;text-align:right">${pct}%</div>
+        </div>
+        <div class="fsynth-bar-wrap" style="margin-bottom:5px">
+          <div class="fsynth-bar-fill" style="width:${barW}%;background:${color}"></div>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-m);margin-bottom:6px">${catStr}</div>
+        <div style="display:flex;flex-direction:column;gap:3px;padding-left:8px;border-left:2px solid ${color}33">
+          ${g.rows.sort((a,b)=>b.amount-a.amount).map(r=>`
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;padding:4px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-m);flex-shrink:0">${fmtDate(r.date)}</span>
+              <span style="flex:1;min-width:0;color:var(--text-s);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.catName)}${r.note?' · <em>'+esc(r.note)+'</em>':''}</span>
+              <span style="font-weight:700;color:${color};white-space:nowrap">${fmt(r.amount)}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// Alias pour compatibilité avec appels existants
+function renderFamilySynthesis(){ renderDepensesSynthesis(); }
+function renderSubcatSynthesis(){ /* fusionné dans renderDepensesSynthesis */ }
 
 let charts={};
 const TK='#9ca3af',GR='rgba(0,0,0,0.06)',LEG={labels:{color:'#6b7280',font:{family:'Plus Jakarta Sans',size:12},boxWidth:12}};
