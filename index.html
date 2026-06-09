@@ -1558,19 +1558,11 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
         </div>
         <div class="form-card">
           <h3>➕ Ajouter un prélèvement</h3>
-          <div class="frow">
-            <div class="fg flex1"><label class="field-label">Nom</label><input type="text" id="prel-name" placeholder="Ex: Netflix, Assurance…"></div>
-            <div class="fg w100"><label class="field-label">Montant €</label><input type="number" id="prel-amount" placeholder="0,00" step="0.01" min="0"></div>
-            <div class="fg" style="width:130px">
-              <label class="field-label">Fréquence</label>
-              <select id="prel-freq">
-                <option value="12">Mensuel (×12)</option>
-                <option value="1">Annuel (×1)</option>
-                <option value="2">Semestriel (×2)</option>
-                <option value="4">Trimestriel (×4)</option>
-              </select>
-            </div>
-            <button class="btn btn-primary" onclick="addPrel()">＋ Ajouter</button>
+          <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+            <div class="fg" style="flex:1;min-width:150px"><label class="field-label">Nom</label><input type="text" id="prel-name" placeholder="Ex: Netflix, Assurance…"></div>
+            <div class="fg" style="width:110px"><label class="field-label">Montant €</label><input type="number" id="prel-amount" placeholder="0,00" step="0.01" min="0"></div>
+            <div class="fg" style="width:150px"><label class="field-label">Fréquence</label><select id="prel-freq"><option value="12">Mensuel (×12)</option><option value="1">Annuel (×1)</option><option value="2">Semestriel (×2)</option><option value="4">Trimestriel (×4)</option></select></div>
+            <button class="btn btn-primary" style="flex-shrink:0;align-self:flex-end" onclick="addPrel()">＋ Ajouter</button>
           </div>
         </div>
         <div class="form-card" style="padding:16px 20px">
