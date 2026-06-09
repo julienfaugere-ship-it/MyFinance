@@ -1530,6 +1530,9 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
           <div class="kpi-card">
             <div class="kpi-label">📤 Total sorties</div>
             <div class="kpi-value crimson" id="dash-out">0,00 €</div>
+            <div id="dash-out-pct" style="margin:4px 0 2px;display:none">
+              <span id="dash-out-pct-badge" class="delta-badge up"></span>
+            </div>
             <div class="kpi-sub" id="dash-out-sub">—</div>
           </div>
         </div>
@@ -2822,6 +2825,17 @@ function refreshDashboard(){
   document.getElementById('dash-charges').textContent=fmt(tC);
   const sCsub=document.getElementById('dash-charges-sub');if(sCsub)sCsub.textContent=nCharges+' entrée'+(nCharges>1?'s':'')+' ce mois';
   document.getElementById('dash-out').textContent=fmt(sorties);
+  // % sorties / revenus
+  const pctOut=tR>0?((sorties/tR)*100):0;
+  const pctEl=document.getElementById('dash-out-pct');
+  const pctBadge=document.getElementById('dash-out-pct-badge');
+  if(pctEl&&pctBadge&&tR>0){
+    pctEl.style.display='block';
+    const cls=pctOut>=100?'up':pctOut>=80?'up':pctOut>=60?'up':'dn';
+    const icon=pctOut>=100?'⚠️':pctOut>=80?'▲':'▼';
+    pctBadge.textContent=icon+' '+pctOut.toFixed(0)+'% des revenus';
+    pctBadge.className='delta-badge '+cls;
+  }else if(pctEl){pctEl.style.display='none';}
   const sOutSub=document.getElementById('dash-out-sub');if(sOutSub)sOutSub.textContent=fmt(tP)+' prélèv. + '+fmt(tC)+' charges';
   document.getElementById('solde-detail').textContent=fmt(tR)+' revenus — '+fmt(tP)+' prélèv. — '+fmt(tC)+' charges';
 }
