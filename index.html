@@ -1780,7 +1780,15 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
             </div>
           </div>
           <div style="font-size:0.72rem;color:var(--text-m);margin-bottom:12px" id="daily-chart-sub"></div>
-          <div class="chart-wrap" style="height:220px"><canvas id="chartDaily"></canvas></div>
+          <div class="chart-wrap" style="height:220px"><canvas id="chartDaily" style="cursor:pointer"></canvas></div>
+          <!-- Détail jour cliqué -->
+          <div id="daily-detail-panel" style="display:none;margin-top:14px;border-top:1.5px solid var(--border);padding-top:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
+              <div id="daily-detail-title" style="font-family:var(--ff-display);font-size:0.95rem;font-weight:700;color:var(--text)"></div>
+              <button onclick="closeDailyDetail()" style="background:var(--surface2);border:1px solid var(--border-s);border-radius:8px;padding:4px 10px;font-size:0.75rem;color:var(--text-m);cursor:pointer">✕ Fermer</button>
+            </div>
+            <div id="daily-detail-list"></div>
+          </div>
         </div>
         <!-- Synthèse par famille -->
         <!-- Synthèse dépenses interactive -->
@@ -3444,6 +3452,64 @@ function renderFamilySynthesis(){ renderDepensesSynthesis(); }
 function renderSubcatSynthesis(){ /* fusionné dans renderDepensesSynthesis */ }
 
 // ── Graphique dépenses journalières ──
+window.closeDailyDetail=function(){
+  const panel=document.getElementById('daily-detail-panel');
+  if(panel)panel.style.display='none';
+};
+
+window.showDailyDetail=function(day){
+  const panel=document.getElementById('daily-detail-panel');
+  const title=document.getElementById('daily-detail-title');
+  const list=document.getElementById('daily-detail-list');
+  if(!panel||!title||!list)return;
+
+  const entries=(window._dailyEntriesByDay||{})[day]||[];
+  const y=window._dashYear||dashYear;
+  const m=window._dashMonth||dashMonth;
+  const dateObj=new Date(y,m,day);
+  const dateStr=dateObj.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const dayTotal=entries.reduce((s,e)=>s+e.amount,0);
+
+  title.innerHTML=`<span style="text-transform:capitalize">${dateStr}</span>${dayTotal>0?` — <span style="color:var(--amber)">${fmt(dayTotal)}</span>`:''}`;
+
+  if(!entries.length){
+    list.innerHTML='<div style="color:var(--text-m);font-size:0.85rem;font-style:italic;padding:8px 0">Aucune dépense ce jour.</div>';
+    panel.style.display='block';
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+
+  // Trier par montant décroissant
+  const sorted=[...entries].sort((a,b)=>b.amount-a.amount);
+  list.innerHTML=sorted.map(e=>{
+    const cat=data.charges.find(c=>c.id===e.catId);
+    const catName=cat?cat.name:'Divers';
+    const famName=cat&&cat.family?cat.family:'';
+    const subName=cat&&cat.subcat?cat.subcat:'';
+    const famColor=famName&&FAM_COLORS[famName]?FAM_COLORS[famName]:'#9ca3af';
+    const pct=dayTotal>0?((e.amount/dayTotal)*100).toFixed(0):0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);min-width:0">
+      <div style="width:36px;height:36px;border-radius:10px;background:${famColor}20;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">${cat?gi(catName,IC_CHARGE):'💰'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(catName)}</div>
+        <div style="font-size:0.72rem;color:var(--text-m);margin-top:1px">${famName?`<span style="color:${famColor};font-weight:600">${famName}</span>${subName?' › '+subName:''}`:''}</div>
+        ${e.note?`<div style="font-size:0.72rem;color:var(--text-m);font-style:italic;margin-top:1px">💬 ${esc(e.note)}</div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:0.92rem;font-weight:800;color:var(--amber)">${fmt(e.amount)}</div>
+        <div style="font-size:0.68rem;color:var(--text-l)">${pct}% du jour</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if(sorted.length>1){
+    list.innerHTML+=`<div style="display:flex;justify-content:flex-end;padding:8px 0 0;font-family:var(--ff-display);font-size:0.9rem;font-weight:800;color:var(--amber)">${sorted.length} dépenses · Total : ${fmt(dayTotal)}</div>`;
+  }
+
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
 function renderDailyChart(){
   dc('daily');
   const YM=dashYear+'-'+String(dashMonth+1).padStart(2,'0');
@@ -3482,6 +3548,19 @@ function renderDailyChart(){
     // Graphique vide mais on le garde pour indiquer le mois
   }
 
+  // Store daily entries for click handler
+  // Reset detail panel on re-render
+  window.closeDailyDetail&&window.closeDailyDetail();
+  window._dailyEntriesByDay={};
+  data.chargeEntries.forEach(e=>{
+    if(!e.date||!e.date.startsWith(YM))return;
+    const day=parseInt(e.date.split('-')[2]);
+    if(!window._dailyEntriesByDay[day])window._dailyEntriesByDay[day]=[];
+    window._dailyEntriesByDay[day].push(e);
+  });
+  window._dashYear=dashYear;
+  window._dashMonth=dashMonth;
+
   charts['daily']=new Chart(document.getElementById('chartDaily'),{
     type:'bar',
     data:{
@@ -3518,11 +3597,16 @@ function renderDailyChart(){
       responsive:true,
       maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
+      onClick:(evt,elements)=>{
+        if(!elements.length)return;
+        const day=elements[0].index+1;
+        showDailyDetail(day);
+      },
       plugins:{
         legend:{display:false},
         tooltip:{
           callbacks:{
-            title:ctx=>'Jour '+ctx[0].label,
+            title:ctx=>'Jour '+ctx[0].label+' — cliquer pour le détail',
             label:ctx=>{
               if(ctx.dataset.label==='Dépenses'){
                 const v=ctx.raw;
