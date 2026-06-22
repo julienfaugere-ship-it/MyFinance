@@ -1767,6 +1767,21 @@ textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
           <div class="chart-card" style="margin:0"><h3>📊 Répartition des dépenses</h3><div class="chart-wrap"><canvas id="chartDoughnut"></canvas></div></div>
           <div class="chart-card" style="margin:0"><h3>📈 Vue d'ensemble</h3><div class="chart-wrap"><canvas id="chartBar"></canvas></div></div>
         </div>
+        <!-- Graphique dépenses journalières -->
+        <div class="chart-card" id="daily-chart-card" style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+            <h3 style="margin:0">📆 Dépenses journalières — <span id="daily-chart-period">mois en cours</span></h3>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:rgba(217,119,6,.75)"></span><span style="font-size:0.72rem;color:var(--text-m)">Charges</span>
+                <span style="display:inline-block;width:10px;height:3px;border-radius:2px;background:#7c3aed;margin-left:4px"></span><span style="font-size:0.72rem;color:var(--text-m)">Cumul</span>
+              </div>
+              <div id="daily-total-badge" style="font-size:0.78rem;font-weight:700;color:var(--amber)"></div>
+            </div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-m);margin-bottom:12px" id="daily-chart-sub"></div>
+          <div class="chart-wrap" style="height:220px"><canvas id="chartDaily"></canvas></div>
+        </div>
         <!-- Synthèse par famille -->
         <!-- Synthèse dépenses interactive -->
         <div class="chart-card" id="depenses-synthesis-card" style="margin-bottom:20px;display:none">
@@ -3428,6 +3443,128 @@ function renderFamilyDetail(filtEntries, list, fam){
 function renderFamilySynthesis(){ renderDepensesSynthesis(); }
 function renderSubcatSynthesis(){ /* fusionné dans renderDepensesSynthesis */ }
 
+// ── Graphique dépenses journalières ──
+function renderDailyChart(){
+  dc('daily');
+  const YM=dashYear+'-'+String(dashMonth+1).padStart(2,'0');
+  const daysInMonth=new Date(dashYear,dashMonth+1,0).getDate();
+
+  // Agrégation par jour
+  const byDay={};
+  for(let d=1;d<=daysInMonth;d++) byDay[d]=0;
+  data.chargeEntries.forEach(e=>{
+    if(!e.date||!e.date.startsWith(YM))return;
+    const day=parseInt(e.date.split('-')[2]);
+    if(day>=1&&day<=daysInMonth) byDay[day]+=e.amount;
+  });
+
+  const labels=Array.from({length:daysInMonth},(_,i)=>i+1);
+  const dailyAmounts=labels.map(d=>byDay[d]);
+
+  // Cumul journalier
+  let cum=0;
+  const cumulAmounts=dailyAmounts.map(v=>{cum+=v;return cum;});
+  const totalMonth=cum;
+
+  // Mise à jour des labels
+  const periodLbl=document.getElementById('daily-chart-period');
+  if(periodLbl) periodLbl.textContent=new Date(dashYear,dashMonth,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const sub=document.getElementById('daily-chart-sub');
+  if(sub){
+    const jours=dailyAmounts.filter(v=>v>0).length;
+    const avg=jours>0?(totalMonth/jours):0;
+    sub.textContent=jours+' jour'+(jours>1?'s avec':'avec')+' dépenses — moy. '+fmt(avg)+'/jour — total '+fmt(totalMonth);
+  }
+  const badge=document.getElementById('daily-total-badge');
+  if(badge) badge.textContent=totalMonth>0?'Total : '+fmt(totalMonth):'Aucune dépense';
+
+  if(totalMonth===0){
+    // Graphique vide mais on le garde pour indiquer le mois
+  }
+
+  charts['daily']=new Chart(document.getElementById('chartDaily'),{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          type:'bar',
+          label:'Dépenses',
+          data:dailyAmounts,
+          backgroundColor:dailyAmounts.map(v=>v>0?'rgba(217,119,6,.75)':'rgba(217,119,6,.1)'),
+          borderRadius:4,
+          borderSkipped:false,
+          order:2,
+          yAxisID:'y'
+        },
+        {
+          type:'line',
+          label:'Cumul',
+          data:cumulAmounts,
+          borderColor:'rgba(124,58,237,.8)',
+          backgroundColor:'rgba(124,58,237,.06)',
+          borderWidth:2,
+          pointRadius:0,
+          pointHoverRadius:5,
+          pointHoverBackgroundColor:'#7c3aed',
+          fill:true,
+          tension:0.3,
+          order:1,
+          yAxisID:'y2'
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:ctx=>'Jour '+ctx[0].label,
+            label:ctx=>{
+              if(ctx.dataset.label==='Dépenses'){
+                const v=ctx.raw;
+                return v>0?' Dépenses : '+fmt(v):' Aucune dépense';
+              }
+              return ' Cumul : '+fmt(ctx.raw);
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          ticks:{
+            color:TK,
+            maxTicksLimit:16,
+            callback:function(val){
+              const d=this.getLabelForValue(val);
+              // Afficher seulement certains jours pour lisibilité
+              return d%5===0||d===1?d:'';
+            }
+          },
+          grid:{color:GR}
+        },
+        y:{
+          position:'left',
+          ticks:{color:TK,callback:v=>v===0?'':fmt(v)},
+          grid:{color:GR},
+          beginAtZero:true,
+          title:{display:true,text:'Jour (€)',color:TK,font:{size:10}}
+        },
+        y2:{
+          position:'right',
+          ticks:{color:'rgba(124,58,237,.7)',callback:v=>v===0?'':fmt(v)},
+          grid:{drawOnChartArea:false},
+          beginAtZero:true,
+          title:{display:true,text:'Cumul (€)',color:'rgba(124,58,237,.7)',font:{size:10}}
+        }
+      }
+    }
+  });
+}
+
 let charts={};
 const TK='#9ca3af',GR='rgba(0,0,0,0.06)',LEG={labels:{color:'#6b7280',font:{family:'Plus Jakarta Sans',size:12},boxWidth:12}};
 function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
@@ -3435,6 +3572,7 @@ function gc(n,h){return Array.from({length:n},(_,i)=>'hsl('+(h+i*(300/Math.max(n
 
 function refreshCharts(){
   refreshDashboard();
+  renderDailyChart();
   const tP=data.prel.reduce((s,x)=>s+x.amount,0);
   const tR=data.revenus.reduce((s,x)=>s+x.amount,0);
   // Charges = mois sélectionné dans le bilan
